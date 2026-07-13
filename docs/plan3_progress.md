@@ -117,4 +117,4 @@ This file tracks implementation evidence against `plan3.md`. It is intentionally
 
 ## Still Incomplete
 
-- No known `plan3.md` implementation gaps remain in the current checked scope. A final completion audit should still compare `plan3.md` requirement-by-requirement before marking the goal complete.
+- No known `plan3.md` M8-M21 implementation gaps remain in the current checked scope after the final completion audit in `docs/plan3_completion_audit.md`.
