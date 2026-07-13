@@ -9,6 +9,7 @@ from PySide6.QtCore import QSettings, Qt, QThread
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import (
     QAbstractItemView,
+    QCheckBox,
     QComboBox,
     QDockWidget,
     QFileDialog,
@@ -23,6 +24,7 @@ from PySide6.QtWidgets import (
     QPlainTextEdit,
     QProgressBar,
     QPushButton,
+    QSlider,
     QSpinBox,
     QDoubleSpinBox,
     QSplitter,
@@ -90,6 +92,8 @@ class MainWindow(QMainWindow):
         self.current_distribution = np.zeros(1)
         self.current_first_length = 0
         self.current_result: SimulationResult | None = None
+        self.current_time_index = -1
+        self.mwd_overlays: list[dict[str, object]] = []
         self.project = Project()
         self.current_project_path: Path | None = None
         self._thread: QThread | None = None
@@ -279,8 +283,23 @@ class MainWindow(QMainWindow):
         self.canvas = FigureCanvas(self.figure)
         self.summary_label = QLabel()
         self.summary_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.mwd_time_label = QLabel("time: final")
+        self.mwd_time_slider = QSlider(Qt.Horizontal)
+        self.mwd_time_slider.setEnabled(False)
+        self.mwd_time_slider.valueChanged.connect(self._show_mwd_time_index)
+        self.mwd_overlay_toggle = QCheckBox("Overlay previous/reference")
+        self.mwd_overlay_toggle.setChecked(True)
+        self.mwd_overlay_toggle.toggled.connect(self._redraw_current_distribution)
+        self.clear_mwd_overlays_button = QPushButton("Clear Overlays")
+        self.clear_mwd_overlays_button.clicked.connect(self._clear_mwd_overlays)
         self.moment_table = QTableWidget(0, 2)
+        controls = QHBoxLayout()
+        controls.addWidget(self.mwd_time_label)
+        controls.addWidget(self.mwd_time_slider, 1)
+        controls.addWidget(self.mwd_overlay_toggle)
+        controls.addWidget(self.clear_mwd_overlays_button)
         layout.addWidget(self.canvas, 1)
+        layout.addLayout(controls)
         layout.addWidget(self.summary_label)
         layout.addWidget(self.moment_table)
         return page
@@ -964,8 +983,15 @@ class MainWindow(QMainWindow):
         self.log.appendPlainText(message)
 
     def _set_result(self, result: SimulationResult) -> None:
+        if self.current_result is not None:
+            self._remember_mwd_overlay(
+                f"{self.current_result.reactor_kind} previous",
+                self.current_result.final_distribution,
+                self.current_result.first_length,
+            )
         self.current_result = result
         self._populate_project_tree()
+        self._configure_mwd_time_slider(result)
         self._set_distribution(result.final_distribution, first_length=result.first_length, title=result.reactor_kind)
         moments = result.final_moments
         self.dashboard_summary.setText(
@@ -1288,6 +1314,14 @@ class MainWindow(QMainWindow):
     def _load_benchmark(self) -> None:
         case = self.benchmark_cases[self.benchmark_combo.currentIndex()]
         frame = case.frame
+        if self.current_distribution.size:
+            self._remember_mwd_overlay(
+                "current run",
+                self.current_distribution,
+                self.current_first_length,
+            )
+        self.mwd_time_slider.setEnabled(False)
+        self.mwd_time_label.setText("time: reference")
         self._set_distribution(
             frame["concentration"].to_numpy(),
             first_length=int(frame["chain_length"].iloc[0]),
@@ -1297,6 +1331,57 @@ class MainWindow(QMainWindow):
         self.dashboard_summary.setText(f"{case.name}\n{case.source}\n{case.note}")
         self.summary_label.setText(f"{case.name}\n{case.source}\n{case.note}")
         self._populate_inspector({"benchmark": case.name, "source": case.source, "rows": len(frame)})
+
+    def _configure_mwd_time_slider(self, result: SimulationResult) -> None:
+        count = len(result.time)
+        self.mwd_time_slider.blockSignals(True)
+        self.mwd_time_slider.setMinimum(0)
+        self.mwd_time_slider.setMaximum(max(count - 1, 0))
+        self.mwd_time_slider.setValue(max(count - 1, 0))
+        self.mwd_time_slider.setEnabled(count > 1)
+        self.mwd_time_slider.blockSignals(False)
+        self.current_time_index = max(count - 1, 0)
+        self._update_mwd_time_label()
+
+    def _show_mwd_time_index(self, index: int) -> None:
+        if self.current_result is None:
+            return
+        self.current_time_index = int(index)
+        distribution = self.current_result.distribution_history[:, self.current_time_index]
+        title = f"{self.current_result.reactor_kind} @ t={self.current_result.time[self.current_time_index]:.4g}"
+        self._set_distribution(distribution, first_length=self.current_result.first_length, title=title)
+        self._update_mwd_time_label()
+
+    def _update_mwd_time_label(self) -> None:
+        if self.current_result is None or self.current_time_index < 0:
+            return
+        time = self.current_result.time[self.current_time_index]
+        self.mwd_time_label.setText(f"time: {time:.6g}")
+
+    def _remember_mwd_overlay(self, label: str, distribution: np.ndarray, first_length: int) -> None:
+        values = np.asarray(distribution, dtype=float).copy()
+        if values.size == 0:
+            return
+        self.mwd_overlays.append(
+            {
+                "label": label,
+                "distribution": values,
+                "first_length": int(first_length),
+            }
+        )
+        self.mwd_overlays = self.mwd_overlays[-4:]
+
+    def _clear_mwd_overlays(self) -> None:
+        self.mwd_overlays.clear()
+        self._redraw_current_distribution()
+        self._append_log("Cleared MWD overlays")
+
+    def _redraw_current_distribution(self) -> None:
+        self._set_distribution(
+            self.current_distribution,
+            first_length=self.current_first_length,
+            title="Molecular weight distribution",
+        )
 
     def _set_distribution(
         self,
@@ -1328,6 +1413,23 @@ class MainWindow(QMainWindow):
         self.figure.clear()
         axes = self.figure.add_subplot(111)
         axes.plot(lengths, weight, color="#26547c", linewidth=2)
+        if self.mwd_overlay_toggle.isChecked():
+            for overlay in self.mwd_overlays:
+                overlay_distribution = np.asarray(overlay["distribution"], dtype=float)
+                overlay_first = int(overlay["first_length"])
+                overlay_lengths = np.arange(overlay_first, overlay_first + overlay_distribution.size)
+                overlay_weight = overlay_lengths * overlay_distribution
+                if np.sum(overlay_weight) > 0:
+                    overlay_weight = overlay_weight / np.sum(overlay_weight)
+                axes.plot(
+                    overlay_lengths,
+                    overlay_weight,
+                    linewidth=1.2,
+                    alpha=0.65,
+                    label=str(overlay["label"]),
+                )
+            if self.mwd_overlays:
+                axes.legend(loc="best")
         axes.set_title(title)
         axes.set_xlabel("chain length")
         axes.set_ylabel("weight fraction")

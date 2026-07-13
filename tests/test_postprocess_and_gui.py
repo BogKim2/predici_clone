@@ -47,6 +47,34 @@ def test_main_window_smoke_runs_batch_and_benchmark():
     app.processEvents()
 
 
+def test_main_window_mwd_time_slider_and_overlays_update_plot():
+    app = QApplication.instance() or QApplication([])
+    window = MainWindow()
+    window.nmax.setValue(24)
+    window.t_final.setValue(1.0)
+    window._run_simulation()
+
+    assert window.mwd_time_slider.isEnabled()
+    assert window.mwd_time_slider.maximum() == len(window.current_result.time) - 1
+    window.mwd_time_slider.setValue(0)
+    assert window.current_time_index == 0
+    assert "time:" in window.mwd_time_label.text()
+
+    first_distribution = window.current_distribution.copy()
+    window.t_final.setValue(1.5)
+    window._run_simulation()
+    assert window.mwd_overlays
+    assert np.asarray(window.mwd_overlays[-1]["distribution"]).shape == first_distribution.shape
+    line_count_with_overlay = len(window.figure.axes[0].lines)
+    assert line_count_with_overlay >= 2
+
+    window._clear_mwd_overlays()
+    assert not window.mwd_overlays
+    assert len(window.figure.axes[0].lines) == 1
+    window.close()
+    app.processEvents()
+
+
 def test_main_entrypoint_smoke_mode_runs_and_exports_result():
     assert _smoke() == 0
 
