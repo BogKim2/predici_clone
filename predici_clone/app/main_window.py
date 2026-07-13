@@ -525,16 +525,6 @@ class MainWindow(QMainWindow):
         layout.addWidget(self.live_table)
         return panel
 
-    @staticmethod
-    def _placeholder_tab(text: str) -> QWidget:
-        page = QWidget()
-        layout = QVBoxLayout(page)
-        label = QLabel(text)
-        label.setWordWrap(True)
-        layout.addWidget(label)
-        layout.addStretch(1)
-        return page
-
     def _project_from_controls(self) -> Project:
         return Project(
             schema_version=self.project.schema_version,

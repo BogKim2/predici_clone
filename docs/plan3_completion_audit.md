@@ -17,7 +17,7 @@ This audit records current evidence against `plan3.md`. It is stricter than `pla
 | M14 recipe editor | feed tanks, profiles, pre-schedules, heat schedule actions, validation; tests | Verified |
 | M15 Galerkin backend | projection/direct Galerkin paths, adaptive h/p, operator tests | Verified |
 | M16 reactors and heat balance | Batch, Semi-batch, CSTR, Cascade, PFR, heat exchanger, enthalpy API, coupled thermal RHS; tests | Verified |
-| M17 fitting workflow | local/multi-experiment fits, diagnostics, Bayesian sampling, residual CSV workflow; tests | Verified |
+| M17 fitting workflow | local/multi-experiment fits, covariance/correlation/condition/confidence/essential-direction diagnostics, Bayesian sampling, residual CSV workflow; tests | Verified |
 | M18 sensitivity/global search | sigma-point, Monte Carlo, grid variation, differential evolution, dual annealing; tests | Verified |
 | M19 shooting control | detailed iteration API and tests | Verified |
 | M20 scripting v1 | safe AST expressions and multi-line loop/index subset; tests | Verified |
@@ -26,7 +26,7 @@ This audit records current evidence against `plan3.md`. It is stricter than `pla
 
 ## Current Verification Commands
 
-- `python -m pytest -q` -> 107 passed
+- `python -m pytest -q` -> 114 passed
 - `python -m compileall -q predici_clone tests examples` -> passed
 - PySide6 offscreen GUI smoke -> passed
 - `pyinstaller --noconfirm packaging\pyinstaller_predici_clone.spec` -> passed

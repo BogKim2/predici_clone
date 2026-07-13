@@ -44,8 +44,10 @@ def test_fit_generic_parameter_recovers_synthetic_mass_target():
     assert result.correlation is not None
     assert result.condition_number is not None
     assert result.confidence_intervals is not None
+    assert result.essential_directions is not None
     assert result.covariance.shape == (1, 1)
     assert "GP_kp" in result.confidence_intervals
+    assert result.essential_directions["weakest"]["GP_kp"] == 1.0
 
 
 def test_dual_annealing_global_search_recovers_synthetic_mass_target():
@@ -112,6 +114,7 @@ def test_fit_multi_experiment_generic_parameter_recovers_shared_value():
     assert result.success
     assert abs(result.parameters["GP_kp"] - true_kp) < 1e-3
     assert result.correlation is not None
+    assert result.essential_directions is not None
 
 
 def test_bayesian_posterior_sampling_is_bounded_and_reproducible():

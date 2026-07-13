@@ -57,6 +57,7 @@ class FittingResult:
     correlation: np.ndarray | None = None
     condition_number: float | None = None
     confidence_intervals: dict[str, tuple[float, float]] | None = None
+    essential_directions: dict[str, dict[str, float]] | None = None
 
 
 @dataclass(frozen=True)
@@ -96,7 +97,7 @@ def fit_generic_parameters(problem: FittingProblem) -> FittingResult:
     result = least_squares(residuals, x0=x0, bounds=(lower, upper))
     fitted = {spec.name: float(value) for spec, value in zip(variable_specs, result.x)}
     fitted.update(fixed_values)
-    covariance, correlation, condition_number, confidence_intervals = _diagnostics(
+    covariance, correlation, condition_number, confidence_intervals, essential_directions = _diagnostics(
         result.jac,
         result.fun,
         variable_specs,
@@ -112,6 +113,7 @@ def fit_generic_parameters(problem: FittingProblem) -> FittingResult:
         correlation=correlation,
         condition_number=condition_number,
         confidence_intervals=confidence_intervals,
+        essential_directions=essential_directions,
     )
 
 
@@ -244,7 +246,7 @@ def fit_multi_experiment_generic_parameters(problem: MultiExperimentFittingProbl
     result = least_squares(residuals, x0=x0, bounds=(lower, upper))
     fitted = {spec.name: float(value) for spec, value in zip(variable_specs, result.x)}
     fitted.update(fixed_values)
-    covariance, correlation, condition_number, confidence_intervals = _diagnostics(
+    covariance, correlation, condition_number, confidence_intervals, essential_directions = _diagnostics(
         result.jac,
         result.fun,
         variable_specs,
@@ -260,6 +262,7 @@ def fit_multi_experiment_generic_parameters(problem: MultiExperimentFittingProbl
         correlation=correlation,
         condition_number=condition_number,
         confidence_intervals=confidence_intervals,
+        essential_directions=essential_directions,
     )
 
 
@@ -394,10 +397,10 @@ def _diagnostics(
     residual: np.ndarray,
     specs: list[ParameterSpec],
     values: np.ndarray,
-) -> tuple[np.ndarray, np.ndarray, float, dict[str, tuple[float, float]]]:
+) -> tuple[np.ndarray, np.ndarray, float, dict[str, tuple[float, float]], dict[str, dict[str, float]]]:
     if not specs:
         empty = np.empty((0, 0), dtype=float)
-        return empty, empty, 0.0, {}
+        return empty, empty, 0.0, {}, {}
     jtj = np.asarray(jacobian, dtype=float).T @ np.asarray(jacobian, dtype=float)
     dof = max(int(residual.size - len(specs)), 1)
     residual_variance = float(np.sum(np.asarray(residual, dtype=float) ** 2) / dof)
@@ -410,4 +413,23 @@ def _diagnostics(
         spec.name: (float(value - 1.96 * se), float(value + 1.96 * se))
         for spec, value, se in zip(specs, values, stderr)
     }
-    return covariance, correlation, condition_number, confidence_intervals
+    essential_directions = _essential_directions(jtj, specs)
+    return covariance, correlation, condition_number, confidence_intervals, essential_directions
+
+
+def _essential_directions(matrix: np.ndarray, specs: list[ParameterSpec]) -> dict[str, dict[str, float]]:
+    if matrix.size == 0:
+        return {}
+    values, vectors = np.linalg.eigh(np.asarray(matrix, dtype=float))
+    weakest = int(np.argmin(values))
+    strongest = int(np.argmax(values))
+    return {
+        "weakest": _direction_dict(vectors[:, weakest], specs),
+        "strongest": _direction_dict(vectors[:, strongest], specs),
+    }
+
+
+def _direction_dict(vector: np.ndarray, specs: list[ParameterSpec]) -> dict[str, float]:
+    scale = float(np.max(np.abs(vector))) if vector.size else 0.0
+    normalized = vector / scale if scale > 0.0 else vector
+    return {spec.name: float(value) for spec, value in zip(specs, normalized)}

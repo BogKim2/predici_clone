@@ -76,6 +76,7 @@ This file tracks implementation evidence against `plan3.md`. It is intentionally
   - local least-squares fitting for generic parameters
   - shared-parameter multi-experiment fitting API
   - covariance, correlation, condition number, confidence interval diagnostics
+  - essential parameter direction diagnostics from the fitted Jacobian
   - bounded Bayesian posterior sampling with credible intervals
   - bounded multi-experiment Bayesian posterior sampling with credible intervals
   - GUI fitting panel with local/global/Bayesian/multi-experiment runs
