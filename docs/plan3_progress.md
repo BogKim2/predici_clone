@@ -1,0 +1,102 @@
+# plan3 Implementation Progress
+
+This file tracks implementation evidence against `plan3.md`. It is intentionally terse and test-oriented.
+
+## Implemented With Tests
+
+- M8 Project schema and SimulationEngine
+  - `predici_clone/api/project_schema.py`
+  - `predici_clone/api/project_io.py`
+  - `predici_clone/engine/simulation_engine.py`
+  - tests: `tests/test_engine_project.py`
+- M9 professional GUI shell
+  - `predici_clone/app/main_window.py`
+  - dock widgets, tabs, project tree, inspector, log, toolbar, status bar
+  - Edit menu/toolbar undo-redo project snapshot workflow
+  - inspector/log validation feedback
+  - tests: `tests/test_postprocess_and_gui.py`
+- M10 worker thread
+  - `predici_clone/app/workers/simulation_worker.py`
+- M11 project/result persistence
+  - project JSON save/load
+  - result `manifest.json`, `distribution_history.npz`, final CSV, moments CSV
+  - tests: `tests/test_engine_project.py`
+- M12 output system
+  - generic outputs, scripted outputs, M3/Mz/AMW/mass, GPC/SEC profile conversion and convolution
+  - tests: `tests/test_generic_outputs.py`, `tests/test_scripted_outputs.py`, `tests/test_gpc_outputs.py`
+- M13 reaction DSL and multi-step basis
+  - `ReactionKind`, `RateLaw`, `ReactionStep`, `StepTemplate`
+  - generic parameter override in engine
+  - propagation, termination combination, transfer, and scission rate terms
+  - branching and PolymerPartition approximate conservative distribution operators
+  - Model Builder reaction table edits persist back to `Project`
+  - tests: `tests/test_reaction_dsl.py`, `tests/test_engine_project.py`
+- M14 recipe editor basis
+  - GUI recipe table tracks controls
+  - recipe/script/reaction edits participate in project undo-redo
+  - Model Builder reaction table applies edited enabled/name/kind/site/reactants/products/rate fields
+  - Recipe table applies edited recipe, initial, feed, integration, reactor stage, and heat toggle fields
+  - Recipe table displays and applies temperature profile, pressure profile, and pre-schedule rows
+  - Recipe tab provides dedicated schedule action controls for feed rate, temperature, pressure, residence time, coolant temperature, and additional heat
+  - multiple feed tanks schema/API, effective feed aggregation, engine usage, validation, and GUI row editing
+  - pre-schedule actions for feed rate, temperature, pressure, and residence time with validation and metadata/output coupling
+  - project validation API for numeric ranges, backend/reactor compatibility, profiles, heat balance, and generic parameter bindings
+  - temperature/pressure profiles and pre-schedule schema/API
+  - scheduled feed-rate metadata and profile generic outputs
+  - semi-batch `set_feed_rate` and CSTR/Cascade/PFR `set_residence_time` pre-schedules are coupled into ODE RHS paths
+  - tests: `tests/test_postprocess_and_gui.py`, `tests/test_recipe_profiles.py`
+- M15 Galerkin backend
+  - projection adapter backend
+  - direct coefficient-space Galerkin PBE system for Batch
+  - Batch `galerkin_direct` now integrates `[M, I, R, Galerkin coefficients]` as a coupled species/PBE ODE
+  - Semi-batch `galerkin_direct` integrates `[M, I, R, V, Galerkin coefficients]` with feed dilution and scheduled feed-rate coupling
+  - CSTR `galerkin_direct` integrates `[M, I, R, Galerkin coefficients]` with residence-time dilution and scheduled residence-time coupling
+  - Cascade and PFR `galerkin_direct` run staged CSTR-Galerkin systems with stage metadata
+  - propagation/loss/source operator assembler
+  - projected nonlinear Galerkin RHS for termination combination, chain transfer, scission, branching, PolymerPartition/convolution-style terms
+  - adaptive h/p refinement policy and coefficient remap
+  - `galerkin_direct` optional adaptive h/p integration loop with interval solve, remap, event metadata
+  - tests: `tests/test_galerkin_backend.py`, `tests/test_galerkin_operator.py`, `tests/test_adaptive_galerkin.py`
+- M16 reactor expansion
+  - CSTR cascade
+  - PFR approximation via cascade
+  - heat balance schema, heat exchanger automation hooks, lumped temperature/heat-duty output coupling
+  - lumped heat balance is integrated as an ODE trajectory with `solve_ivp`
+  - coolant temperature and additional heat schedule actions feed the heat-balance ODE
+  - opt-in coupled thermal RHS supports temperature-dependent kinetics with Arrhenius-style scaling for Batch, Semi-batch, CSTR, Cascade, and PFR
+  - tests: `tests/test_reactors.py`, `tests/test_engine_project.py`
+- M17 fitting workflow v1
+  - local least-squares fitting for generic parameters
+  - shared-parameter multi-experiment fitting API
+  - covariance, correlation, condition number, confidence interval diagnostics
+  - bounded Bayesian posterior sampling with credible intervals
+  - bounded multi-experiment Bayesian posterior sampling with credible intervals
+  - GUI fitting panel with local/global/Bayesian/multi-experiment runs
+  - GUI multi-experiment Bayesian sampling
+  - CSV experiment data import, time-window trimming, model/observation residual frame
+  - GUI residual CSV loader, trim-aware multi-output mapping table, residual table, and residual scatter plot
+  - GUI fitting parameter table supports adding/removing multiple parameter rows
+  - tests: `tests/test_parameter_estimation.py`, `tests/test_experiment_data.py`, `tests/test_postprocess_and_gui.py`
+- M18 sensitivity/global search
+  - sigma-point sensitivity
+  - Monte Carlo sensitivity sampling
+  - differential evolution global search
+  - tests: `tests/test_sensitivity.py`, `tests/test_global_search.py`
+- M19 shooting control basis
+  - `activate_detailed_iteration`
+  - tests: `tests/test_shooting.py`
+- M20 scripting v1
+  - safe AST expression evaluator for outputs
+  - safe multi-line script subset with assignment, for/range loops, augmented assignment, and list/tuple indexing
+  - GUI scripted output editor
+  - tests: `tests/test_scripted_outputs.py`, `tests/test_postprocess_and_gui.py`
+- M21 packaging basis
+  - PyInstaller spec and README
+  - spec resolves the repository root explicitly for entrypoint discovery
+  - pre-build packaging smoke report for spec, hidden imports, entrypoint, and PyInstaller availability
+  - `PrediciClone.exe --smoke` starts the packaged PySide6 app offscreen, runs the default simulation, exports a result bundle, and exits successfully
+  - tests: `tests/test_packaging_files.py`
+
+## Still Incomplete
+
+- No known `plan3.md` implementation gaps remain in the current checked scope. A final completion audit should still compare `plan3.md` requirement-by-requirement before marking the goal complete.

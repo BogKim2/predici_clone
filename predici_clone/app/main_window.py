@@ -1,0 +1,1633 @@
+from __future__ import annotations
+
+from pathlib import Path
+
+import numpy as np
+from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
+from PySide6.QtCore import Qt, QThread
+from PySide6.QtGui import QAction
+from PySide6.QtWidgets import (
+    QAbstractItemView,
+    QComboBox,
+    QDockWidget,
+    QFileDialog,
+    QFormLayout,
+    QGroupBox,
+    QHBoxLayout,
+    QHeaderView,
+    QLabel,
+    QMainWindow,
+    QMessageBox,
+    QPlainTextEdit,
+    QProgressBar,
+    QPushButton,
+    QSpinBox,
+    QDoubleSpinBox,
+    QSplitter,
+    QTableWidget,
+    QTableWidgetItem,
+    QTabWidget,
+    QToolBar,
+    QTreeWidget,
+    QTreeWidgetItem,
+    QVBoxLayout,
+    QWidget,
+)
+
+from predici_clone.api import (
+    FRPParameters,
+    FeedStream,
+    InitialConditions,
+    IntegrationControl,
+    OutputConfig,
+    Project,
+    ProfilePoint,
+    ReactorConfig,
+    Recipe,
+    append_pre_schedule_step,
+    load_project,
+    save_simulation_result,
+    save_project,
+)
+from predici_clone.api.validation import validate_project, validation_summary
+from predici_clone.app.workers.simulation_worker import SimulationWorker
+from predici_clone.core.moments import MomentReport, from_discrete_distribution
+from predici_clone.engine import SimulationEngine
+from predici_clone.engine.simulation_result import SimulationResult
+from predici_clone.kinetics import RateLaw, ReactionKind, ReactionStep
+from predici_clone.postprocess.generic_outputs import generic_outputs_frame
+from predici_clone.postprocess.moments_report import report_frame, write_distribution_report
+from predici_clone.postprocess.experiment_data import (
+    DataMapping,
+    ExperimentDataset,
+    load_experiment_csv,
+    residual_frame,
+    trim_experiment,
+)
+from predici_clone.postprocess.parameter_estimation import (
+    FittingExperiment,
+    FittingProblem,
+    MultiExperimentFittingProblem,
+    OutputTarget,
+    ParameterSpec,
+    fit_generic_parameters,
+    fit_multi_experiment_generic_parameters,
+    global_search_generic_parameters,
+    sample_bayesian_posterior,
+    sample_multi_experiment_bayesian_posterior,
+)
+from predici_clone.validation.paper_benchmarks import available_cases
+
+
+class MainWindow(QMainWindow):
+    def __init__(self) -> None:
+        super().__init__()
+        self.setWindowTitle("PREDICI Clone")
+        self.current_distribution = np.zeros(1)
+        self.current_first_length = 0
+        self.current_result: SimulationResult | None = None
+        self.project = Project()
+        self.current_project_path: Path | None = None
+        self._thread: QThread | None = None
+        self._worker: SimulationWorker | None = None
+        self._undo_stack: list[dict] = []
+        self._redo_stack: list[dict] = []
+
+        self._create_actions()
+        self._create_menus()
+        self._create_toolbar()
+        self._create_statusbar()
+        self._create_central_tabs()
+        self._create_docks()
+        self._apply_stylesheet()
+        self._populate_project_tree()
+        self._sync_controls_from_project(self.project)
+        self._update_undo_redo_actions()
+
+        self._run_simulation()
+
+    def _create_actions(self) -> None:
+        self.run_action = QAction("Run", self)
+        self.run_action.triggered.connect(self._start_simulation_worker)
+        self.stop_action = QAction("Stop", self)
+        self.stop_action.triggered.connect(self._request_stop)
+        self.open_project_action = QAction("Open Project", self)
+        self.open_project_action.triggered.connect(self._open_project_dialog)
+        self.save_project_action = QAction("Save Project", self)
+        self.save_project_action.triggered.connect(self._save_project_dialog)
+        self.save_result_action = QAction("Save Result", self)
+        self.save_result_action.triggered.connect(self._save_result_dialog)
+        self.save_action = QAction("Save CSV", self)
+        self.save_action.triggered.connect(self._save_report)
+        self.load_benchmark_action = QAction("Load Benchmark", self)
+        self.load_benchmark_action.triggered.connect(self._load_benchmark)
+        self.undo_action = QAction("Undo", self)
+        self.undo_action.setShortcut("Ctrl+Z")
+        self.undo_action.triggered.connect(self._undo_project_edit)
+        self.redo_action = QAction("Redo", self)
+        self.redo_action.setShortcut("Ctrl+Y")
+        self.redo_action.triggered.connect(self._redo_project_edit)
+
+    def _create_menus(self) -> None:
+        file_menu = self.menuBar().addMenu("File")
+        file_menu.addAction(self.open_project_action)
+        file_menu.addAction(self.save_project_action)
+        file_menu.addAction(self.save_result_action)
+        file_menu.addSeparator()
+        file_menu.addAction(self.save_action)
+        edit_menu = self.menuBar().addMenu("Edit")
+        edit_menu.addAction(self.undo_action)
+        edit_menu.addAction(self.redo_action)
+        model_menu = self.menuBar().addMenu("Model")
+        model_menu.addAction(self.load_benchmark_action)
+        simulate_menu = self.menuBar().addMenu("Simulate")
+        simulate_menu.addAction(self.run_action)
+        simulate_menu.addAction(self.stop_action)
+        self.menuBar().addMenu("Analysis")
+        self.menuBar().addMenu("Fitting")
+        self.menuBar().addMenu("Help")
+
+    def _create_toolbar(self) -> None:
+        toolbar = QToolBar("Main")
+        toolbar.setMovable(False)
+        toolbar.addAction(self.run_action)
+        toolbar.addAction(self.stop_action)
+        toolbar.addSeparator()
+        toolbar.addAction(self.open_project_action)
+        toolbar.addAction(self.save_project_action)
+        toolbar.addAction(self.save_result_action)
+        toolbar.addSeparator()
+        toolbar.addAction(self.undo_action)
+        toolbar.addAction(self.redo_action)
+        toolbar.addSeparator()
+        toolbar.addAction(self.save_action)
+        toolbar.addAction(self.load_benchmark_action)
+        self.addToolBar(toolbar)
+
+    def _create_statusbar(self) -> None:
+        self.progress = QProgressBar()
+        self.progress.setRange(0, 100)
+        self.progress.setFixedWidth(180)
+        self.statusBar().addPermanentWidget(self.progress)
+        self.statusBar().showMessage("Ready")
+
+    def _create_central_tabs(self) -> None:
+        self.tabs = QTabWidget()
+        self.dashboard_tab = self._build_dashboard_tab()
+        self.simulation_tab = self._build_simulation_tab()
+        self.mwd_tab = self._build_mwd_tab()
+        self.model_builder_tab = self._build_model_builder_tab()
+        self.recipe_tab = self._build_recipe_tab()
+        self.fitting_tab = self._build_fitting_tab()
+        self.script_tab = self._build_script_tab()
+
+        self.tabs.addTab(self.dashboard_tab, "Dashboard")
+        self.tabs.addTab(self.model_builder_tab, "Model Builder")
+        self.tabs.addTab(self.recipe_tab, "Recipe")
+        self.tabs.addTab(self.simulation_tab, "Simulation")
+        self.tabs.addTab(self.mwd_tab, "MWD Viewer")
+        self.tabs.addTab(self.fitting_tab, "Fitting")
+        self.tabs.addTab(self.script_tab, "Script")
+        self.setCentralWidget(self.tabs)
+
+    def _create_docks(self) -> None:
+        project_dock = QDockWidget("Project", self)
+        self.project_tree = QTreeWidget()
+        self.project_tree.setHeaderHidden(True)
+        project_dock.setWidget(self.project_tree)
+        self.addDockWidget(Qt.LeftDockWidgetArea, project_dock)
+
+        inspector_dock = QDockWidget("Inspector", self)
+        self.inspector = QTableWidget(0, 2)
+        self.inspector.setHorizontalHeaderLabels(["Property", "Value"])
+        self.inspector.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        inspector_dock.setWidget(self.inspector)
+        self.addDockWidget(Qt.RightDockWidgetArea, inspector_dock)
+
+        log_dock = QDockWidget("Log", self)
+        self.log = QPlainTextEdit()
+        self.log.setReadOnly(True)
+        log_dock.setWidget(self.log)
+        self.addDockWidget(Qt.BottomDockWidgetArea, log_dock)
+
+    def _build_dashboard_tab(self) -> QWidget:
+        page = QWidget()
+        layout = QVBoxLayout(page)
+        self.dashboard_summary = QLabel()
+        self.dashboard_summary.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.dashboard_summary.setObjectName("DashboardSummary")
+        self.output_table = QTableWidget(0, 2)
+        self.output_table.setHorizontalHeaderLabels(["Output", "Value"])
+        self.output_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        layout.addWidget(self.dashboard_summary)
+        layout.addWidget(self.output_table)
+        return page
+
+    def _build_simulation_tab(self) -> QWidget:
+        page = QWidget()
+        layout = QHBoxLayout(page)
+        splitter = QSplitter(Qt.Horizontal)
+        splitter.addWidget(self._build_controls())
+        splitter.addWidget(self._build_live_table())
+        splitter.setStretchFactor(0, 0)
+        splitter.setStretchFactor(1, 1)
+        layout.addWidget(splitter)
+        return page
+
+    def _build_model_builder_tab(self) -> QWidget:
+        page = QWidget()
+        layout = QVBoxLayout(page)
+        buttons = QHBoxLayout()
+        self.reaction_kind_selector = QComboBox()
+        self.reaction_kind_selector.addItems([kind.value for kind in ReactionKind])
+        add = QPushButton("Add Reaction")
+        add.clicked.connect(self._add_selected_reaction_step)
+        remove = QPushButton("Remove Selected")
+        remove.clicked.connect(self._remove_selected_reaction_step)
+        apply = QPushButton("Apply Table Edits")
+        apply.clicked.connect(self._apply_reaction_table_edits)
+        buttons.addWidget(self.reaction_kind_selector)
+        buttons.addWidget(add)
+        buttons.addWidget(remove)
+        buttons.addWidget(apply)
+        buttons.addStretch(1)
+        self.reaction_table = QTableWidget(0, 7)
+        self.reaction_table.setHorizontalHeaderLabels(["enabled", "name", "kind", "site", "reactants", "products", "rate"])
+        self.reaction_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        layout.addLayout(buttons)
+        layout.addWidget(self.reaction_table)
+        return page
+
+    def _build_mwd_tab(self) -> QWidget:
+        page = QWidget()
+        layout = QVBoxLayout(page)
+        self.figure = Figure(figsize=(7, 5), tight_layout=True)
+        self.canvas = FigureCanvas(self.figure)
+        self.summary_label = QLabel()
+        self.summary_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.moment_table = QTableWidget(0, 2)
+        layout.addWidget(self.canvas, 1)
+        layout.addWidget(self.summary_label)
+        layout.addWidget(self.moment_table)
+        return page
+
+    def _build_recipe_tab(self) -> QWidget:
+        page = QWidget()
+        layout = QVBoxLayout(page)
+        self.recipe_table = QTableWidget(0, 3)
+        self.recipe_table.setHorizontalHeaderLabels(["section", "field", "value"])
+        self.recipe_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        refresh = QPushButton("Refresh From Controls")
+        refresh.clicked.connect(self._refresh_recipe_table_from_controls)
+        apply = QPushButton("Apply Table Edits")
+        apply.clicked.connect(self._apply_recipe_table_edits)
+        self.schedule_action_selector = QComboBox()
+        self.schedule_action_selector.addItems(
+            [
+                "set_feed_rate",
+                "set_temperature",
+                "set_pressure",
+                "set_residence_time",
+                "set_coolant_temperature",
+                "set_additional_heat",
+            ]
+        )
+        self.schedule_time = self._double_spin(0.0, 100000.0, 1.0)
+        self.schedule_value = self._double_spin(-1000000.0, 1000000.0, 0.0)
+        add_schedule = QPushButton("Add Schedule Action")
+        add_schedule.clicked.connect(self._add_schedule_action_from_widgets)
+        buttons = QHBoxLayout()
+        buttons.addWidget(refresh)
+        buttons.addWidget(apply)
+        buttons.addStretch(1)
+        schedule_buttons = QHBoxLayout()
+        schedule_buttons.addWidget(QLabel("Action"))
+        schedule_buttons.addWidget(self.schedule_action_selector)
+        schedule_buttons.addWidget(QLabel("Time"))
+        schedule_buttons.addWidget(self.schedule_time)
+        schedule_buttons.addWidget(QLabel("Value"))
+        schedule_buttons.addWidget(self.schedule_value)
+        schedule_buttons.addWidget(add_schedule)
+        schedule_buttons.addStretch(1)
+        layout.addLayout(buttons)
+        layout.addLayout(schedule_buttons)
+        layout.addWidget(self.recipe_table)
+        return page
+
+    def _build_fitting_tab(self) -> QWidget:
+        page = QWidget()
+        layout = QVBoxLayout(page)
+        run_fit = QPushButton("Local Fit GP_kp")
+        run_fit.clicked.connect(self._fit_gpkp_to_current_mass)
+        run_global = QPushButton("Global Search GP_kp")
+        run_global.clicked.connect(self._global_search_gpkp_to_current_mass)
+        run_bayes = QPushButton("Bayesian Sample GP_kp")
+        run_bayes.clicked.connect(self._bayesian_sample_gpkp_to_current_mass)
+        run_multi = QPushButton("Multi-Experiment Fit")
+        run_multi.clicked.connect(self._multi_experiment_fit_gpkp)
+        run_multi_bayes = QPushButton("Bayesian Multi-Experiment")
+        run_multi_bayes.clicked.connect(self._multi_experiment_bayesian_sample)
+        load_csv = QPushButton("Load Residual CSV")
+        load_csv.clicked.connect(self._load_residual_csv_dialog)
+        eval_residuals = QPushButton("Evaluate Residuals")
+        eval_residuals.clicked.connect(self._evaluate_loaded_residuals)
+        add_mapping = QPushButton("Add Mapping")
+        add_mapping.clicked.connect(self._add_residual_mapping_row)
+        remove_mapping = QPushButton("Remove Mapping")
+        remove_mapping.clicked.connect(self._remove_selected_residual_mapping_row)
+        add_parameter = QPushButton("Add Parameter")
+        add_parameter.clicked.connect(self._add_fitting_parameter_row)
+        remove_parameter = QPushButton("Remove Parameter")
+        remove_parameter.clicked.connect(self._remove_selected_fitting_parameter_row)
+        self.fitting_parameter_table = QTableWidget(1, 5)
+        self.fitting_parameter_table.setHorizontalHeaderLabels(["name", "initial", "lower", "upper", "fixed"])
+        for column, value in enumerate(["GP_kp", "0.08", "0.001", "1.0", "False"]):
+            self.fitting_parameter_table.setItem(0, column, QTableWidgetItem(value))
+        self.fitting_target_table = QTableWidget(1, 3)
+        self.fitting_target_table.setHorizontalHeaderLabels(["output", "target", "weight"])
+        for column, value in enumerate(["mass", "0", "100000"]):
+            self.fitting_target_table.setItem(0, column, QTableWidgetItem(value))
+        self.fitting_experiment_table = QTableWidget(2, 5)
+        self.fitting_experiment_table.setHorizontalHeaderLabels(["experiment", "t_final", "output", "target", "weight"])
+        for row, values in enumerate((("exp_1", "1.5", "mass", "0", "100000"), ("exp_2", "2.5", "mass", "0", "100000"))):
+            for column, value in enumerate(values):
+                self.fitting_experiment_table.setItem(row, column, QTableWidgetItem(value))
+        self.fitting_result_table = QTableWidget(0, 2)
+        self.fitting_result_table.setHorizontalHeaderLabels(["field", "value"])
+        self.fitting_residual_table = QTableWidget(0, 7)
+        self.fitting_residual_table.setHorizontalHeaderLabels(
+            ["experiment", "time", "output", "observed", "model", "weight", "residual"]
+        )
+        self.fitting_residual_mapping_table = QTableWidget(1, 5)
+        self.fitting_residual_mapping_table.setHorizontalHeaderLabels(["output", "column", "weight", "start", "end"])
+        for column, value in enumerate(["mass", "mass_obs", "1.0", "", ""]):
+            self.fitting_residual_mapping_table.setItem(0, column, QTableWidgetItem(value))
+        self.fitting_residual_figure = Figure(figsize=(6, 3), tight_layout=True)
+        self.fitting_residual_canvas = FigureCanvas(self.fitting_residual_figure)
+        self.fitting_residual_dataset: ExperimentDataset | None = None
+        self.fitting_raw_residual_dataset: ExperimentDataset | None = None
+        buttons = QHBoxLayout()
+        buttons.addWidget(run_fit)
+        buttons.addWidget(run_global)
+        buttons.addWidget(run_bayes)
+        buttons.addWidget(run_multi)
+        buttons.addWidget(run_multi_bayes)
+        buttons.addWidget(load_csv)
+        buttons.addWidget(eval_residuals)
+        buttons.addStretch(1)
+        layout.addLayout(buttons)
+        parameter_buttons = QHBoxLayout()
+        parameter_buttons.addWidget(add_parameter)
+        parameter_buttons.addWidget(remove_parameter)
+        parameter_buttons.addStretch(1)
+        layout.addWidget(QLabel("Parameters"))
+        layout.addLayout(parameter_buttons)
+        layout.addWidget(self.fitting_parameter_table)
+        layout.addWidget(QLabel("Targets"))
+        layout.addWidget(self.fitting_target_table)
+        layout.addWidget(QLabel("Experiments"))
+        layout.addWidget(self.fitting_experiment_table)
+        layout.addWidget(QLabel("Result"))
+        layout.addWidget(self.fitting_result_table)
+        layout.addWidget(QLabel("Residuals"))
+        mapping_buttons = QHBoxLayout()
+        mapping_buttons.addWidget(add_mapping)
+        mapping_buttons.addWidget(remove_mapping)
+        mapping_buttons.addStretch(1)
+        layout.addLayout(mapping_buttons)
+        layout.addWidget(self.fitting_residual_mapping_table)
+        layout.addWidget(self.fitting_residual_canvas, 1)
+        layout.addWidget(self.fitting_residual_table)
+        return page
+
+    def _build_script_tab(self) -> QWidget:
+        page = QWidget()
+        layout = QVBoxLayout(page)
+        buttons = QHBoxLayout()
+        add = QPushButton("Add Scripted Output")
+        add.clicked.connect(self._add_scripted_output)
+        apply = QPushButton("Apply Scripted Outputs")
+        apply.clicked.connect(self._apply_scripted_outputs_from_table)
+        buttons.addWidget(add)
+        buttons.addWidget(apply)
+        buttons.addStretch(1)
+        self.script_output_table = QTableWidget(0, 2)
+        self.script_output_table.setHorizontalHeaderLabels(["name", "expression"])
+        self.script_output_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        layout.addLayout(buttons)
+        layout.addWidget(self.script_output_table)
+        return page
+
+    def _build_controls(self) -> QWidget:
+        panel = QWidget()
+        layout = QVBoxLayout(panel)
+        reactor_box = QGroupBox("Scenario")
+        form = QFormLayout(reactor_box)
+        self.reactor_kind = QComboBox()
+        self.reactor_kind.addItems(["Batch", "Semi-batch", "CSTR", "Cascade", "PFR"])
+        self.nmax = self._spin(20, 10000, 120)
+        self.t_final = self._double_spin(0.1, 10000.0, 30.0)
+        self.kp = self._double_spin(0.0, 100.0, 0.08)
+        self.kt = self._double_spin(0.0, 100.0, 0.05)
+        self.kd = self._double_spin(0.0, 100.0, 0.02)
+        self.monomer = self._double_spin(0.0, 1000.0, 2.0)
+        self.initiator = self._double_spin(0.0, 1000.0, 0.15)
+        self.feed_rate = self._double_spin(0.0, 1000.0, 0.06)
+        self.residence_time = self._double_spin(0.01, 10000.0, 8.0)
+        self.stages = self._spin(1, 200, 4)
+        self.axial_cells = self._spin(1, 500, 12)
+        self.backend = QComboBox()
+        self.backend.addItems(["discrete", "galerkin", "galerkin_direct"])
+        self.galerkin_cells = self._spin(1, 200, 8)
+        self.galerkin_degree = self._spin(0, 8, 2)
+        for label, widget in [
+            ("reactor", self.reactor_kind),
+            ("backend", self.backend),
+            ("n max", self.nmax),
+            ("time", self.t_final),
+            ("kp", self.kp),
+            ("kt", self.kt),
+            ("kd", self.kd),
+            ("monomer", self.monomer),
+            ("initiator", self.initiator),
+            ("feed rate", self.feed_rate),
+            ("residence time", self.residence_time),
+            ("cascade stages", self.stages),
+            ("PFR axial cells", self.axial_cells),
+            ("Galerkin cells", self.galerkin_cells),
+            ("Galerkin degree", self.galerkin_degree),
+        ]:
+            form.addRow(label, widget)
+        layout.addWidget(reactor_box)
+
+        benchmark_box = QGroupBox("Benchmarks")
+        benchmark_layout = QVBoxLayout(benchmark_box)
+        self.benchmark_combo = QComboBox()
+        self.benchmark_cases = available_cases()
+        self.benchmark_combo.addItems([case.name for case in self.benchmark_cases])
+        benchmark_layout.addWidget(self.benchmark_combo)
+        layout.addWidget(benchmark_box)
+
+        buttons = QHBoxLayout()
+        run = QPushButton("Run")
+        run.clicked.connect(self._start_simulation_worker)
+        load = QPushButton("Benchmark")
+        load.clicked.connect(self._load_benchmark)
+        save = QPushButton("Save CSV")
+        save.clicked.connect(self._save_report)
+        buttons.addWidget(run)
+        buttons.addWidget(load)
+        buttons.addWidget(save)
+        layout.addLayout(buttons)
+        layout.addStretch(1)
+        return panel
+
+    def _build_live_table(self) -> QWidget:
+        panel = QWidget()
+        layout = QVBoxLayout(panel)
+        self.live_table = QTableWidget(0, 4)
+        self.live_table.setHorizontalHeaderLabels(["time", "Mn", "Mw", "PDI"])
+        self.live_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.live_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        layout.addWidget(self.live_table)
+        return panel
+
+    @staticmethod
+    def _placeholder_tab(text: str) -> QWidget:
+        page = QWidget()
+        layout = QVBoxLayout(page)
+        label = QLabel(text)
+        label.setWordWrap(True)
+        layout.addWidget(label)
+        layout.addStretch(1)
+        return page
+
+    def _project_from_controls(self) -> Project:
+        return Project(
+            schema_version=self.project.schema_version,
+            name=self.project.name,
+            reactor=ReactorConfig(
+                kind=self.reactor_kind.currentText(),
+                nmax=self.nmax.value(),
+                volume=1.0,
+                residence_time=self.residence_time.value(),
+                stages=self.stages.value(),
+                axial_cells=self.axial_cells.value(),
+            ),
+            kinetics=FRPParameters(kp=self.kp.value(), kt=self.kt.value(), kd=self.kd.value(), initiator_efficiency=0.6),
+            recipe=Recipe(
+                name=self.project.recipe.name,
+                unit_system=self.project.recipe.unit_system,
+                initial=InitialConditions(monomer=self.monomer.value(), initiator=self.initiator.value()),
+                feed=FeedStream(monomer=self.monomer.value(), initiator=self.initiator.value(), rate=self.feed_rate.value()),
+                feed_tanks=list(self.project.recipe.feed_tanks),
+                integration=IntegrationControl(
+                    t_final=self.t_final.value(),
+                    output_points=80,
+                    backend=self.backend.currentText(),
+                    galerkin_cells=self.galerkin_cells.value(),
+                    galerkin_degree=self.galerkin_degree.value(),
+                ),
+                pre_schedule=list(self.project.recipe.pre_schedule),
+                temperature_profile=list(self.project.recipe.temperature_profile),
+                pressure_profile=list(self.project.recipe.pressure_profile),
+                shooting_control=dict(self.project.recipe.shooting_control),
+            ),
+            outputs=self.project.outputs,
+            heat_balance=self.project.heat_balance,
+            substances=list(self.project.substances),
+            polymers=list(self.project.polymers),
+            reaction_steps=list(self.project.reaction_steps),
+            generic_parameters=dict(self.project.generic_parameters),
+        )
+
+    def _project_snapshot(self) -> dict:
+        return self.project.to_dict()
+
+    def _record_project_edit(self) -> None:
+        self._undo_stack.append(self._project_snapshot())
+        self._redo_stack.clear()
+        self._update_undo_redo_actions()
+
+    def _restore_project_snapshot(self, snapshot: dict) -> None:
+        self.project = Project.from_dict(snapshot)
+        self._sync_controls_from_project(self.project)
+        self._populate_project_tree()
+        self._populate_project_inspector()
+        self._update_undo_redo_actions()
+
+    def _undo_project_edit(self) -> None:
+        if not self._undo_stack:
+            return
+        self._redo_stack.append(self._project_snapshot())
+        self._restore_project_snapshot(self._undo_stack.pop())
+        self._append_log("Undo project edit")
+
+    def _redo_project_edit(self) -> None:
+        if not self._redo_stack:
+            return
+        self._undo_stack.append(self._project_snapshot())
+        self._restore_project_snapshot(self._redo_stack.pop())
+        self._append_log("Redo project edit")
+
+    def _update_undo_redo_actions(self) -> None:
+        if hasattr(self, "undo_action"):
+            self.undo_action.setEnabled(bool(self._undo_stack))
+        if hasattr(self, "redo_action"):
+            self.redo_action.setEnabled(bool(self._redo_stack))
+
+    def _add_scripted_output(self) -> None:
+        row = self.script_output_table.rowCount()
+        self.script_output_table.insertRow(row)
+        self.script_output_table.setItem(row, 0, QTableWidgetItem(f"scripted_{row + 1}"))
+        self.script_output_table.setItem(row, 1, QTableWidgetItem("Mw / max(Mn, 1e-12)"))
+
+    def _apply_scripted_outputs_from_table(self) -> None:
+        from predici_clone.api.project_schema import OutputConfig
+
+        scripted = {}
+        enabled = list(self.project.outputs.enabled_generic_outputs)
+        for row in range(self.script_output_table.rowCount()):
+            name_item = self.script_output_table.item(row, 0)
+            expr_item = self.script_output_table.item(row, 1)
+            if name_item is None or expr_item is None:
+                continue
+            name = name_item.text().strip()
+            expression = expr_item.text().strip()
+            if not name or not expression:
+                continue
+            scripted[name] = expression
+            if name not in enabled:
+                enabled.append(name)
+        self._record_project_edit()
+        self.project = Project(
+            schema_version=self.project.schema_version,
+            name=self.project.name,
+            reactor=self.project.reactor,
+            kinetics=self.project.kinetics,
+            recipe=self.project.recipe,
+            outputs=OutputConfig(
+                distribution_mode=self.project.outputs.distribution_mode,
+                log_axis=self.project.outputs.log_axis,
+                gpc_convolution=self.project.outputs.gpc_convolution,
+                enabled_generic_outputs=tuple(enabled),
+                scripted_outputs=scripted,
+            ),
+            heat_balance=self.project.heat_balance,
+            substances=list(self.project.substances),
+            polymers=list(self.project.polymers),
+            reaction_steps=list(self.project.reaction_steps),
+            generic_parameters=dict(self.project.generic_parameters),
+        )
+        self._populate_project_tree()
+        self._append_log("Applied scripted outputs")
+
+    def _refresh_recipe_table_from_controls(self) -> None:
+        self._record_project_edit()
+        self.project = self._project_from_controls()
+        self._populate_recipe_table()
+        self._populate_project_tree()
+
+    def _populate_recipe_table(self) -> None:
+        if not hasattr(self, "recipe_table"):
+            return
+        recipe = self.project.recipe
+        rows = [
+            ("recipe", "name", recipe.name),
+            ("recipe", "unit_system", recipe.unit_system),
+            ("initial", "monomer", recipe.initial.monomer),
+            ("initial", "initiator", recipe.initial.initiator),
+            ("feed", "monomer", recipe.feed.monomer),
+            ("feed", "initiator", recipe.feed.initiator),
+            ("feed", "rate", recipe.feed.rate),
+            ("integration", "t_final", recipe.integration.t_final),
+            ("integration", "output_points", recipe.integration.output_points),
+            ("integration", "method", recipe.integration.method),
+            ("integration", "backend", recipe.integration.backend),
+            ("integration", "galerkin_cells", recipe.integration.galerkin_cells),
+            ("integration", "galerkin_degree", recipe.integration.galerkin_degree),
+            ("reactor", "stages", self.project.reactor.stages),
+            ("reactor", "axial_cells", self.project.reactor.axial_cells),
+            ("profile", "temperature_points", len(recipe.temperature_profile)),
+            ("profile", "pressure_points", len(recipe.pressure_profile)),
+            ("profile", "pre_schedule_steps", len(recipe.pre_schedule)),
+            ("feed_tanks", "count", len(recipe.feed_tanks)),
+            ("heat", "enabled", self.project.heat_balance.enabled),
+            ("heat", "heat_exchanger", self.project.heat_balance.use_heat_exchanger),
+            ("heat", "coolant_temperature", self.project.heat_balance.coolant_temperature),
+            ("heat", "additional_heat", self.project.heat_balance.additional_heat),
+            ("shooting", "enabled", bool(recipe.shooting_control)),
+        ]
+        for index, point in enumerate(recipe.temperature_profile):
+            rows.append((f"temperature_profile[{index}]", "time", point.time))
+            rows.append((f"temperature_profile[{index}]", "value", point.value))
+        for index, point in enumerate(recipe.pressure_profile):
+            rows.append((f"pressure_profile[{index}]", "time", point.time))
+            rows.append((f"pressure_profile[{index}]", "value", point.value))
+        for index, step in enumerate(recipe.pre_schedule):
+            rows.append((f"pre_schedule[{index}]", "time", step.get("time", 0.0)))
+            rows.append((f"pre_schedule[{index}]", "action", step.get("action", "")))
+            if "rate" in step:
+                rows.append((f"pre_schedule[{index}]", "rate", step.get("rate", 0.0)))
+            if "value" in step:
+                rows.append((f"pre_schedule[{index}]", "value", step.get("value", 0.0)))
+            if "temperature" in step:
+                rows.append((f"pre_schedule[{index}]", "temperature", step.get("temperature", 0.0)))
+            if "pressure" in step:
+                rows.append((f"pre_schedule[{index}]", "pressure", step.get("pressure", 0.0)))
+            if "residence_time" in step:
+                rows.append((f"pre_schedule[{index}]", "residence_time", step.get("residence_time", 0.0)))
+            if "coolant_temperature" in step:
+                rows.append((f"pre_schedule[{index}]", "coolant_temperature", step.get("coolant_temperature", 0.0)))
+            if "heat" in step:
+                rows.append((f"pre_schedule[{index}]", "heat", step.get("heat", 0.0)))
+            if "additional_heat" in step:
+                rows.append((f"pre_schedule[{index}]", "additional_heat", step.get("additional_heat", 0.0)))
+        for index, tank in enumerate(recipe.feed_tanks):
+            rows.append((f"feed_tank[{index}]", "monomer", tank.monomer))
+            rows.append((f"feed_tank[{index}]", "initiator", tank.initiator))
+            rows.append((f"feed_tank[{index}]", "radicals", tank.radicals))
+            rows.append((f"feed_tank[{index}]", "rate", tank.rate))
+        self.recipe_table.setRowCount(len(rows))
+        for row, values in enumerate(rows):
+            for column, value in enumerate(values):
+                self.recipe_table.setItem(row, column, QTableWidgetItem(str(value)))
+
+    def _apply_recipe_table_edits(self) -> None:
+        self._record_project_edit()
+        values = self._recipe_table_values()
+        recipe = self.project.recipe
+        reactor = self.project.reactor
+        heat = self.project.heat_balance
+        updated_recipe = Recipe(
+            name=str(values.get(("recipe", "name"), recipe.name)),
+            unit_system=str(values.get(("recipe", "unit_system"), recipe.unit_system)),
+            initial=InitialConditions(
+                monomer=self._float_value(values, ("initial", "monomer"), recipe.initial.monomer),
+                initiator=self._float_value(values, ("initial", "initiator"), recipe.initial.initiator),
+                radicals=recipe.initial.radicals,
+            ),
+            feed=FeedStream(
+                monomer=self._float_value(values, ("feed", "monomer"), recipe.feed.monomer),
+                initiator=self._float_value(values, ("feed", "initiator"), recipe.feed.initiator),
+                radicals=recipe.feed.radicals,
+                rate=self._float_value(values, ("feed", "rate"), recipe.feed.rate),
+            ),
+            feed_tanks=self._feed_tanks_from_recipe_table(values, recipe.feed_tanks),
+            integration=IntegrationControl(
+                t_final=self._float_value(values, ("integration", "t_final"), recipe.integration.t_final),
+                output_points=self._int_value(values, ("integration", "output_points"), recipe.integration.output_points),
+                method=str(values.get(("integration", "method"), recipe.integration.method)),
+                rtol=recipe.integration.rtol,
+                atol=recipe.integration.atol,
+                backend=str(values.get(("integration", "backend"), recipe.integration.backend)),
+                galerkin_cells=self._int_value(values, ("integration", "galerkin_cells"), recipe.integration.galerkin_cells),
+                galerkin_degree=self._int_value(values, ("integration", "galerkin_degree"), recipe.integration.galerkin_degree),
+            ),
+            pre_schedule=self._schedule_from_recipe_table(values, recipe.pre_schedule),
+            temperature_profile=self._profile_from_recipe_table(values, "temperature_profile", recipe.temperature_profile),
+            pressure_profile=self._profile_from_recipe_table(values, "pressure_profile", recipe.pressure_profile),
+            shooting_control=dict(recipe.shooting_control),
+        )
+        updated_reactor = ReactorConfig(
+            kind=reactor.kind,
+            nmax=reactor.nmax,
+            volume=reactor.volume,
+            residence_time=reactor.residence_time,
+            stages=self._int_value(values, ("reactor", "stages"), reactor.stages),
+            axial_cells=self._int_value(values, ("reactor", "axial_cells"), reactor.axial_cells),
+        )
+        updated_heat = type(heat)(
+            enabled=self._bool_value(values, ("heat", "enabled"), heat.enabled),
+            use_heat_exchanger=self._bool_value(values, ("heat", "heat_exchanger"), heat.use_heat_exchanger),
+            heat_transfer=heat.heat_transfer,
+            area=heat.area,
+            heat_capacity=heat.heat_capacity,
+            mass_flow=heat.mass_flow,
+            mass_holdup=heat.mass_holdup,
+            initial_feed_temp=heat.initial_feed_temp,
+            coolant_temperature=self._float_value(values, ("heat", "coolant_temperature"), heat.coolant_temperature),
+            additional_heat=self._float_value(values, ("heat", "additional_heat"), heat.additional_heat),
+            counter_current=heat.counter_current,
+        )
+        self.project = Project(
+            schema_version=self.project.schema_version,
+            name=self.project.name,
+            reactor=updated_reactor,
+            kinetics=self.project.kinetics,
+            recipe=updated_recipe,
+            outputs=self.project.outputs,
+            heat_balance=updated_heat,
+            substances=list(self.project.substances),
+            polymers=list(self.project.polymers),
+            reaction_steps=list(self.project.reaction_steps),
+            generic_parameters=dict(self.project.generic_parameters),
+        )
+        self._sync_controls_from_project(self.project)
+        self._populate_project_tree()
+        self._populate_project_inspector()
+        self._append_log("Applied recipe table edits")
+
+    def _recipe_table_values(self) -> dict[tuple[str, str], str]:
+        values: dict[tuple[str, str], str] = {}
+        for row in range(self.recipe_table.rowCount()):
+            section = self._table_text(self.recipe_table, row, 0).strip()
+            field = self._table_text(self.recipe_table, row, 1).strip()
+            value = self._table_text(self.recipe_table, row, 2).strip()
+            if section and field:
+                values[(section, field)] = value
+        return values
+
+    def _profile_from_recipe_table(self, values: dict[tuple[str, str], str], section_prefix: str, default: list[ProfilePoint]) -> list[ProfilePoint]:
+        indexes = self._indexed_sections(values, section_prefix)
+        if not indexes:
+            return list(default)
+        points = []
+        for index in indexes:
+            section = f"{section_prefix}[{index}]"
+            if (section, "time") not in values or (section, "value") not in values:
+                continue
+            points.append(ProfilePoint(time=float(values[(section, "time")]), value=float(values[(section, "value")])))
+        return sorted(points, key=lambda point: point.time)
+
+    def _schedule_from_recipe_table(self, values: dict[tuple[str, str], str], default: list[dict]) -> list[dict]:
+        indexes = self._indexed_sections(values, "pre_schedule")
+        if not indexes:
+            return list(default)
+        steps = []
+        for index in indexes:
+            section = f"pre_schedule[{index}]"
+            if (section, "time") not in values:
+                continue
+            action = values.get((section, "action"), "set_feed_rate")
+            step = {"time": float(values[(section, "time")]), "action": action}
+            if (section, "rate") in values:
+                step["rate"] = float(values[(section, "rate")])
+            if (section, "value") in values:
+                step["value"] = float(values[(section, "value")])
+            if (section, "temperature") in values:
+                step["temperature"] = float(values[(section, "temperature")])
+            if (section, "pressure") in values:
+                step["pressure"] = float(values[(section, "pressure")])
+            if (section, "residence_time") in values:
+                step["residence_time"] = float(values[(section, "residence_time")])
+            if (section, "coolant_temperature") in values:
+                step["coolant_temperature"] = float(values[(section, "coolant_temperature")])
+            if (section, "heat") in values:
+                step["heat"] = float(values[(section, "heat")])
+            if (section, "additional_heat") in values:
+                step["additional_heat"] = float(values[(section, "additional_heat")])
+            steps.append(step)
+        return sorted(steps, key=lambda step: float(step.get("time", 0.0)))
+
+    def _add_schedule_action_from_widgets(self) -> None:
+        action = self.schedule_action_selector.currentText()
+        value = self.schedule_value.value()
+        payload = self._schedule_payload(action, value)
+        self._record_project_edit()
+        self.project = append_pre_schedule_step(self.project, self.schedule_time.value(), action, **payload)
+        self._populate_recipe_table()
+        self._populate_project_tree()
+        self._populate_project_inspector()
+        self._append_log(f"Added schedule action: {action}")
+
+    @staticmethod
+    def _schedule_payload(action: str, value: float) -> dict[str, float]:
+        if action == "set_feed_rate":
+            return {"rate": value}
+        if action == "set_pressure":
+            return {"pressure": value}
+        if action == "set_additional_heat":
+            return {"heat": value}
+        if action == "set_residence_time":
+            return {"value": value}
+        if action == "set_coolant_temperature":
+            return {"value": value}
+        return {"value": value}
+
+    def _feed_tanks_from_recipe_table(self, values: dict[tuple[str, str], str], default: list[FeedStream]) -> list[FeedStream]:
+        indexes = self._indexed_sections(values, "feed_tank")
+        if not indexes:
+            return list(default)
+        tanks = []
+        for index in indexes:
+            section = f"feed_tank[{index}]"
+            tanks.append(
+                FeedStream(
+                    monomer=float(values.get((section, "monomer"), 0.0)),
+                    initiator=float(values.get((section, "initiator"), 0.0)),
+                    radicals=float(values.get((section, "radicals"), 0.0)),
+                    rate=float(values.get((section, "rate"), 0.0)),
+                )
+            )
+        return tanks
+
+    @staticmethod
+    def _indexed_sections(values: dict[tuple[str, str], str], prefix: str) -> list[int]:
+        indexes = set()
+        marker = f"{prefix}["
+        for section, _field in values:
+            if section.startswith(marker) and section.endswith("]"):
+                indexes.add(int(section[len(marker) : -1]))
+        return sorted(indexes)
+
+    @staticmethod
+    def _float_value(values: dict[tuple[str, str], str], key: tuple[str, str], default: float) -> float:
+        return float(values.get(key, default))
+
+    @staticmethod
+    def _int_value(values: dict[tuple[str, str], str], key: tuple[str, str], default: int) -> int:
+        return int(float(values.get(key, default)))
+
+    @staticmethod
+    def _bool_value(values: dict[tuple[str, str], str], key: tuple[str, str], default: bool) -> bool:
+        raw = str(values.get(key, default)).strip().lower()
+        return raw in {"1", "true", "yes", "on"}
+
+    def _run_simulation(self) -> None:
+        try:
+            self.project = self._project_from_controls()
+            self._log_validation_messages(self.project)
+            self._populate_project_tree()
+            result = SimulationEngine(self.project).run()
+            if not result.success:
+                raise RuntimeError(result.message)
+            self._set_result(result)
+        except Exception as exc:
+            QMessageBox.critical(self, "Simulation failed", str(exc))
+
+    def _start_simulation_worker(self) -> None:
+        if self._thread is not None:
+            return
+        self.progress.setValue(0)
+        self.live_table.setRowCount(0)
+        self._thread = QThread(self)
+        self.project = self._project_from_controls()
+        self._populate_project_tree()
+        self._worker = SimulationWorker(self.project)
+        self._worker.moveToThread(self._thread)
+        self._thread.started.connect(self._worker.run)
+        self._worker.progress.connect(lambda value: self.progress.setValue(int(value * 100)))
+        self._worker.step_done.connect(self._append_live_step)
+        self._worker.log.connect(self._append_log)
+        self._worker.error.connect(self._worker_error)
+        self._worker.finished.connect(self._worker_finished)
+        self._worker.finished.connect(self._thread.quit)
+        self._worker.error.connect(self._thread.quit)
+        self._thread.finished.connect(self._cleanup_worker)
+        self._thread.start()
+        self.statusBar().showMessage("Simulation running")
+
+    def _request_stop(self) -> None:
+        if self._worker is not None:
+            self._worker.request_stop()
+            self._append_log("Stop requested")
+
+    def _worker_finished(self, result: SimulationResult) -> None:
+        self._set_result(result)
+        self.statusBar().showMessage("Simulation finished")
+
+    def _worker_error(self, message: str) -> None:
+        self._append_log(f"ERROR: {message}")
+        QMessageBox.critical(self, "Simulation failed", message)
+
+    def _cleanup_worker(self) -> None:
+        if self._worker is not None:
+            self._worker.deleteLater()
+        if self._thread is not None:
+            self._thread.deleteLater()
+        self._worker = None
+        self._thread = None
+
+    def _append_live_step(self, snapshot: object) -> None:
+        data = dict(snapshot)
+        row = self.live_table.rowCount()
+        self.live_table.insertRow(row)
+        for column, key in enumerate(["time", "Mn", "Mw", "PDI"]):
+            self.live_table.setItem(row, column, QTableWidgetItem(f"{data[key]:.6g}"))
+
+    def _append_log(self, message: str) -> None:
+        self.log.appendPlainText(message)
+
+    def _set_result(self, result: SimulationResult) -> None:
+        self.current_result = result
+        self._populate_project_tree()
+        self._set_distribution(result.final_distribution, first_length=result.first_length, title=result.reactor_kind)
+        moments = result.final_moments
+        self.dashboard_summary.setText(
+            f"{result.reactor_kind} | Mn={moments.mn:.4g} | Mw={moments.mw:.4g} | PDI={moments.pdi:.4g}"
+        )
+        self._fill_table(self.output_table, generic_outputs_frame(result, self.project.outputs))
+        self._sync_fitting_target_from_result(result)
+        self._populate_inspector(
+            {
+                "reactor": result.reactor_kind,
+                "time points": len(result.time),
+                "distribution bins": result.final_distribution.size,
+                "solver": result.metadata.get("solver_status"),
+            }
+        )
+        self.progress.setValue(100)
+
+    def _sync_fitting_target_from_result(self, result: SimulationResult) -> None:
+        if not hasattr(self, "fitting_target_table"):
+            return
+        self.fitting_target_table.setItem(0, 1, QTableWidgetItem(f"{result.final_moments.mass:.12g}"))
+
+    def _fit_gpkp_to_current_mass(self) -> None:
+        self._run_fitting(global_search=False)
+
+    def _global_search_gpkp_to_current_mass(self) -> None:
+        self._run_fitting(global_search=True)
+
+    def _bayesian_sample_gpkp_to_current_mass(self) -> None:
+        if self.current_result is None:
+            return
+        try:
+            problem = self._fitting_problem_from_tables()
+            result = sample_bayesian_posterior(problem, samples=32, burn_in=8, step_scale=0.08, seed=3)
+            rows = [
+                ("samples", result.samples.shape[0]),
+                ("acceptance_rate", result.acceptance_rate),
+                ("log_posterior_final", result.log_posterior[-1] if result.log_posterior.size else ""),
+            ]
+            for name in result.parameter_names:
+                rows.append((f"{name}_mean", result.posterior_mean[name]))
+                lo, hi = result.credible_intervals[name]
+                rows.append((f"{name}_ci95_low", lo))
+                rows.append((f"{name}_ci95_high", hi))
+            self._fill_fitting_result_table(rows)
+            self._append_log("Bayesian sampling completed")
+        except Exception as exc:
+            QMessageBox.critical(self, "Bayesian sampling failed", str(exc))
+
+    def _multi_experiment_fit_gpkp(self) -> None:
+        if self.current_result is None:
+            return
+        try:
+            problem = self._multi_experiment_problem_from_table()
+            result = fit_multi_experiment_generic_parameters(problem)
+            rows = [
+                ("success", result.success),
+                ("message", result.message),
+                ("residual_norm", result.residual_norm),
+                ("evaluations", result.evaluations),
+                ("experiments", len(problem.experiments)),
+                *result.parameters.items(),
+            ]
+            if result.condition_number is not None:
+                rows.append(("condition_number", result.condition_number))
+            self._fill_fitting_result_table(rows)
+            self._append_log("Multi-experiment fitting completed")
+        except Exception as exc:
+            QMessageBox.critical(self, "Multi-experiment fitting failed", str(exc))
+
+    def _multi_experiment_bayesian_sample(self) -> None:
+        if self.current_result is None:
+            return
+        try:
+            problem = self._multi_experiment_problem_from_table()
+            result = sample_multi_experiment_bayesian_posterior(problem, samples=32, burn_in=8, step_scale=0.08, seed=5)
+            rows = [
+                ("samples", result.samples.shape[0]),
+                ("acceptance_rate", result.acceptance_rate),
+                ("experiments", len(problem.experiments)),
+                ("log_posterior_final", result.log_posterior[-1] if result.log_posterior.size else ""),
+            ]
+            for name in result.parameter_names:
+                rows.append((f"{name}_mean", result.posterior_mean[name]))
+                lo, hi = result.credible_intervals[name]
+                rows.append((f"{name}_ci95_low", lo))
+                rows.append((f"{name}_ci95_high", hi))
+            self._fill_fitting_result_table(rows)
+            self._append_log("Multi-experiment Bayesian sampling completed")
+        except Exception as exc:
+            QMessageBox.critical(self, "Multi-experiment Bayesian sampling failed", str(exc))
+
+    def _multi_experiment_problem_from_table(self) -> MultiExperimentFittingProblem:
+        specs = self._parameter_specs_from_table()
+        experiments = []
+        for row in range(self.fitting_experiment_table.rowCount()):
+            name = self._table_text(self.fitting_experiment_table, row, 0).strip() or f"experiment_{row + 1}"
+            t_final = float(self._table_text(self.fitting_experiment_table, row, 1))
+            output = self._table_text(self.fitting_experiment_table, row, 2).strip() or "mass"
+            target = float(self._table_text(self.fitting_experiment_table, row, 3))
+            weight = float(self._table_text(self.fitting_experiment_table, row, 4))
+            experiments.append(
+                FittingExperiment(
+                    name=name,
+                    project=self._project_with_t_final(t_final, required_outputs=(output,)),
+                    targets=(OutputTarget(output, target, weight),),
+                )
+            )
+        return MultiExperimentFittingProblem(experiments=tuple(experiments), parameters=specs)
+
+    def _load_residual_csv_dialog(self) -> None:
+        path, _ = QFileDialog.getOpenFileName(self, "Load experiment data", str(Path.cwd()), "CSV (*.csv)")
+        if path:
+            self._load_residual_csv(Path(path))
+
+    def _load_residual_csv(self, path: Path, *, start: float | None = None, end: float | None = None) -> None:
+        dataset = load_experiment_csv(path)
+        self.fitting_raw_residual_dataset = dataset
+        if start is not None or end is not None:
+            dataset = trim_experiment(dataset, start=start, end=end)
+        self.fitting_residual_dataset = dataset
+        self._append_log(f"Loaded residual data: {path}")
+        self._evaluate_loaded_residuals()
+
+    def _evaluate_loaded_residuals(self) -> None:
+        dataset = getattr(self, "fitting_raw_residual_dataset", None) or getattr(self, "fitting_residual_dataset", None)
+        if dataset is None:
+            return
+        try:
+            mappings = self._residual_mappings_from_table(dataset)
+            start, end = self._residual_trim_window_from_table()
+            if start is not None or end is not None:
+                dataset = trim_experiment(dataset, start=start, end=end)
+            self.fitting_residual_dataset = dataset
+            frame = residual_frame(
+                self._project_with_t_final(self.project.recipe.integration.t_final, required_outputs=tuple(mapping.output for mapping in mappings)),
+                dataset,
+                mappings,
+            )
+            self._fill_table(self.fitting_residual_table, frame)
+            self._plot_residual_frame(frame)
+            self._append_log("Residuals evaluated")
+        except Exception as exc:
+            QMessageBox.critical(self, "Residual evaluation failed", str(exc))
+
+    def _plot_residual_frame(self, frame) -> None:
+        self.fitting_residual_figure.clear()
+        axes = self.fitting_residual_figure.add_subplot(111)
+        if not frame.empty:
+            axes.scatter(frame["time"], frame["residual"], color="#9c2f2f", s=18)
+            axes.axhline(0.0, color="#555555", linewidth=1)
+        axes.set_xlabel("time")
+        axes.set_ylabel("weighted residual")
+        axes.grid(True, alpha=0.25)
+        self.fitting_residual_canvas.draw_idle()
+
+    def _residual_mappings_from_table(self, dataset: ExperimentDataset) -> tuple[DataMapping, ...]:
+        mappings = []
+        for row in range(self.fitting_residual_mapping_table.rowCount()):
+            output = self._table_text(self.fitting_residual_mapping_table, row, 0).strip()
+            if not output:
+                continue
+            column = self._table_text(self.fitting_residual_mapping_table, row, 1).strip()
+            if not column:
+                column = f"{output}_obs" if f"{output}_obs" in dataset.frame.columns else output
+            if column not in dataset.frame.columns:
+                raise ValueError(f"Missing observation column: {column}")
+            weight_text = self._table_text(self.fitting_residual_mapping_table, row, 2).strip() or "1.0"
+            mappings.append(DataMapping(output, column, float(weight_text)))
+        if not mappings:
+            output = self._table_text(self.fitting_target_table, 0, 0).strip() or "mass"
+            column = f"{output}_obs" if f"{output}_obs" in dataset.frame.columns else output
+            if column not in dataset.frame.columns:
+                raise ValueError(f"Missing observation column: {column}")
+            mappings.append(DataMapping(output, column, 1.0))
+        return tuple(mappings)
+
+    def _residual_trim_window_from_table(self) -> tuple[float | None, float | None]:
+        starts = []
+        ends = []
+        for row in range(self.fitting_residual_mapping_table.rowCount()):
+            start = self._table_text(self.fitting_residual_mapping_table, row, 3).strip()
+            end = self._table_text(self.fitting_residual_mapping_table, row, 4).strip()
+            if start:
+                starts.append(float(start))
+            if end:
+                ends.append(float(end))
+        return (max(starts) if starts else None, min(ends) if ends else None)
+
+    def _add_residual_mapping_row(self) -> None:
+        row = self.fitting_residual_mapping_table.rowCount()
+        self.fitting_residual_mapping_table.insertRow(row)
+        defaults = ["Mn", "Mn_obs", "1.0", "", ""]
+        for column, value in enumerate(defaults):
+            self.fitting_residual_mapping_table.setItem(row, column, QTableWidgetItem(value))
+
+    def _remove_selected_residual_mapping_row(self) -> None:
+        row = self.fitting_residual_mapping_table.currentRow()
+        if row >= 0 and self.fitting_residual_mapping_table.rowCount() > 1:
+            self.fitting_residual_mapping_table.removeRow(row)
+
+    def _run_fitting(self, *, global_search: bool) -> None:
+        if self.current_result is None:
+            return
+        try:
+            problem = self._fitting_problem_from_tables()
+            result = global_search_generic_parameters(problem, maxiter=4) if global_search else fit_generic_parameters(problem)
+            rows = [
+                ("success", result.success),
+                ("message", result.message),
+                ("residual_norm", result.residual_norm),
+                ("evaluations", result.evaluations),
+                *result.parameters.items(),
+            ]
+            self._fill_fitting_result_table(rows)
+            self._append_log("Fitting completed")
+        except Exception as exc:
+            QMessageBox.critical(self, "Fitting failed", str(exc))
+
+    def _fitting_problem_from_tables(self) -> FittingProblem:
+        specs = self._parameter_specs_from_table()
+        target = OutputTarget(
+            name=self.fitting_target_table.item(0, 0).text(),
+            value=float(self.fitting_target_table.item(0, 1).text()),
+            weight=float(self.fitting_target_table.item(0, 2).text()),
+        )
+        return FittingProblem(
+            project=self._project_with_t_final(self.project.recipe.integration.t_final, required_outputs=(target.name,)),
+            parameters=specs,
+            targets=(target,),
+        )
+
+    def _parameter_spec_from_table(self) -> ParameterSpec:
+        return self._parameter_specs_from_table()[0]
+
+    def _parameter_specs_from_table(self) -> tuple[ParameterSpec, ...]:
+        specs = []
+        for row in range(self.fitting_parameter_table.rowCount()):
+            name = self._table_text(self.fitting_parameter_table, row, 0).strip()
+            if not name:
+                continue
+            specs.append(
+                ParameterSpec(
+                    name=name,
+                    initial=float(self._table_text(self.fitting_parameter_table, row, 1)),
+                    lower=float(self._table_text(self.fitting_parameter_table, row, 2)),
+                    upper=float(self._table_text(self.fitting_parameter_table, row, 3)),
+                    fixed=self._table_text(self.fitting_parameter_table, row, 4).lower() == "true",
+                )
+            )
+        if not specs:
+            raise ValueError("At least one fitting parameter is required")
+        return tuple(specs)
+
+    def _add_fitting_parameter_row(self) -> None:
+        row = self.fitting_parameter_table.rowCount()
+        self.fitting_parameter_table.insertRow(row)
+        defaults = [f"GP_param_{row + 1}", "0.01", "0.0", "1.0", "True"]
+        for column, value in enumerate(defaults):
+            self.fitting_parameter_table.setItem(row, column, QTableWidgetItem(value))
+
+    def _remove_selected_fitting_parameter_row(self) -> None:
+        row = self.fitting_parameter_table.currentRow()
+        if row >= 0 and self.fitting_parameter_table.rowCount() > 1:
+            self.fitting_parameter_table.removeRow(row)
+
+    def _project_with_t_final(self, t_final: float, *, required_outputs: tuple[str, ...] = ()) -> Project:
+        recipe = Recipe(
+            name=self.project.recipe.name,
+            unit_system=self.project.recipe.unit_system,
+            initial=self.project.recipe.initial,
+            feed=self.project.recipe.feed,
+            feed_tanks=list(self.project.recipe.feed_tanks),
+            integration=IntegrationControl(
+                t_final=t_final,
+                output_points=self.project.recipe.integration.output_points,
+                method=self.project.recipe.integration.method,
+                rtol=self.project.recipe.integration.rtol,
+                atol=self.project.recipe.integration.atol,
+                backend=self.project.recipe.integration.backend,
+                galerkin_cells=self.project.recipe.integration.galerkin_cells,
+                galerkin_degree=self.project.recipe.integration.galerkin_degree,
+            ),
+            pre_schedule=list(self.project.recipe.pre_schedule),
+            temperature_profile=list(self.project.recipe.temperature_profile),
+            pressure_profile=list(self.project.recipe.pressure_profile),
+            shooting_control=dict(self.project.recipe.shooting_control),
+        )
+        enabled_outputs = list(self.project.outputs.enabled_generic_outputs)
+        for output in required_outputs:
+            if output not in enabled_outputs:
+                enabled_outputs.append(output)
+        outputs = OutputConfig(
+            distribution_mode=self.project.outputs.distribution_mode,
+            log_axis=self.project.outputs.log_axis,
+            gpc_convolution=self.project.outputs.gpc_convolution,
+            enabled_generic_outputs=tuple(enabled_outputs),
+            scripted_outputs=dict(self.project.outputs.scripted_outputs),
+        )
+        return Project(
+            schema_version=self.project.schema_version,
+            name=self.project.name,
+            reactor=self.project.reactor,
+            kinetics=self.project.kinetics,
+            recipe=recipe,
+            outputs=outputs,
+            heat_balance=self.project.heat_balance,
+            substances=list(self.project.substances),
+            polymers=list(self.project.polymers),
+            reaction_steps=list(self.project.reaction_steps),
+            generic_parameters=dict(self.project.generic_parameters),
+        )
+
+    def _fill_fitting_result_table(self, rows: list[tuple[str, object]]) -> None:
+        self.fitting_result_table.setRowCount(len(rows))
+        for row, (name, value) in enumerate(rows):
+            self.fitting_result_table.setItem(row, 0, QTableWidgetItem(str(name)))
+            self.fitting_result_table.setItem(row, 1, QTableWidgetItem(str(value)))
+
+    def _load_benchmark(self) -> None:
+        case = self.benchmark_cases[self.benchmark_combo.currentIndex()]
+        frame = case.frame
+        self._set_distribution(
+            frame["concentration"].to_numpy(),
+            first_length=int(frame["chain_length"].iloc[0]),
+            title=case.name,
+            explicit_lengths=frame["chain_length"].to_numpy(),
+        )
+        self.dashboard_summary.setText(f"{case.name}\n{case.source}\n{case.note}")
+        self.summary_label.setText(f"{case.name}\n{case.source}\n{case.note}")
+        self._populate_inspector({"benchmark": case.name, "source": case.source, "rows": len(frame)})
+
+    def _set_distribution(
+        self,
+        distribution: np.ndarray,
+        *,
+        first_length: int,
+        title: str,
+        explicit_lengths: np.ndarray | None = None,
+    ) -> None:
+        self.current_distribution = np.asarray(distribution, dtype=float)
+        self.current_first_length = first_length
+        lengths = (
+            np.arange(first_length, first_length + self.current_distribution.size)
+            if explicit_lengths is None
+            else np.asarray(explicit_lengths, dtype=float)
+        )
+        report = (
+            from_discrete_distribution(self.current_distribution, first_length=first_length)
+            if explicit_lengths is None
+            else MomentReport(
+                m0=float(np.sum(self.current_distribution)),
+                m1=float(np.sum(lengths * self.current_distribution)),
+                m2=float(np.sum(lengths * lengths * self.current_distribution)),
+                m3=float(np.sum(lengths * lengths * lengths * self.current_distribution)),
+            )
+        )
+        weight = lengths * self.current_distribution
+        weight = weight / np.sum(weight) if np.sum(weight) > 0 else weight
+        self.figure.clear()
+        axes = self.figure.add_subplot(111)
+        axes.plot(lengths, weight, color="#26547c", linewidth=2)
+        axes.set_title(title)
+        axes.set_xlabel("chain length")
+        axes.set_ylabel("weight fraction")
+        axes.grid(True, alpha=0.25)
+        self.canvas.draw_idle()
+        self._fill_table(self.moment_table, report_frame(report))
+        self.summary_label.setText(f"Mn={report.mn:.4g}  Mw={report.mw:.4g}  PDI={report.pdi:.4g}")
+
+    def _fill_table(self, table: QTableWidget, frame) -> None:
+        table.setRowCount(len(frame))
+        table.setColumnCount(len(frame.columns))
+        table.setHorizontalHeaderLabels([str(column) for column in frame.columns])
+        for row in range(len(frame)):
+            for column, name in enumerate(frame.columns):
+                item = QTableWidgetItem(str(frame.iloc[row][name]))
+                if column > 0:
+                    item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                table.setItem(row, column, item)
+        table.resizeColumnsToContents()
+
+    def _populate_inspector(self, values: dict[str, object]) -> None:
+        self.inspector.setRowCount(len(values))
+        for row, (name, value) in enumerate(values.items()):
+            self.inspector.setItem(row, 0, QTableWidgetItem(str(name)))
+            self.inspector.setItem(row, 1, QTableWidgetItem(str(value)))
+
+    def _save_report(self) -> None:
+        path, _ = QFileDialog.getSaveFileName(self, "Save report", str(Path.cwd() / "distribution.csv"), "CSV (*.csv);;Excel (*.xlsx)")
+        if not path:
+            return
+        write_distribution_report(path, self.current_distribution, first_length=self.current_first_length)
+        self._append_log(f"Saved report: {path}")
+
+    def _open_project_dialog(self) -> None:
+        path, _ = QFileDialog.getOpenFileName(self, "Open project", str(Path.cwd()), "PREDICI Project (*.predici.json *.json)")
+        if path:
+            self._open_project_from_path(Path(path))
+
+    def _save_project_dialog(self) -> None:
+        default = self.current_project_path or Path.cwd() / "project.predici.json"
+        path, _ = QFileDialog.getSaveFileName(self, "Save project", str(default), "PREDICI Project (*.predici.json *.json)")
+        if path:
+            self._save_project_to_path(Path(path))
+
+    def _save_result_dialog(self) -> None:
+        default = Path.cwd() / "results" / "run_001"
+        path = QFileDialog.getExistingDirectory(self, "Save result directory", str(default.parent))
+        if path:
+            self._save_result_to_directory(Path(path))
+
+    def _open_project_from_path(self, path: Path) -> None:
+        self.project = load_project(path)
+        self.current_project_path = path
+        self._undo_stack.clear()
+        self._redo_stack.clear()
+        self._sync_controls_from_project(self.project)
+        self._populate_project_tree()
+        self._populate_project_inspector()
+        self._update_undo_redo_actions()
+        self._append_log(f"Opened project: {path}")
+        self.statusBar().showMessage(f"Opened {path.name}")
+
+    def _save_project_to_path(self, path: Path) -> None:
+        self.project = self._project_from_controls()
+        self._log_validation_messages(self.project)
+        save_project(self.project, path)
+        self.current_project_path = path
+        self._populate_project_tree()
+        self._populate_project_inspector()
+        self._append_log(f"Saved project: {path}")
+        self.statusBar().showMessage(f"Saved {path.name}")
+
+    def _save_result_to_directory(self, directory: Path) -> Path:
+        if self.current_result is None:
+            raise RuntimeError("No simulation result is available")
+        manifest = save_simulation_result(self.current_result, directory)
+        self._append_log(f"Saved result: {manifest}")
+        self.statusBar().showMessage(f"Saved result {directory.name}")
+        self._populate_project_tree()
+        return manifest
+
+    def _sync_controls_from_project(self, project: Project) -> None:
+        self.reactor_kind.setCurrentText(project.reactor.kind)
+        self.nmax.setValue(project.reactor.nmax)
+        self.t_final.setValue(project.recipe.integration.t_final)
+        self.backend.setCurrentText(project.recipe.integration.backend)
+        self.galerkin_cells.setValue(project.recipe.integration.galerkin_cells)
+        self.galerkin_degree.setValue(project.recipe.integration.galerkin_degree)
+        self.kp.setValue(project.kinetics.kp)
+        self.kt.setValue(project.kinetics.kt)
+        self.kd.setValue(project.kinetics.kd)
+        self.monomer.setValue(project.recipe.initial.monomer)
+        self.initiator.setValue(project.recipe.initial.initiator)
+        self.feed_rate.setValue(project.recipe.feed.rate)
+        self.residence_time.setValue(project.reactor.residence_time)
+        self.stages.setValue(project.reactor.stages)
+        self.axial_cells.setValue(project.reactor.axial_cells)
+        self._populate_recipe_table()
+
+    def _populate_project_tree(self) -> None:
+        self.project_tree.clear()
+        root = QTreeWidgetItem([self.project.name])
+        items = {
+            "Units": [self.project.recipe.unit_system],
+            "Substances": [item.get("name", "substance") for item in self.project.substances],
+            "Polymers": [item.get("name", "polymer") for item in self.project.polymers],
+            "Reaction Groups": [step.name for step in self.project.reaction_steps],
+            "Reactors": [self.project.reactor.kind],
+            "Recipes": [self.project.recipe.name],
+            "Outputs": list(self.project.outputs.enabled_generic_outputs),
+            "Experiments": [],
+            "Results": ["latest"] if self.current_result is not None else [],
+        }
+        for name, children in items.items():
+            node = QTreeWidgetItem([name])
+            for child in children:
+                node.addChild(QTreeWidgetItem([str(child)]))
+            root.addChild(node)
+        self.project_tree.addTopLevelItem(root)
+        root.setExpanded(True)
+        self._populate_reaction_table()
+        self._populate_recipe_table()
+
+    def _populate_reaction_table(self) -> None:
+        if not hasattr(self, "reaction_table"):
+            return
+        self.reaction_table.setRowCount(len(self.project.reaction_steps))
+        for row, step in enumerate(self.project.reaction_steps):
+            values = [
+                "yes" if step.enabled else "no",
+                step.name,
+                step.kind.value,
+                step.site,
+                ";".join(step.reactants),
+                ";".join(step.products),
+                step.rate_law.expression,
+            ]
+            for column, value in enumerate(values):
+                self.reaction_table.setItem(row, column, QTableWidgetItem(value))
+
+    def _add_default_reaction_step(self) -> None:
+        self._add_reaction_step(ReactionKind.PROPAGATION)
+
+    def _add_selected_reaction_step(self) -> None:
+        self._add_reaction_step(ReactionKind(self.reaction_kind_selector.currentText()))
+
+    def _add_reaction_step(self, kind: ReactionKind) -> None:
+        self._record_project_edit()
+        parameter = {
+            ReactionKind.PROPAGATION: "GP_kp",
+            ReactionKind.TERMINATION_DISPROPORTIONATION: "GP_kt",
+            ReactionKind.TERMINATION_COMBINATION: "GP_kt",
+            ReactionKind.CHAIN_TRANSFER_TO_MONOMER: "GP_ctr",
+            ReactionKind.CHAIN_TRANSFER_TO_AGENT: "GP_cta",
+            ReactionKind.SCISSION: "GP_ks",
+        }.get(kind, "GP_k")
+        step = ReactionStep(
+            name=f"{kind.value}_{len(self.project.reaction_steps) + 1}",
+            kind=kind,
+            reactants=("R", "M"),
+            products=("R",),
+            rate_law=RateLaw(parameter, (parameter,)),
+        )
+        parameter_value = self.project.generic_parameters.get(parameter, self.project.kinetics.kp)
+        self.project = Project(
+            schema_version=self.project.schema_version,
+            name=self.project.name,
+            reactor=self.project.reactor,
+            kinetics=self.project.kinetics,
+            recipe=self.project.recipe,
+            outputs=self.project.outputs,
+            heat_balance=self.project.heat_balance,
+            substances=list(self.project.substances),
+            polymers=list(self.project.polymers),
+            reaction_steps=[*self.project.reaction_steps, step],
+            generic_parameters={**self.project.generic_parameters, parameter: parameter_value},
+        )
+        self._populate_project_tree()
+        self._populate_project_inspector()
+
+    def _remove_selected_reaction_step(self) -> None:
+        row = self.reaction_table.currentRow()
+        if row < 0:
+            return
+        self._record_project_edit()
+        steps = [step for index, step in enumerate(self.project.reaction_steps) if index != row]
+        self.project = Project(
+            schema_version=self.project.schema_version,
+            name=self.project.name,
+            reactor=self.project.reactor,
+            kinetics=self.project.kinetics,
+            recipe=self.project.recipe,
+            outputs=self.project.outputs,
+            heat_balance=self.project.heat_balance,
+            substances=list(self.project.substances),
+            polymers=list(self.project.polymers),
+            reaction_steps=steps,
+            generic_parameters=dict(self.project.generic_parameters),
+        )
+        self._populate_project_tree()
+        self._populate_project_inspector()
+
+    def _apply_reaction_table_edits(self) -> None:
+        self._record_project_edit()
+        steps: list[ReactionStep] = []
+        generic_parameters = dict(self.project.generic_parameters)
+        for row in range(self.reaction_table.rowCount()):
+            step = self._reaction_step_from_table_row(row)
+            steps.append(step)
+            for parameter in step.rate_law.parameters:
+                generic_parameters.setdefault(parameter, self.project.kinetics.kp)
+        self.project = Project(
+            schema_version=self.project.schema_version,
+            name=self.project.name,
+            reactor=self.project.reactor,
+            kinetics=self.project.kinetics,
+            recipe=self.project.recipe,
+            outputs=self.project.outputs,
+            heat_balance=self.project.heat_balance,
+            substances=list(self.project.substances),
+            polymers=list(self.project.polymers),
+            reaction_steps=steps,
+            generic_parameters=generic_parameters,
+        )
+        self._populate_project_tree()
+        self._populate_project_inspector()
+        self._append_log("Applied reaction table edits")
+
+    def _reaction_step_from_table_row(self, row: int) -> ReactionStep:
+        enabled = self._table_text(self.reaction_table, row, 0).strip().lower() not in {"", "0", "false", "no", "off"}
+        name = self._table_text(self.reaction_table, row, 1).strip() or f"reaction_{row + 1}"
+        kind_text = self._table_text(self.reaction_table, row, 2).strip() or ReactionKind.PROPAGATION.value
+        site = self._table_text(self.reaction_table, row, 3).strip() or "default"
+        reactants = self._split_species(self._table_text(self.reaction_table, row, 4))
+        products = self._split_species(self._table_text(self.reaction_table, row, 5))
+        rate = self._table_text(self.reaction_table, row, 6).strip() or "0.0"
+        parameters = (rate,) if rate.startswith("GP_") else ()
+        return ReactionStep(
+            name=name,
+            kind=ReactionKind(kind_text),
+            reactants=reactants,
+            products=products,
+            rate_law=RateLaw(rate, parameters),
+            enabled=enabled,
+            site=site,
+        )
+
+    @staticmethod
+    def _table_text(table: QTableWidget, row: int, column: int) -> str:
+        item = table.item(row, column)
+        return item.text() if item is not None else ""
+
+    @staticmethod
+    def _split_species(value: str) -> tuple[str, ...]:
+        return tuple(part.strip() for part in value.split(";") if part.strip())
+
+    def _populate_project_inspector(self) -> None:
+        messages = validate_project(self.project)
+        summary = validation_summary(messages)
+        values: dict[str, object] = {
+            "project": self.project.name,
+            "schema": self.project.schema_version,
+            "reactor": self.project.reactor.kind,
+            "recipe": self.project.recipe.name,
+            "unit system": self.project.recipe.unit_system,
+            "path": self.current_project_path or "<unsaved>",
+            "validation errors": summary["errors"],
+            "validation warnings": summary["warnings"],
+        }
+        for index, message in enumerate(messages[:8], start=1):
+            values[f"{message.severity} {index}"] = f"{message.path}: {message.message}"
+        self._populate_inspector(values)
+
+    def _log_validation_messages(self, project: Project) -> None:
+        messages = validate_project(project)
+        if not messages:
+            return
+        summary = validation_summary(messages)
+        self._append_log(f"Validation: {summary['errors']} errors, {summary['warnings']} warnings")
+        for message in messages[:5]:
+            self._append_log(f"{message.severity.upper()} {message.path}: {message.message}")
+
+    def _apply_stylesheet(self) -> None:
+        self.setStyleSheet(
+            """
+            QMainWindow, QWidget { background: #f5f6f7; color: #17212b; font-size: 12px; }
+            QMenuBar, QToolBar, QStatusBar { background: #ffffff; border-bottom: 1px solid #d6dbe0; }
+            QDockWidget::title { background: #e8edf2; padding: 5px; font-weight: 600; }
+            QGroupBox { border: 1px solid #c8d0d8; border-radius: 6px; margin-top: 12px; padding: 8px; font-weight: 600; }
+            QGroupBox::title { subcontrol-origin: margin; left: 8px; padding: 0 4px; }
+            QPushButton { background: #26547c; color: white; border: 0; border-radius: 5px; padding: 6px 10px; }
+            QPushButton:hover { background: #1d425f; }
+            QTableWidget, QTreeWidget, QPlainTextEdit { background: #ffffff; border: 1px solid #ccd4dc; gridline-color: #e1e6eb; }
+            QHeaderView::section { background: #eef2f5; border: 0; border-right: 1px solid #d6dbe0; padding: 5px; font-weight: 600; }
+            QTabWidget::pane { border: 1px solid #ccd4dc; background: #ffffff; }
+            QTabBar::tab { background: #e8edf2; padding: 7px 12px; border: 1px solid #ccd4dc; border-bottom: 0; }
+            QTabBar::tab:selected { background: #ffffff; }
+            QLabel#DashboardSummary { background: #ffffff; border: 1px solid #ccd4dc; border-radius: 6px; padding: 10px; font-weight: 600; }
+            """
+        )
+
+    @staticmethod
+    def _spin(minimum: int, maximum: int, value: int) -> QSpinBox:
+        spin = QSpinBox()
+        spin.setRange(minimum, maximum)
+        spin.setValue(value)
+        return spin
+
+    @staticmethod
+    def _double_spin(minimum: float, maximum: float, value: float) -> QDoubleSpinBox:
+        spin = QDoubleSpinBox()
+        spin.setRange(minimum, maximum)
+        spin.setValue(value)
+        spin.setDecimals(6)
+        spin.setSingleStep(max(value * 0.1, 0.01))
+        return spin

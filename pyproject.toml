@@ -1,0 +1,16 @@
+[project]
+name = "predici-clone"
+version = "0.1.0"
+description = "Minimal PREDICI-like polymerization simulation prototype through M5."
+requires-python = ">=3.11"
+dependencies = [
+  "numpy",
+  "scipy",
+  "matplotlib",
+  "pandas",
+  "PySide6",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
