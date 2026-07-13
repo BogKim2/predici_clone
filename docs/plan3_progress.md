@@ -26,11 +26,13 @@ This file tracks implementation evidence against `plan3.md`. It is intentionally
 - M12 output system
   - generic outputs, scripted outputs, M3/Mz/AMW/mass, GPC/SEC profile conversion and convolution
   - MFI scalar generic output
+  - particle size distribution helper with normalized PSD and D10/D50/D90
   - distribution report export supports CSV/XLSX and GUI chart export supports PNG/PDF
-  - tests: `tests/test_generic_outputs.py`, `tests/test_scripted_outputs.py`, `tests/test_gpc_outputs.py`
+  - tests: `tests/test_generic_outputs.py`, `tests/test_scripted_outputs.py`, `tests/test_gpc_outputs.py`, `tests/test_cape_particle_templates.py`
 - M13 reaction DSL and multi-step basis
   - `ReactionKind`, `RateLaw`, `ReactionStep`, `StepTemplate`
   - generic parameter override in engine
+  - RAFT, NMP, and ATRP controlled-radical templates mapped to current reaction operators
   - propagation, termination combination, transfer, and scission rate terms
   - branching and PolymerPartition approximate conservative distribution operators
   - Model Builder reaction table edits persist back to `Project`
@@ -104,9 +106,10 @@ This file tracks implementation evidence against `plan3.md`. It is intentionally
   - `PrediciClone.exe --smoke` starts the packaged PySide6 app offscreen, runs the default simulation, exports a result bundle, and exits successfully
   - tests: `tests/test_packaging_files.py`
 - Interoperability
+  - Cape-Open capability manifest for future wrapper integration
   - OLE/COM-style public command dispatcher for project/result operations
   - MATLAB and C moment-equation export helpers
-  - tests: `tests/test_interoperability.py`
+  - tests: `tests/test_interoperability.py`, `tests/test_cape_particle_templates.py`
 
 ## Still Incomplete
 

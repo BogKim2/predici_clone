@@ -1,6 +1,7 @@
 """Public project schema and IO API."""
 
 from predici_clone.api.project_io import load_project, save_project
+from predici_clone.api.cape_open import CapeOpenCapability, cape_open_capability, cape_open_manifest
 from predici_clone.api.automation import (
     activate_detailed_iteration,
     check_enthalpy,
@@ -48,6 +49,7 @@ from predici_clone.api.project_schema import (
 
 __all__ = [
     "FRPParameters",
+    "CapeOpenCapability",
     "FeedProfile",
     "FeedStream",
     "FlowDist",
@@ -66,6 +68,8 @@ __all__ = [
     "append_pre_schedule_step",
     "apply_pre_schedule",
     "check_enthalpy",
+    "cape_open_capability",
+    "cape_open_manifest",
     "evaluate_profile",
     "execute_public_command",
     "effective_feed_stream",
