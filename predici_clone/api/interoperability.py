@@ -4,6 +4,9 @@ from pathlib import Path
 from typing import Any
 
 from predici_clone.api.automation import (
+    activate_detailed_iteration,
+    check_enthalpy,
+    create_recipe,
     get_dist_moments,
     get_dist_points,
     get_reactor_pressure,
@@ -38,9 +41,16 @@ def execute_public_command(
     **kwargs: Any,
 ) -> Any:
     commands = {
+        "CreateRecipe": lambda: create_recipe(
+            _require_project(project),
+            str(kwargs["recipe_name"]),
+            str(kwargs.get("option", "copy")),
+        ),
         "GetDistPoints": lambda: get_dist_points(_require_result(result), **kwargs),
         "GetDistMoments": lambda: get_dist_moments(_require_result(result)),
         "GetReactorPressure": lambda: get_reactor_pressure(_require_result(result), kwargs.get("reactor_name", "default")),
+        "CheckEnthalpy": lambda: check_enthalpy(_require_project(project), kwargs.get("reactor_name", "default")),
+        "ActivateDetailedIteration": lambda: activate_detailed_iteration(_require_project(project), **kwargs),
         "SetFeedRate": lambda: set_feed_rate(_require_project(project), float(kwargs["rate"])),
         "SetDistLumping": lambda: set_dist_lumping(_require_project(project), bool(kwargs["on_off"])),
         "SetEnthalpy": lambda: set_enthalpy(

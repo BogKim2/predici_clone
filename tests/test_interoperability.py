@@ -38,16 +38,49 @@ def test_public_command_dispatcher_covers_ole_style_project_and_result_commands(
     project = Project(
         reactor=ReactorConfig(kind="Batch", nmax=10),
         recipe=Recipe(integration=IntegrationControl(t_final=0.5, output_points=4)),
+        outputs=OutputConfig(enabled_generic_outputs=("mass",)),
     )
     result = SimulationEngine(project).run()
 
+    created = execute_public_command("CreateRecipe", project=project, recipe_name="recipe_copy")
     points = execute_public_command("GetDistPoints", result=result, log_axis=True)
     moments = execute_public_command("GetDistMoments", result=result)
+    pressure = execute_public_command("GetReactorPressure", result=result)
     changed = execute_public_command("SetFeedRate", project=project, rate=0.33)
+    lumped = execute_public_command("SetDistLumping", project=project, on_off=True)
+    enthalpy_project = execute_public_command("SetEnthalpy", project=project, value=-12.0)
+    heat_project = execute_public_command(
+        "SetHeatExchanger",
+        project=project,
+        use_heat_exchanger=True,
+        heat_transfer=1.0,
+        area=1.0,
+        heat_capacity=4.0,
+        mass_flow=1.0,
+        mass_holdup=1.0,
+        initial_feed_temp=300.0,
+    )
+    shooting = execute_public_command(
+        "ActivateDetailedIteration",
+        project=project,
+        target_output="mass",
+        target_value=compute_generic_outputs(result, project.outputs)["mass"],
+        tune_parameter="GP_kp",
+        initial=project.kinetics.kp,
+        lower=0.001,
+        upper=1.0,
+        weight=100000.0,
+    )
 
+    assert created.recipe.name == "recipe_copy"
     assert points.shape == (11, 2)
     assert "Mw" in moments
+    assert pressure == 1.0
     assert changed.recipe.feed.rate == 0.33
+    assert lumped.generic_parameters["dist_lumping"] == 1.0
+    assert enthalpy_project.heat_balance.enabled
+    assert execute_public_command("CheckEnthalpy", project=heat_project)
+    assert shooting.success
 
 
 def test_feed_profile_flow_dist_and_fluid_balance_helpers():

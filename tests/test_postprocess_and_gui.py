@@ -8,7 +8,18 @@ from PySide6.QtWidgets import QApplication, QFileDialog
 
 from predici_clone.app.main import _smoke
 from predici_clone.app.main_window import MainWindow
-from predici_clone.api import Project, ReactorConfig, add_feed_tank, add_polymer_feed, append_pre_schedule_step, set_pressure_profile, set_temperature_profile
+from predici_clone.app.workers.simulation_worker import SimulationWorker
+from predici_clone.api import (
+    IntegrationControl,
+    Project,
+    ReactorConfig,
+    Recipe,
+    add_feed_tank,
+    add_polymer_feed,
+    append_pre_schedule_step,
+    set_pressure_profile,
+    set_temperature_profile,
+)
 from predici_clone.engine import SimulationEngine
 from predici_clone.postprocess.distribution_plot import plot_distribution
 from predici_clone.postprocess.generic_outputs import compute_generic_outputs
@@ -101,6 +112,51 @@ def test_main_window_mwd_mode_axis_and_gpc_controls_redraw_plot():
 
 def test_main_entrypoint_smoke_mode_runs_and_exports_result():
     assert _smoke() == 0
+
+
+def test_simulation_worker_emits_progress_log_and_finished_result():
+    app = QApplication.instance() or QApplication([])
+    project = Project(
+        reactor=ReactorConfig(nmax=12),
+        recipe=Recipe(integration=IntegrationControl(t_final=0.5, output_points=8)),
+    )
+    worker = SimulationWorker(project)
+    progress = []
+    logs = []
+    finished = []
+
+    worker.progress.connect(progress.append)
+    worker.log.connect(logs.append)
+    worker.finished.connect(finished.append)
+    worker.run()
+
+    assert finished and finished[0].success
+    assert logs and "Running" in logs[0]
+    assert progress[-1] == 1.0
+    worker.deleteLater()
+    app.processEvents()
+
+
+def test_simulation_worker_stop_and_error_signals_are_observable():
+    app = QApplication.instance() or QApplication([])
+    stopped_worker = SimulationWorker(Project())
+    stopped = []
+    stopped_worker.finished.connect(stopped.append)
+    stopped_worker.request_stop()
+    stopped_worker.run()
+    assert stopped and not stopped[0].success
+    assert stopped[0].message == "Stopped"
+
+    invalid_project = Project(reactor=ReactorConfig(kind="Unsupported"))
+    error_worker = SimulationWorker(invalid_project)
+    errors = []
+    error_worker.error.connect(errors.append)
+    error_worker.run()
+    assert errors and "Unsupported reactor kind" in errors[0]
+
+    stopped_worker.deleteLater()
+    error_worker.deleteLater()
+    app.processEvents()
 
 
 def test_main_window_loads_trimmed_residual_csv(tmp_path):

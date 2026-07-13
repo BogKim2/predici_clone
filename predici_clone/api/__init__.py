@@ -5,9 +5,13 @@ from predici_clone.api.cape_open import CapeOpenCapability, cape_open_capability
 from predici_clone.api.automation import (
     activate_detailed_iteration,
     check_enthalpy,
+    create_recipe,
     get_dist_moments,
     get_dist_points,
+    get_reactor_pressure,
+    set_dist_lumping,
     set_enthalpy,
+    set_feed_rate,
     set_heat_exchanger,
 )
 from predici_clone.api.packaging_smoke import PackagingSmokeReport, inspect_pyinstaller_packaging
@@ -73,6 +77,7 @@ __all__ = [
     "check_enthalpy",
     "cape_open_capability",
     "cape_open_manifest",
+    "create_recipe",
     "evaluate_profile",
     "execute_public_command",
     "effective_feed_stream",
@@ -87,6 +92,7 @@ __all__ = [
     "scheduled_pressure",
     "scheduled_residence_time",
     "scheduled_temperature",
+    "get_reactor_pressure",
     "get_dist_moments",
     "get_dist_points",
     "inspect_pyinstaller_packaging",
@@ -94,6 +100,8 @@ __all__ = [
     "load_project",
     "save_simulation_result",
     "save_project",
+    "set_dist_lumping",
+    "set_feed_rate",
     "set_pressure_profile",
     "set_enthalpy",
     "set_heat_exchanger",

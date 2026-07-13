@@ -19,6 +19,7 @@ This file tracks implementation evidence against `plan3.md`. It is intentionally
   - tests: `tests/test_postprocess_and_gui.py`
 - M10 worker thread
   - `predici_clone/app/workers/simulation_worker.py`
+  - direct tests cover finish/progress/log, stop request, and error signal paths
 - M11 project/result persistence
   - project JSON save/load
   - result `manifest.json`, `distribution_history.npz`, final CSV, moments CSV
@@ -110,7 +111,7 @@ This file tracks implementation evidence against `plan3.md`. It is intentionally
   - tests: `tests/test_packaging_files.py`
 - Interoperability
   - Cape-Open capability manifest for future wrapper integration
-  - OLE/COM-style public command dispatcher for project/result operations
+  - OLE/COM-style public command dispatcher for recipe creation, distribution points/moments, reactor pressure, feed rate, enthalpy, heat exchanger, lumping, enthalpy checks, and detailed iteration
   - MATLAB and C moment-equation export helpers
   - tests: `tests/test_interoperability.py`, `tests/test_cape_particle_templates.py`
 
