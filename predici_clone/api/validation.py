@@ -31,6 +31,14 @@ def validate_project(project: Project) -> list[ValidationMessage]:
     _check_non_negative(messages, "recipe.feed.rate", project.recipe.feed.rate, "feed_rate_non_negative")
     for index, tank in enumerate(project.recipe.feed_tanks):
         _check_non_negative(messages, f"recipe.feed_tanks[{index}].rate", tank.rate, "feed_tank_rate_non_negative")
+    for index, feed in enumerate(project.recipe.polymer_feed):
+        path = f"recipe.polymer_feed[{index}]"
+        _check_non_negative(messages, f"{path}.rate", float(feed.get("rate", 0.0)), "polymer_feed_rate_non_negative")
+        fraction = float(feed.get("mass_fraction", 1.0))
+        if not 0.0 <= fraction <= 1.0:
+            messages.append(ValidationMessage("error", f"{path}.mass_fraction", "polymer_feed_fraction_range", "Polymer feed mass fraction must be between 0 and 1"))
+        _check_non_negative(messages, f"{path}.Mn", float(feed.get("Mn", 0.0)), "polymer_feed_mn_non_negative")
+        _check_non_negative(messages, f"{path}.Mw", float(feed.get("Mw", 0.0)), "polymer_feed_mw_non_negative")
     _check_non_negative(messages, "kinetics.kp", project.kinetics.kp, "kp_non_negative")
     _check_non_negative(messages, "kinetics.kt", project.kinetics.kt, "kt_non_negative")
     _check_non_negative(messages, "kinetics.kd", project.kinetics.kd, "kd_non_negative")

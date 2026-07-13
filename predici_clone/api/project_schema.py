@@ -91,6 +91,7 @@ class Recipe:
     initial: InitialConditions = field(default_factory=InitialConditions)
     feed: FeedStream = field(default_factory=FeedStream)
     feed_tanks: list[FeedStream] = field(default_factory=list)
+    polymer_feed: list[dict[str, Any]] = field(default_factory=list)
     integration: IntegrationControl = field(default_factory=IntegrationControl)
     pre_schedule: list[dict[str, Any]] = field(default_factory=list)
     temperature_profile: list[ProfilePoint] = field(default_factory=list)
@@ -124,6 +125,7 @@ class Project:
             initial=InitialConditions(**recipe_data.get("initial", {})),
             feed=FeedStream(**recipe_data.get("feed", {})),
             feed_tanks=[_feed_stream_from_dict(item) for item in recipe_data.get("feed_tanks", [])],
+            polymer_feed=recipe_data.get("polymer_feed", []),
             integration=IntegrationControl(**recipe_data.get("integration", {})),
             pre_schedule=recipe_data.get("pre_schedule", []),
             temperature_profile=[_profile_point_from_dict(item) for item in recipe_data.get("temperature_profile", [])],

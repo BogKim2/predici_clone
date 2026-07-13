@@ -72,6 +72,7 @@ def _outputs_at_time(project: Project, time: float) -> dict[str, float]:
         initial=project.recipe.initial,
         feed=project.recipe.feed,
         feed_tanks=list(project.recipe.feed_tanks),
+        polymer_feed=list(project.recipe.polymer_feed),
         integration=IntegrationControl(
             t_final=time,
             output_points=max(2, min(integration.output_points, 12)),

@@ -6,6 +6,7 @@ from predici_clone.kinetics import (
     assemble_reaction_step_rhs,
     instantiate_controlled_radical_step,
     living_polymerization_templates,
+    polymer_family_templates,
 )
 from predici_clone.postprocess.particle_size import particle_size_from_distribution
 
@@ -39,6 +40,17 @@ def test_controlled_radical_templates_instantiate_raft_nmp_atrp_steps():
     rhs = assemble_reaction_step_rhs(distribution, raft, {"GP_raft": 0.5})
     assert rhs.shape == distribution.shape
     assert rhs[0] > 0.0
+
+
+def test_polymer_family_templates_include_condensation_and_multisite_entries():
+    templates = polymer_family_templates()
+    names = {template.name for template in templates}
+
+    assert "Polycondensation growth" in names
+    assert "Polyurethane addition" in names
+    assert "Polyester esterification" in names
+    assert "Ziegler-Natta site propagation" in names
+    assert "Catalytic site transfer" in names
 
 
 def test_particle_size_distribution_reports_normalized_psd_and_quantiles():

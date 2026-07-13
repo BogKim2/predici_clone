@@ -11,6 +11,17 @@ def living_polymerization_templates() -> tuple[StepTemplate, ...]:
     )
 
 
+def polymer_family_templates() -> tuple[StepTemplate, ...]:
+    return (
+        *living_polymerization_templates(),
+        StepTemplate("Polycondensation growth", ReactionKind.PROPAGATION, "GP_polycondensation", ("GP_polycondensation",)),
+        StepTemplate("Polyurethane addition", ReactionKind.PROPAGATION, "GP_polyurethane", ("GP_polyurethane",)),
+        StepTemplate("Polyester esterification", ReactionKind.PROPAGATION, "GP_polyester", ("GP_polyester",)),
+        StepTemplate("Ziegler-Natta site propagation", ReactionKind.PROPAGATION, "GP_zn_kp", ("GP_zn_kp",)),
+        StepTemplate("Catalytic site transfer", ReactionKind.CHAIN_TRANSFER_TO_AGENT, "GP_site_transfer", ("GP_site_transfer",)),
+    )
+
+
 def instantiate_controlled_radical_step(kind: str, *, site: str = "default", rate: float = 0.01) -> ReactionStep:
     normalized = kind.strip().upper()
     mapping = {

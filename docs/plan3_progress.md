@@ -33,6 +33,7 @@ This file tracks implementation evidence against `plan3.md`. It is intentionally
   - `ReactionKind`, `RateLaw`, `ReactionStep`, `StepTemplate`
   - generic parameter override in engine
   - RAFT, NMP, and ATRP controlled-radical templates mapped to current reaction operators
+  - polycondensation, polyurethane, polyester, Ziegler-Natta, and catalytic site-transfer templates
   - propagation, termination combination, transfer, and scission rate terms
   - branching and PolymerPartition approximate conservative distribution operators
   - Model Builder reaction table edits persist back to `Project`
@@ -45,6 +46,7 @@ This file tracks implementation evidence against `plan3.md`. It is intentionally
   - Recipe table displays and applies temperature profile, pressure profile, and pre-schedule rows
   - Recipe tab provides dedicated schedule action controls for feed rate, temperature, pressure, residence time, coolant temperature, and additional heat
   - multiple feed tanks schema/API, effective feed aggregation, engine usage, validation, and GUI row editing
+  - polymer feed schema/API, validation, persistence, and GUI row editing
   - pre-schedule actions for feed rate, temperature, pressure, and residence time with validation and metadata/output coupling
   - project validation API for numeric ranges, backend/reactor compatibility, profiles, heat balance, and generic parameter bindings
   - temperature/pressure profiles and pre-schedule schema/API

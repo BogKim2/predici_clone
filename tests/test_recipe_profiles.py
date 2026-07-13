@@ -5,9 +5,11 @@ from predici_clone.api import (
     ReactorConfig,
     Recipe,
     add_feed_tank,
+    add_polymer_feed,
     append_pre_schedule_step,
     apply_pre_schedule,
     effective_feed_stream,
+    effective_polymer_feed_rate,
     evaluate_profile,
     load_project,
     save_project,
@@ -57,6 +59,17 @@ def test_multiple_feed_tanks_roundtrip_and_effective_feed(tmp_path):
     assert len(loaded.recipe.feed_tanks) == 1
     assert feed.rate == loaded.recipe.feed.rate + loaded.recipe.feed_tanks[0].rate
     assert feed.monomer > loaded.recipe.feed.monomer
+
+
+def test_polymer_feed_roundtrip_effective_rate_and_validation(tmp_path):
+    project = add_polymer_feed(Project(), name="seed_latex", rate=0.07, mass_fraction=0.4, mn=1200.0, mw=1800.0)
+    path = tmp_path / "polymer_feed.predici.json"
+    save_project(project, path)
+    loaded = load_project(path)
+
+    assert loaded.recipe.polymer_feed[0]["name"] == "seed_latex"
+    assert loaded.recipe.polymer_feed[0]["Mw"] == 1800.0
+    assert effective_polymer_feed_rate(loaded.recipe) == 0.07
 
 
 def test_engine_exposes_recipe_profiles_as_outputs():

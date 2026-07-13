@@ -8,7 +8,7 @@ from PySide6.QtWidgets import QApplication, QFileDialog
 
 from predici_clone.app.main import _smoke
 from predici_clone.app.main_window import MainWindow
-from predici_clone.api import Project, ReactorConfig, add_feed_tank, append_pre_schedule_step, set_pressure_profile, set_temperature_profile
+from predici_clone.api import Project, ReactorConfig, add_feed_tank, add_polymer_feed, append_pre_schedule_step, set_pressure_profile, set_temperature_profile
 from predici_clone.engine import SimulationEngine
 from predici_clone.postprocess.distribution_plot import plot_distribution
 from predici_clone.postprocess.generic_outputs import compute_generic_outputs
@@ -436,6 +436,27 @@ def test_main_window_recipe_table_applies_feed_tank_rows():
     assert window.project.recipe.feed_tanks[0].rate == 0.25
     window._undo_project_edit()
     assert window.project.recipe.feed_tanks[0].rate == 0.12
+    window.close()
+    app.processEvents()
+
+
+def test_main_window_recipe_table_applies_polymer_feed_rows():
+    app = QApplication.instance() or QApplication([])
+    window = MainWindow()
+    window.project = add_polymer_feed(window.project, name="seed", rate=0.05, mass_fraction=0.3, mn=1000.0, mw=1500.0)
+    window._populate_recipe_table()
+    row_by_key = {
+        (window.recipe_table.item(row, 0).text(), window.recipe_table.item(row, 1).text()): row
+        for row in range(window.recipe_table.rowCount())
+    }
+
+    window.recipe_table.item(row_by_key[("polymer_feed[0]", "rate")], 2).setText("0.08")
+    window.recipe_table.item(row_by_key[("polymer_feed[0]", "Mw")], 2).setText("2000.0")
+    window._apply_recipe_table_edits()
+
+    assert window.project.recipe.polymer_feed[0]["name"] == "seed"
+    assert window.project.recipe.polymer_feed[0]["rate"] == 0.08
+    assert window.project.recipe.polymer_feed[0]["Mw"] == 2000.0
     window.close()
     app.processEvents()
 

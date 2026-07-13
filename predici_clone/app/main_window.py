@@ -544,6 +544,7 @@ class MainWindow(QMainWindow):
                 initial=InitialConditions(monomer=self.monomer.value(), initiator=self.initiator.value()),
                 feed=FeedStream(monomer=self.monomer.value(), initiator=self.initiator.value(), rate=self.feed_rate.value()),
                 feed_tanks=list(self.project.recipe.feed_tanks),
+                polymer_feed=list(self.project.recipe.polymer_feed),
                 integration=IntegrationControl(
                     t_final=self.t_final.value(),
                     output_points=80,
@@ -675,6 +676,7 @@ class MainWindow(QMainWindow):
             ("profile", "pressure_points", len(recipe.pressure_profile)),
             ("profile", "pre_schedule_steps", len(recipe.pre_schedule)),
             ("feed_tanks", "count", len(recipe.feed_tanks)),
+            ("polymer_feed", "count", len(recipe.polymer_feed)),
             ("heat", "enabled", self.project.heat_balance.enabled),
             ("heat", "heat_exchanger", self.project.heat_balance.use_heat_exchanger),
             ("heat", "coolant_temperature", self.project.heat_balance.coolant_temperature),
@@ -711,6 +713,12 @@ class MainWindow(QMainWindow):
             rows.append((f"feed_tank[{index}]", "initiator", tank.initiator))
             rows.append((f"feed_tank[{index}]", "radicals", tank.radicals))
             rows.append((f"feed_tank[{index}]", "rate", tank.rate))
+        for index, feed in enumerate(recipe.polymer_feed):
+            rows.append((f"polymer_feed[{index}]", "name", feed.get("name", "polymer")))
+            rows.append((f"polymer_feed[{index}]", "rate", feed.get("rate", 0.0)))
+            rows.append((f"polymer_feed[{index}]", "mass_fraction", feed.get("mass_fraction", 1.0)))
+            rows.append((f"polymer_feed[{index}]", "Mn", feed.get("Mn", 0.0)))
+            rows.append((f"polymer_feed[{index}]", "Mw", feed.get("Mw", 0.0)))
         self.recipe_table.setRowCount(len(rows))
         for row, values in enumerate(rows):
             for column, value in enumerate(values):
@@ -737,6 +745,7 @@ class MainWindow(QMainWindow):
                 rate=self._float_value(values, ("feed", "rate"), recipe.feed.rate),
             ),
             feed_tanks=self._feed_tanks_from_recipe_table(values, recipe.feed_tanks),
+            polymer_feed=self._polymer_feed_from_recipe_table(values, recipe.polymer_feed),
             integration=IntegrationControl(
                 t_final=self._float_value(values, ("integration", "t_final"), recipe.integration.t_final),
                 output_points=self._int_value(values, ("integration", "output_points"), recipe.integration.output_points),
@@ -884,6 +893,24 @@ class MainWindow(QMainWindow):
                 )
             )
         return tanks
+
+    def _polymer_feed_from_recipe_table(self, values: dict[tuple[str, str], str], default: list[dict]) -> list[dict]:
+        indexes = self._indexed_sections(values, "polymer_feed")
+        if not indexes:
+            return list(default)
+        feeds = []
+        for index in indexes:
+            section = f"polymer_feed[{index}]"
+            feeds.append(
+                {
+                    "name": values.get((section, "name"), f"polymer_{index + 1}"),
+                    "rate": float(values.get((section, "rate"), 0.0)),
+                    "mass_fraction": float(values.get((section, "mass_fraction"), 1.0)),
+                    "Mn": float(values.get((section, "Mn"), 0.0)),
+                    "Mw": float(values.get((section, "Mw"), 0.0)),
+                }
+            )
+        return feeds
 
     @staticmethod
     def _indexed_sections(values: dict[tuple[str, str], str], prefix: str) -> list[int]:
@@ -1255,6 +1282,7 @@ class MainWindow(QMainWindow):
             initial=self.project.recipe.initial,
             feed=self.project.recipe.feed,
             feed_tanks=list(self.project.recipe.feed_tanks),
+            polymer_feed=list(self.project.recipe.polymer_feed),
             integration=IntegrationControl(
                 t_final=t_final,
                 output_points=self.project.recipe.integration.output_points,

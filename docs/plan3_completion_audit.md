@@ -13,8 +13,8 @@ This audit records current evidence against `plan3.md`. It is stricter than `pla
 | M10 worker thread | `predici_clone/app/workers/simulation_worker.py`; GUI run/stop wiring | Verified |
 | M11 persistence | project JSON plus result manifest/NPZ/CSV outputs; tests | Verified |
 | M12 outputs/reports | generic outputs, scripted outputs, moments, MFI, GPC/SEC, particle size summaries, CSV/XLSX/PNG/PDF exports; tests | Verified |
-| M13 reaction DSL | reaction steps, rate laws, generic parameter binding, RAFT/NMP/ATRP templates, multi-step table editing; tests | Verified |
-| M14 recipe editor | feed tanks, profiles, pre-schedules, heat schedule actions, validation; tests | Verified |
+| M13 reaction DSL | reaction steps, rate laws, generic parameter binding, RAFT/NMP/ATRP and condensation/polyurethane/polyester/catalytic templates, multi-step table editing; tests | Verified |
+| M14 recipe editor | feed tanks, polymer feed, profiles, pre-schedules, heat schedule actions, validation; tests | Verified |
 | M15 Galerkin backend | projection/direct Galerkin paths, adaptive h/p, operator tests | Verified |
 | M16 reactors and heat balance | Batch, Semi-batch, CSTR, Cascade, PFR, heat exchanger, enthalpy API, coupled thermal RHS; tests | Verified |
 | M17 fitting workflow | local/multi-experiment fits, covariance/correlation/condition/confidence/essential-direction diagnostics, Bayesian sampling, residual CSV workflow; tests | Verified |

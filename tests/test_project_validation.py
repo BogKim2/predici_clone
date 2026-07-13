@@ -64,6 +64,17 @@ def test_validate_project_reports_profiles_heat_and_missing_generic_parameters()
     assert validation_summary(messages)["warnings"] >= 2
 
 
+def test_validate_project_reports_invalid_polymer_feed():
+    project = Project(recipe=Recipe(polymer_feed=[{"name": "bad", "rate": -1.0, "mass_fraction": 1.5, "Mn": -2.0, "Mw": -3.0}]))
+
+    codes = {message.code for message in validate_project(project)}
+
+    assert "polymer_feed_rate_non_negative" in codes
+    assert "polymer_feed_fraction_range" in codes
+    assert "polymer_feed_mn_non_negative" in codes
+    assert "polymer_feed_mw_non_negative" in codes
+
+
 def test_validate_project_accepts_temperature_and_pressure_schedule_actions():
     valid = Project(
         recipe=Recipe(

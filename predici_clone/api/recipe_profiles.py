@@ -30,6 +30,32 @@ def add_feed_tank(project: Project, *, monomer: float, initiator: float, radical
     return _with_recipe(project, replace(project.recipe, feed_tanks=tanks))
 
 
+def add_polymer_feed(
+    project: Project,
+    *,
+    name: str,
+    rate: float,
+    mass_fraction: float = 1.0,
+    mn: float = 0.0,
+    mw: float = 0.0,
+) -> Project:
+    feeds = [
+        *project.recipe.polymer_feed,
+        {
+            "name": name,
+            "rate": float(rate),
+            "mass_fraction": float(mass_fraction),
+            "Mn": float(mn),
+            "Mw": float(mw),
+        },
+    ]
+    return _with_recipe(project, replace(project.recipe, polymer_feed=feeds))
+
+
+def effective_polymer_feed_rate(recipe: Recipe) -> float:
+    return float(sum(max(float(item.get("rate", 0.0)), 0.0) for item in recipe.polymer_feed))
+
+
 def effective_feed_stream(recipe: Recipe) -> FeedStream:
     tanks = [recipe.feed, *recipe.feed_tanks]
     total_rate = float(sum(max(tank.rate, 0.0) for tank in tanks))

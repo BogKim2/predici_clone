@@ -607,6 +607,7 @@ class SimulationEngine:
                 initial=stage_initial,
                 feed=stage_feed,
                 feed_tanks=[],
+                polymer_feed=list(project.recipe.polymer_feed),
                 integration=project.recipe.integration,
                 pre_schedule=list(project.recipe.pre_schedule),
                 temperature_profile=list(project.recipe.temperature_profile),

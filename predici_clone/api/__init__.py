@@ -18,9 +18,11 @@ from predici_clone.api.interoperability import (
 )
 from predici_clone.api.recipe_profiles import (
     add_feed_tank,
+    add_polymer_feed,
     append_pre_schedule_step,
     apply_pre_schedule,
     effective_feed_stream,
+    effective_polymer_feed_rate,
     evaluate_profile,
     scheduled_additional_heat,
     scheduled_coolant_temperature,
@@ -65,6 +67,7 @@ __all__ = [
     "Recipe",
     "activate_detailed_iteration",
     "add_feed_tank",
+    "add_polymer_feed",
     "append_pre_schedule_step",
     "apply_pre_schedule",
     "check_enthalpy",
@@ -73,6 +76,7 @@ __all__ = [
     "evaluate_profile",
     "execute_public_command",
     "effective_feed_stream",
+    "effective_polymer_feed_rate",
     "export_c_moment_equations",
     "export_matlab_moment_equations",
     "fluid_balance",
