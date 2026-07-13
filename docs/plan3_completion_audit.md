@@ -9,7 +9,7 @@ This audit records current evidence against `plan3.md`. It is stricter than `pla
 | Area | Evidence | Status |
 | --- | --- | --- |
 | M8 project schema and simulation engine | `predici_clone/api/project_schema.py`, `project_io.py`, `engine/simulation_engine.py`; `tests/test_engine_project.py` | Verified |
-| M9 professional PySide6 GUI | `predici_clone/app/main_window.py`; dock widgets, tabs, toolbar, project tree, inspector, log, recent files, sample project quick action, MWD time slider, overlays; GUI tests | Verified |
+| M9 professional PySide6 GUI | `predici_clone/app/main_window.py`; dock widgets, tabs, toolbar, project tree, inspector, log, recent files, sample project quick action, MWD time slider, overlays, mole/weight mode, chain-length/MW/log-MW axes, GPC convolution; GUI tests | Verified |
 | M10 worker thread | `predici_clone/app/workers/simulation_worker.py`; GUI run/stop wiring | Verified |
 | M11 persistence | project JSON plus result manifest/NPZ/CSV outputs; tests | Verified |
 | M12 outputs/reports | generic outputs, scripted outputs, moments, MFI, GPC/SEC, particle size summaries, CSV/XLSX/PNG/PDF exports; tests | Verified |
@@ -26,7 +26,7 @@ This audit records current evidence against `plan3.md`. It is stricter than `pla
 
 ## Current Verification Commands
 
-- `python -m pytest -q` -> 114 passed
+- `python -m pytest -q` -> 119 passed
 - `python -m compileall -q predici_clone tests examples` -> passed
 - PySide6 offscreen GUI smoke -> passed
 - `pyinstaller --noconfirm packaging\pyinstaller_predici_clone.spec` -> passed

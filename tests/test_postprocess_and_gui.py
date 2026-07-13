@@ -75,6 +75,30 @@ def test_main_window_mwd_time_slider_and_overlays_update_plot():
     app.processEvents()
 
 
+def test_main_window_mwd_mode_axis_and_gpc_controls_redraw_plot():
+    app = QApplication.instance() or QApplication([])
+    window = MainWindow()
+    window.nmax.setValue(24)
+    window.t_final.setValue(1.0)
+    window._run_simulation()
+
+    window.mwd_mode_selector.setCurrentText("mole fraction")
+    window.mwd_axis_selector.setCurrentText("log molecular weight")
+    window.mwd_gpc_toggle.setChecked(True)
+
+    axes = window.figure.axes[0]
+    assert axes.get_ylabel() == "mole fraction"
+    assert axes.get_xlabel() == "log10 molecular weight"
+    assert len(axes.lines[0].get_xdata()) == window.current_distribution.size
+    assert np.isclose(np.sum(axes.lines[0].get_ydata()), 1.0)
+
+    window.mwd_axis_selector.setCurrentText("chain length")
+    axes = window.figure.axes[0]
+    assert axes.get_xlabel() == "chain length"
+    window.close()
+    app.processEvents()
+
+
 def test_main_entrypoint_smoke_mode_runs_and_exports_result():
     assert _smoke() == 0
 

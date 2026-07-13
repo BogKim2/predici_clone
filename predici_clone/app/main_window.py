@@ -62,6 +62,7 @@ from predici_clone.engine.simulation_result import SimulationResult
 from predici_clone.kinetics import RateLaw, ReactionKind, ReactionStep
 from predici_clone.postprocess.generic_outputs import generic_outputs_frame
 from predici_clone.postprocess.distribution_plot import save_distribution_plot
+from predici_clone.postprocess.gpc import distribution_to_gpc_profile
 from predici_clone.postprocess.moments_report import report_frame, write_distribution_report
 from predici_clone.postprocess.experiment_data import (
     DataMapping,
@@ -91,6 +92,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("PREDICI Clone")
         self.current_distribution = np.zeros(1)
         self.current_first_length = 0
+        self.current_explicit_lengths: np.ndarray | None = None
         self.current_result: SimulationResult | None = None
         self.current_time_index = -1
         self.mwd_overlays: list[dict[str, object]] = []
@@ -287,6 +289,14 @@ class MainWindow(QMainWindow):
         self.mwd_time_slider = QSlider(Qt.Horizontal)
         self.mwd_time_slider.setEnabled(False)
         self.mwd_time_slider.valueChanged.connect(self._show_mwd_time_index)
+        self.mwd_mode_selector = QComboBox()
+        self.mwd_mode_selector.addItems(["weight fraction", "mole fraction"])
+        self.mwd_mode_selector.currentTextChanged.connect(self._redraw_current_distribution)
+        self.mwd_axis_selector = QComboBox()
+        self.mwd_axis_selector.addItems(["chain length", "molecular weight", "log molecular weight"])
+        self.mwd_axis_selector.currentTextChanged.connect(self._redraw_current_distribution)
+        self.mwd_gpc_toggle = QCheckBox("GPC convolution")
+        self.mwd_gpc_toggle.toggled.connect(self._redraw_current_distribution)
         self.mwd_overlay_toggle = QCheckBox("Overlay previous/reference")
         self.mwd_overlay_toggle.setChecked(True)
         self.mwd_overlay_toggle.toggled.connect(self._redraw_current_distribution)
@@ -296,6 +306,9 @@ class MainWindow(QMainWindow):
         controls = QHBoxLayout()
         controls.addWidget(self.mwd_time_label)
         controls.addWidget(self.mwd_time_slider, 1)
+        controls.addWidget(self.mwd_mode_selector)
+        controls.addWidget(self.mwd_axis_selector)
+        controls.addWidget(self.mwd_gpc_toggle)
         controls.addWidget(self.mwd_overlay_toggle)
         controls.addWidget(self.clear_mwd_overlays_button)
         layout.addWidget(self.canvas, 1)
@@ -1399,7 +1412,73 @@ class MainWindow(QMainWindow):
             self.current_distribution,
             first_length=self.current_first_length,
             title="Molecular weight distribution",
+            explicit_lengths=self.current_explicit_lengths,
         )
+
+    def _mwd_monomer_mw(self) -> float:
+        value = self.project.generic_parameters.get("monomer_mw", 100.0)
+        try:
+            return max(float(value), 1e-12)
+        except (TypeError, ValueError):
+            return 100.0
+
+    def _mwd_gpc_sigma(self) -> float:
+        value = self.project.generic_parameters.get("gpc_sigma", 1.5)
+        try:
+            return max(float(value), 0.0)
+        except (TypeError, ValueError):
+            return 1.5
+
+    def _mwd_series(
+        self,
+        distribution: np.ndarray,
+        *,
+        first_length: int,
+        explicit_lengths: np.ndarray | None = None,
+    ) -> tuple[np.ndarray, np.ndarray, str, str]:
+        values = np.maximum(np.asarray(distribution, dtype=float), 0.0)
+        mode_text = self.mwd_mode_selector.currentText() if hasattr(self, "mwd_mode_selector") else "weight fraction"
+        axis_text = self.mwd_axis_selector.currentText() if hasattr(self, "mwd_axis_selector") else "chain length"
+        use_gpc = bool(hasattr(self, "mwd_gpc_toggle") and self.mwd_gpc_toggle.isChecked())
+        mode = "number" if mode_text.startswith("mole") else "weight"
+
+        if use_gpc and explicit_lengths is None:
+            profile = distribution_to_gpc_profile(
+                values,
+                first_length=first_length,
+                monomer_mw=self._mwd_monomer_mw(),
+                mode=mode,
+                log_axis=axis_text.startswith("log"),
+                convolution_sigma=self._mwd_gpc_sigma(),
+            )
+            x = profile.x
+            x_label = profile.x_label
+            if axis_text == "chain length":
+                x = np.arange(first_length, first_length + values.size, dtype=float)
+                x_label = "chain length"
+            y_label = "mole fraction" if mode == "number" else profile.y_label
+            return x, profile.y, x_label, y_label
+
+        lengths = (
+            np.arange(first_length, first_length + values.size, dtype=float)
+            if explicit_lengths is None
+            else np.asarray(explicit_lengths, dtype=float)
+        )
+        molecular_weight = np.maximum(lengths * self._mwd_monomer_mw(), 1e-12)
+        if mode == "number":
+            y = values.copy()
+            y_label = "mole fraction"
+        else:
+            y = values * molecular_weight
+            y_label = "weight fraction"
+        total = float(np.sum(y))
+        if total > 0:
+            y = y / total
+        if axis_text.startswith("log"):
+            return np.log10(molecular_weight), y, "log10 molecular weight", y_label
+        if axis_text == "molecular weight":
+            return molecular_weight, y, "molecular weight", y_label
+        return lengths, y, "chain length", y_label
 
     def _set_distribution(
         self,
@@ -1411,6 +1490,7 @@ class MainWindow(QMainWindow):
     ) -> None:
         self.current_distribution = np.asarray(distribution, dtype=float)
         self.current_first_length = first_length
+        self.current_explicit_lengths = None if explicit_lengths is None else np.asarray(explicit_lengths, dtype=float)
         lengths = (
             np.arange(first_length, first_length + self.current_distribution.size)
             if explicit_lengths is None
@@ -1426,22 +1506,25 @@ class MainWindow(QMainWindow):
                 m3=float(np.sum(lengths * lengths * lengths * self.current_distribution)),
             )
         )
-        weight = lengths * self.current_distribution
-        weight = weight / np.sum(weight) if np.sum(weight) > 0 else weight
+        x, y, x_label, y_label = self._mwd_series(
+            self.current_distribution,
+            first_length=first_length,
+            explicit_lengths=self.current_explicit_lengths,
+        )
         self.figure.clear()
         axes = self.figure.add_subplot(111)
-        axes.plot(lengths, weight, color="#26547c", linewidth=2)
+        axes.plot(x, y, color="#26547c", linewidth=2)
         if self.mwd_overlay_toggle.isChecked():
             for overlay in self.mwd_overlays:
                 overlay_distribution = np.asarray(overlay["distribution"], dtype=float)
                 overlay_first = int(overlay["first_length"])
-                overlay_lengths = np.arange(overlay_first, overlay_first + overlay_distribution.size)
-                overlay_weight = overlay_lengths * overlay_distribution
-                if np.sum(overlay_weight) > 0:
-                    overlay_weight = overlay_weight / np.sum(overlay_weight)
+                overlay_x, overlay_y, _, _ = self._mwd_series(
+                    overlay_distribution,
+                    first_length=overlay_first,
+                )
                 axes.plot(
-                    overlay_lengths,
-                    overlay_weight,
+                    overlay_x,
+                    overlay_y,
                     linewidth=1.2,
                     alpha=0.65,
                     label=str(overlay["label"]),
@@ -1449,8 +1532,8 @@ class MainWindow(QMainWindow):
             if self.mwd_overlays:
                 axes.legend(loc="best")
         axes.set_title(title)
-        axes.set_xlabel("chain length")
-        axes.set_ylabel("weight fraction")
+        axes.set_xlabel(x_label)
+        axes.set_ylabel(y_label)
         axes.grid(True, alpha=0.25)
         self.canvas.draw_idle()
         self._fill_table(self.moment_table, report_frame(report))

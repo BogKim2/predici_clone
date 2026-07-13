@@ -14,7 +14,7 @@ This file tracks implementation evidence against `plan3.md`. It is intentionally
   - dock widgets, tabs, project tree, inspector, log, toolbar, status bar
   - Edit menu/toolbar undo-redo project snapshot workflow
   - File menu/toolbar sample project quick action and persistent recent-project menu
-  - MWD viewer time slider plus previous-run/reference overlays
+  - MWD viewer time slider, previous-run/reference overlays, mole/weight mode, chain-length/MW/log-MW axis, and GPC convolution controls
   - inspector/log validation feedback
   - tests: `tests/test_postprocess_and_gui.py`
 - M10 worker thread
