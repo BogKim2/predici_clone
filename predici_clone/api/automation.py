@@ -177,6 +177,39 @@ def check_enthalpy(project: Project, _reactor_name: str = "default") -> bool:
     return heat.heat_capacity >= 0 and heat.mass_flow >= 0 and heat.mass_holdup >= 0
 
 
+def set_enthalpy(project: Project, step_type: str, reactant: str, value: float) -> Project:
+    parameters = dict(project.generic_parameters)
+    parameters["reaction_enthalpy"] = float(value)
+    if step_type or reactant:
+        parameters[f"enthalpy:{step_type}:{reactant}"] = float(value)
+    heat_balance = HeatBalanceConfig(
+        enabled=True,
+        use_heat_exchanger=project.heat_balance.use_heat_exchanger,
+        heat_transfer=project.heat_balance.heat_transfer,
+        area=project.heat_balance.area,
+        heat_capacity=project.heat_balance.heat_capacity,
+        mass_flow=project.heat_balance.mass_flow,
+        mass_holdup=project.heat_balance.mass_holdup,
+        initial_feed_temp=project.heat_balance.initial_feed_temp,
+        coolant_temperature=project.heat_balance.coolant_temperature,
+        additional_heat=project.heat_balance.additional_heat,
+        counter_current=project.heat_balance.counter_current,
+    )
+    return Project(
+        schema_version=project.schema_version,
+        name=project.name,
+        reactor=project.reactor,
+        kinetics=project.kinetics,
+        recipe=project.recipe,
+        outputs=project.outputs,
+        heat_balance=heat_balance,
+        substances=list(project.substances),
+        polymers=list(project.polymers),
+        reaction_steps=list(project.reaction_steps),
+        generic_parameters=parameters,
+    )
+
+
 def activate_detailed_iteration(
     project: Project,
     *,

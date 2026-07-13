@@ -69,3 +69,31 @@ def monte_carlo_sensitivity(
         outputs = compute_generic_outputs(result, case_project.outputs)
         rows.append({"case": f"mc_{index + 1}", **values, **outputs})
     return pd.DataFrame(rows)
+
+
+def grid_sensitivity(
+    project: Project,
+    parameters: tuple[SensitivityParameter, ...],
+    *,
+    levels: int = 3,
+) -> pd.DataFrame:
+    if not 1 <= len(parameters) <= 3:
+        raise ValueError("grid_sensitivity supports one to three parameters")
+    if levels < 2:
+        raise ValueError("levels must be at least 2")
+
+    grids = [
+        np.linspace(param.mean - param.std, param.mean + param.std, int(levels))
+        for param in parameters
+    ]
+    rows = []
+    for index, values_tuple in enumerate(np.array(np.meshgrid(*grids, indexing="ij")).T.reshape(-1, len(parameters))):
+        values = {
+            param.name: float(value)
+            for param, value in zip(parameters, values_tuple)
+        }
+        case_project = _with_generic_parameters(project, values)
+        result = SimulationEngine(case_project).run()
+        outputs = compute_generic_outputs(result, case_project.outputs)
+        rows.append({"case": f"grid_{index + 1}", **values, **outputs})
+    return pd.DataFrame(rows)

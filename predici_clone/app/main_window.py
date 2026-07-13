@@ -5,7 +5,7 @@ from pathlib import Path
 import numpy as np
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
-from PySide6.QtCore import Qt, QThread
+from PySide6.QtCore import QSettings, Qt, QThread
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import (
     QAbstractItemView,
@@ -18,6 +18,7 @@ from PySide6.QtWidgets import (
     QHeaderView,
     QLabel,
     QMainWindow,
+    QMenu,
     QMessageBox,
     QPlainTextEdit,
     QProgressBar,
@@ -50,6 +51,7 @@ from predici_clone.api import (
     save_simulation_result,
     save_project,
 )
+from predici_clone.api.project_schema import sample_project
 from predici_clone.api.validation import validate_project, validation_summary
 from predici_clone.app.workers.simulation_worker import SimulationWorker
 from predici_clone.core.moments import MomentReport, from_discrete_distribution
@@ -57,6 +59,7 @@ from predici_clone.engine import SimulationEngine
 from predici_clone.engine.simulation_result import SimulationResult
 from predici_clone.kinetics import RateLaw, ReactionKind, ReactionStep
 from predici_clone.postprocess.generic_outputs import generic_outputs_frame
+from predici_clone.postprocess.distribution_plot import save_distribution_plot
 from predici_clone.postprocess.moments_report import report_frame, write_distribution_report
 from predici_clone.postprocess.experiment_data import (
     DataMapping,
@@ -93,6 +96,8 @@ class MainWindow(QMainWindow):
         self._worker: SimulationWorker | None = None
         self._undo_stack: list[dict] = []
         self._redo_stack: list[dict] = []
+        self.settings = QSettings("PrediciClone", "PrediciClone")
+        self.recent_project_paths = self._load_recent_project_paths()
 
         self._create_actions()
         self._create_menus()
@@ -118,7 +123,9 @@ class MainWindow(QMainWindow):
         self.save_project_action.triggered.connect(self._save_project_dialog)
         self.save_result_action = QAction("Save Result", self)
         self.save_result_action.triggered.connect(self._save_result_dialog)
-        self.save_action = QAction("Save CSV", self)
+        self.new_sample_project_action = QAction("Sample Project", self)
+        self.new_sample_project_action.triggered.connect(self._open_sample_project)
+        self.save_action = QAction("Export Chart/Data", self)
         self.save_action.triggered.connect(self._save_report)
         self.load_benchmark_action = QAction("Load Benchmark", self)
         self.load_benchmark_action.triggered.connect(self._load_benchmark)
@@ -131,11 +138,16 @@ class MainWindow(QMainWindow):
 
     def _create_menus(self) -> None:
         file_menu = self.menuBar().addMenu("File")
+        file_menu.addAction(self.new_sample_project_action)
+        file_menu.addSeparator()
         file_menu.addAction(self.open_project_action)
         file_menu.addAction(self.save_project_action)
         file_menu.addAction(self.save_result_action)
+        self.recent_menu = QMenu("Recent Projects", self)
+        file_menu.addMenu(self.recent_menu)
         file_menu.addSeparator()
         file_menu.addAction(self.save_action)
+        self._refresh_recent_project_actions()
         edit_menu = self.menuBar().addMenu("Edit")
         edit_menu.addAction(self.undo_action)
         edit_menu.addAction(self.redo_action)
@@ -155,6 +167,7 @@ class MainWindow(QMainWindow):
         toolbar.addAction(self.stop_action)
         toolbar.addSeparator()
         toolbar.addAction(self.open_project_action)
+        toolbar.addAction(self.new_sample_project_action)
         toolbar.addAction(self.save_project_action)
         toolbar.addAction(self.save_result_action)
         toolbar.addSeparator()
@@ -1342,11 +1355,33 @@ class MainWindow(QMainWindow):
             self.inspector.setItem(row, 1, QTableWidgetItem(str(value)))
 
     def _save_report(self) -> None:
-        path, _ = QFileDialog.getSaveFileName(self, "Save report", str(Path.cwd() / "distribution.csv"), "CSV (*.csv);;Excel (*.xlsx)")
+        path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Export chart/data",
+            str(Path.cwd() / "distribution.csv"),
+            "CSV (*.csv);;Excel (*.xlsx);;PNG (*.png);;PDF (*.pdf)",
+        )
         if not path:
             return
+        suffix = Path(path).suffix.lower()
+        if suffix in {".png", ".pdf"}:
+            save_distribution_plot(path, self.current_distribution, first_length=self.current_first_length)
+            self._append_log(f"Exported chart: {path}")
+            return
         write_distribution_report(path, self.current_distribution, first_length=self.current_first_length)
-        self._append_log(f"Saved report: {path}")
+        self._append_log(f"Exported report: {path}")
+
+    def _open_sample_project(self) -> None:
+        self._record_project_edit()
+        self.project = sample_project(self.reactor_kind.currentText())
+        self.current_project_path = None
+        self._sync_controls_from_project(self.project)
+        self._populate_project_tree()
+        self._populate_project_inspector()
+        self._update_undo_redo_actions()
+        self._append_log("Opened sample project")
+        self.statusBar().showMessage("Opened sample project")
+        self._run_simulation()
 
     def _open_project_dialog(self) -> None:
         path, _ = QFileDialog.getOpenFileName(self, "Open project", str(Path.cwd()), "PREDICI Project (*.predici.json *.json)")
@@ -1376,6 +1411,7 @@ class MainWindow(QMainWindow):
         self._update_undo_redo_actions()
         self._append_log(f"Opened project: {path}")
         self.statusBar().showMessage(f"Opened {path.name}")
+        self._add_recent_project_path(path)
 
     def _save_project_to_path(self, path: Path) -> None:
         self.project = self._project_from_controls()
@@ -1386,6 +1422,35 @@ class MainWindow(QMainWindow):
         self._populate_project_inspector()
         self._append_log(f"Saved project: {path}")
         self.statusBar().showMessage(f"Saved {path.name}")
+        self._add_recent_project_path(path)
+
+    def _load_recent_project_paths(self) -> list[Path]:
+        raw_paths = self.settings.value("recentProjects", [])
+        if isinstance(raw_paths, str):
+            raw_paths = [raw_paths]
+        return [Path(path) for path in raw_paths if str(path)]
+
+    def _add_recent_project_path(self, path: Path) -> None:
+        resolved = Path(path)
+        paths = [item for item in self.recent_project_paths if item != resolved]
+        self.recent_project_paths = [resolved, *paths][:5]
+        self.settings.setValue("recentProjects", [str(item) for item in self.recent_project_paths])
+        self._refresh_recent_project_actions()
+
+    def _refresh_recent_project_actions(self) -> None:
+        if not hasattr(self, "recent_menu"):
+            return
+        self.recent_menu.clear()
+        if not self.recent_project_paths:
+            empty = QAction("No recent projects", self)
+            empty.setEnabled(False)
+            self.recent_menu.addAction(empty)
+            return
+        for path in self.recent_project_paths:
+            action = QAction(path.name, self)
+            action.setToolTip(str(path))
+            action.triggered.connect(lambda _checked=False, item=path: self._open_project_from_path(item))
+            self.recent_menu.addAction(action)
 
     def _save_result_to_directory(self, directory: Path) -> Path:
         if self.current_result is None:

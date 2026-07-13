@@ -15,7 +15,15 @@ from predici_clone.api import (
     save_project,
     save_simulation_result,
 )
-from predici_clone.api.automation import check_enthalpy, get_dist_moments, get_dist_points, set_dist_lumping, set_feed_rate, set_heat_exchanger
+from predici_clone.api.automation import (
+    check_enthalpy,
+    get_dist_moments,
+    get_dist_points,
+    set_dist_lumping,
+    set_enthalpy,
+    set_feed_rate,
+    set_heat_exchanger,
+)
 from predici_clone.api.recipe_profiles import append_pre_schedule_step
 from predici_clone.engine import SimulationCallbacks, SimulationEngine
 from predici_clone.kinetics import RateLaw, ReactionKind, ReactionStep
@@ -181,6 +189,14 @@ def test_heat_exchanger_settings_roundtrip_and_validate(tmp_path):
     assert loaded.heat_balance.coolant_temperature == 305.0
     assert loaded.heat_balance.additional_heat == 1.5
     assert check_enthalpy(loaded)
+
+
+def test_set_enthalpy_enables_heat_balance_and_sets_generic_parameter():
+    project = set_enthalpy(Project(), "propagation", "monomer", -42.0)
+
+    assert project.heat_balance.enabled
+    assert project.generic_parameters["reaction_enthalpy"] == -42.0
+    assert project.generic_parameters["enthalpy:propagation:monomer"] == -42.0
 
 
 def test_heat_balance_adds_temperature_and_heat_duty_outputs():

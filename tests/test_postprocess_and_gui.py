@@ -4,7 +4,7 @@ import numpy as np
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication, QFileDialog
 
 from predici_clone.app.main import _smoke
 from predici_clone.app.main_window import MainWindow
@@ -527,5 +527,35 @@ def test_main_window_can_save_current_result_manifest(tmp_path):
     assert manifest.exists()
     assert (tmp_path / "run_gui" / "distribution_history.npz").exists()
     assert (tmp_path / "run_gui" / "moments.csv").exists()
+    window.close()
+    app.processEvents()
+
+
+def test_main_window_sample_recent_and_png_pdf_exports(tmp_path, monkeypatch):
+    app = QApplication.instance() or QApplication([])
+    window = MainWindow()
+    window.settings.clear()
+    window.recent_project_paths = []
+    window._refresh_recent_project_actions()
+
+    project_path = tmp_path / "sample.predici.json"
+    window._save_project_to_path(project_path)
+    assert window.recent_project_paths[0] == project_path
+    assert window.recent_menu.actions()[0].text() == project_path.name
+
+    window._open_sample_project()
+    assert window.current_project_path is None
+    assert window.project.reactor.kind == window.reactor_kind.currentText()
+
+    png_path = tmp_path / "distribution.png"
+    monkeypatch.setattr(QFileDialog, "getSaveFileName", lambda *args, **kwargs: (str(png_path), "PNG (*.png)"))
+    window._save_report()
+    assert png_path.exists()
+
+    pdf_path = tmp_path / "distribution.pdf"
+    monkeypatch.setattr(QFileDialog, "getSaveFileName", lambda *args, **kwargs: (str(pdf_path), "PDF (*.pdf)"))
+    window._save_report()
+    assert pdf_path.exists()
+
     window.close()
     app.processEvents()

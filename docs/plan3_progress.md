@@ -13,6 +13,7 @@ This file tracks implementation evidence against `plan3.md`. It is intentionally
   - `predici_clone/app/main_window.py`
   - dock widgets, tabs, project tree, inspector, log, toolbar, status bar
   - Edit menu/toolbar undo-redo project snapshot workflow
+  - File menu/toolbar sample project quick action and persistent recent-project menu
   - inspector/log validation feedback
   - tests: `tests/test_postprocess_and_gui.py`
 - M10 worker thread
@@ -23,6 +24,7 @@ This file tracks implementation evidence against `plan3.md`. It is intentionally
   - tests: `tests/test_engine_project.py`
 - M12 output system
   - generic outputs, scripted outputs, M3/Mz/AMW/mass, GPC/SEC profile conversion and convolution
+  - distribution report export supports CSV/XLSX and GUI chart export supports PNG/PDF
   - tests: `tests/test_generic_outputs.py`, `tests/test_scripted_outputs.py`, `tests/test_gpc_outputs.py`
 - M13 reaction DSL and multi-step basis
   - `ReactionKind`, `RateLaw`, `ReactionStep`, `StepTemplate`
@@ -60,7 +62,7 @@ This file tracks implementation evidence against `plan3.md`. It is intentionally
 - M16 reactor expansion
   - CSTR cascade
   - PFR approximation via cascade
-  - heat balance schema, heat exchanger automation hooks, lumped temperature/heat-duty output coupling
+  - heat balance schema, heat exchanger/enthalpy automation hooks, lumped temperature/heat-duty output coupling
   - lumped heat balance is integrated as an ODE trajectory with `solve_ivp`
   - coolant temperature and additional heat schedule actions feed the heat-balance ODE
   - opt-in coupled thermal RHS supports temperature-dependent kinetics with Arrhenius-style scaling for Batch, Semi-batch, CSTR, Cascade, and PFR
@@ -81,6 +83,8 @@ This file tracks implementation evidence against `plan3.md`. It is intentionally
   - sigma-point sensitivity
   - Monte Carlo sensitivity sampling
   - differential evolution global search
+  - dual annealing global search
+  - grid sensitivity variation for one to three parameters
   - tests: `tests/test_sensitivity.py`, `tests/test_global_search.py`
 - M19 shooting control basis
   - `activate_detailed_iteration`

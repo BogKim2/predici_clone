@@ -1,7 +1,14 @@
 """Public project schema and IO API."""
 
 from predici_clone.api.project_io import load_project, save_project
-from predici_clone.api.automation import activate_detailed_iteration, check_enthalpy, get_dist_moments, get_dist_points, set_heat_exchanger
+from predici_clone.api.automation import (
+    activate_detailed_iteration,
+    check_enthalpy,
+    get_dist_moments,
+    get_dist_points,
+    set_enthalpy,
+    set_heat_exchanger,
+)
 from predici_clone.api.packaging_smoke import PackagingSmokeReport, inspect_pyinstaller_packaging
 from predici_clone.api.recipe_profiles import (
     add_feed_tank,
@@ -66,6 +73,7 @@ __all__ = [
     "save_simulation_result",
     "save_project",
     "set_pressure_profile",
+    "set_enthalpy",
     "set_heat_exchanger",
     "set_temperature_profile",
     "ValidationMessage",

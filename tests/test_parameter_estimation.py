@@ -9,6 +9,7 @@ from predici_clone.postprocess.parameter_estimation import (
     ParameterSpec,
     fit_generic_parameters,
     fit_multi_experiment_generic_parameters,
+    global_search_generic_parameters,
     sample_bayesian_posterior,
     sample_multi_experiment_bayesian_posterior,
 )
@@ -45,6 +46,34 @@ def test_fit_generic_parameter_recovers_synthetic_mass_target():
     assert result.confidence_intervals is not None
     assert result.covariance.shape == (1, 1)
     assert "GP_kp" in result.confidence_intervals
+
+
+def test_dual_annealing_global_search_recovers_synthetic_mass_target():
+    base = Project(
+        reactor=ReactorConfig(kind="Batch", nmax=18),
+        recipe=Recipe(integration=IntegrationControl(t_final=1.0, output_points=5)),
+        outputs=OutputConfig(enabled_generic_outputs=("mass",)),
+    )
+    true_kp = base.kinetics.kp * 1.3
+    target_project = Project(
+        reactor=base.reactor,
+        kinetics=base.kinetics,
+        recipe=base.recipe,
+        outputs=base.outputs,
+        generic_parameters={"GP_kp": true_kp},
+    )
+    target = compute_generic_outputs(SimulationEngine(target_project).run(), target_project.outputs)["mass"]
+    problem = FittingProblem(
+        project=base,
+        parameters=(ParameterSpec("GP_kp", initial=base.kinetics.kp, lower=0.02, upper=0.2),),
+        targets=(OutputTarget("mass", target, weight=20000.0),),
+    )
+
+    result = global_search_generic_parameters(problem, maxiter=12, seed=13, method="dual_annealing")
+
+    assert result.success
+    assert result.evaluations > 0
+    assert abs(result.parameters["GP_kp"] - true_kp) < 0.03
 
 
 def test_fit_multi_experiment_generic_parameter_recovers_shared_value():

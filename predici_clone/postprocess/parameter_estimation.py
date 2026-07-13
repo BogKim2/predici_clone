@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import numpy as np
-from scipy.optimize import differential_evolution, least_squares
+from scipy.optimize import dual_annealing, differential_evolution, least_squares
 
 from predici_clone.api.project_schema import Project
 from predici_clone.engine import SimulationEngine
@@ -263,7 +263,13 @@ def fit_multi_experiment_generic_parameters(problem: MultiExperimentFittingProbl
     )
 
 
-def global_search_generic_parameters(problem: FittingProblem, *, maxiter: int = 20, seed: int = 1) -> FittingResult:
+def global_search_generic_parameters(
+    problem: FittingProblem,
+    *,
+    maxiter: int = 20,
+    seed: int = 1,
+    method: str = "differential_evolution",
+) -> FittingResult:
     variable_specs = [spec for spec in problem.parameters if not spec.fixed]
     fixed_values = {spec.name: spec.initial for spec in problem.parameters if spec.fixed}
     bounds = [(spec.lower, spec.upper) for spec in variable_specs]
@@ -286,7 +292,14 @@ def global_search_generic_parameters(problem: FittingProblem, *, maxiter: int = 
     if not variable_specs:
         local = fit_generic_parameters(problem)
         return local
-    result = differential_evolution(objective, bounds=bounds, maxiter=maxiter, seed=seed, polish=False)
+    if method == "differential_evolution":
+        result = differential_evolution(objective, bounds=bounds, maxiter=maxiter, seed=seed, polish=False)
+        evaluations = int(result.nfev)
+    elif method == "dual_annealing":
+        result = dual_annealing(objective, bounds=bounds, maxiter=maxiter, seed=seed, no_local_search=True)
+        evaluations = int(result.nfev)
+    else:
+        raise ValueError(f"Unsupported global search method: {method}")
     fitted = {spec.name: float(value) for spec, value in zip(variable_specs, result.x)}
     fitted.update(fixed_values)
     return FittingResult(
@@ -294,7 +307,7 @@ def global_search_generic_parameters(problem: FittingProblem, *, maxiter: int = 
         message=str(result.message),
         parameters=fitted,
         residual_norm=float(np.sqrt(result.fun)),
-        evaluations=int(result.nfev),
+        evaluations=evaluations,
     )
 
 
