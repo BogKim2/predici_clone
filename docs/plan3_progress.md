@@ -25,6 +25,7 @@ This file tracks implementation evidence against `plan3.md`. It is intentionally
   - tests: `tests/test_engine_project.py`
 - M12 output system
   - generic outputs, scripted outputs, M3/Mz/AMW/mass, GPC/SEC profile conversion and convolution
+  - MFI scalar generic output
   - distribution report export supports CSV/XLSX and GUI chart export supports PNG/PDF
   - tests: `tests/test_generic_outputs.py`, `tests/test_scripted_outputs.py`, `tests/test_gpc_outputs.py`
 - M13 reaction DSL and multi-step basis
@@ -46,6 +47,7 @@ This file tracks implementation evidence against `plan3.md`. It is intentionally
   - project validation API for numeric ranges, backend/reactor compatibility, profiles, heat balance, and generic parameter bindings
   - temperature/pressure profiles and pre-schedule schema/API
   - scheduled feed-rate metadata and profile generic outputs
+  - FeedProfile, FlowDist, FlowSolve, and FluidBalance helper API for PDE/PSD-style profile workflows
   - semi-batch `set_feed_rate` and CSTR/Cascade/PFR `set_residence_time` pre-schedules are coupled into ODE RHS paths
   - tests: `tests/test_postprocess_and_gui.py`, `tests/test_recipe_profiles.py`
 - M15 Galerkin backend
@@ -101,6 +103,10 @@ This file tracks implementation evidence against `plan3.md`. It is intentionally
   - pre-build packaging smoke report for spec, hidden imports, entrypoint, and PyInstaller availability
   - `PrediciClone.exe --smoke` starts the packaged PySide6 app offscreen, runs the default simulation, exports a result bundle, and exits successfully
   - tests: `tests/test_packaging_files.py`
+- Interoperability
+  - OLE/COM-style public command dispatcher for project/result operations
+  - MATLAB and C moment-equation export helpers
+  - tests: `tests/test_interoperability.py`
 
 ## Still Incomplete
 

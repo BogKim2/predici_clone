@@ -10,6 +10,11 @@ from predici_clone.api.automation import (
     set_heat_exchanger,
 )
 from predici_clone.api.packaging_smoke import PackagingSmokeReport, inspect_pyinstaller_packaging
+from predici_clone.api.interoperability import (
+    execute_public_command,
+    export_c_moment_equations,
+    export_matlab_moment_equations,
+)
 from predici_clone.api.recipe_profiles import (
     add_feed_tank,
     append_pre_schedule_step,
@@ -26,6 +31,7 @@ from predici_clone.api.recipe_profiles import (
     set_temperature_profile,
 )
 from predici_clone.api.result_io import load_result_manifest, save_simulation_result
+from predici_clone.api.spatial_profiles import FeedProfile, FlowDist, FluidBalance, flow_solve, fluid_balance
 from predici_clone.api.validation import ValidationMessage, validate_project, validation_summary
 from predici_clone.api.project_schema import (
     FeedStream,
@@ -42,7 +48,10 @@ from predici_clone.api.project_schema import (
 
 __all__ = [
     "FRPParameters",
+    "FeedProfile",
     "FeedStream",
+    "FlowDist",
+    "FluidBalance",
     "HeatBalanceConfig",
     "InitialConditions",
     "IntegrationControl",
@@ -58,7 +67,12 @@ __all__ = [
     "apply_pre_schedule",
     "check_enthalpy",
     "evaluate_profile",
+    "execute_public_command",
     "effective_feed_stream",
+    "export_c_moment_equations",
+    "export_matlab_moment_equations",
+    "fluid_balance",
+    "flow_solve",
     "scheduled_additional_heat",
     "scheduled_coolant_temperature",
     "scheduled_feed_rate",

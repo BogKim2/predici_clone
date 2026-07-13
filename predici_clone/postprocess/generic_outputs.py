@@ -12,6 +12,7 @@ def compute_generic_outputs(result: SimulationResult, config: OutputConfig) -> d
     monomer_initial = float(result.state_history[0, 0]) if result.state_history.size else 0.0
     monomer_final = float(result.state_history[0, -1]) if result.state_history.size else 0.0
     conversion = (monomer_initial - monomer_final) / monomer_initial if monomer_initial > 0 else 0.0
+    mfi = 1.0 / max(moments.mw, 1e-12)
     available = {
         "M0": moments.m0,
         "M1": moments.m1,
@@ -24,6 +25,7 @@ def compute_generic_outputs(result: SimulationResult, config: OutputConfig) -> d
         "AMW": moments.amw,
         "mass": moments.mass,
         "conversion": conversion,
+        "MFI": mfi,
         "temperature": float(result.metadata.get("final_temperature", 0.0)),
         "heat_duty": float(result.metadata.get("final_heat_duty", 0.0)),
         "coolant_temperature": float(result.metadata.get("final_coolant_temperature", 0.0)),
