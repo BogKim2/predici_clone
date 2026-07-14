@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+
+<html lang="ko" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>구조 &#8212; PREDICI Clone Manual</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=ac66fb28" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=030cfef0" />
+    <script src="_static/documentation_options.js?v=d6a8a7ef"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/translations.js?v=afa94a99"></script>
+    <link rel="index" title="색인" href="genindex.html" />
+    <link rel="search" title="검색" href="search.html" />
+    <link rel="next" title="API Reference" href="api.html" />
+    <link rel="prev" title="패키징" href="packaging.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">PREDICI Clone Manual</a></h1>
+
+
+
+<p class="blurb">Polymerization simulation, GUI, API, and validation guide</p>
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="이동" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>탐색</h3>
+<p class="caption" role="heading"><span class="caption-text">사용자 문서</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">설치</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">빠른 시작</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gui.html">GUI 사용법</a></li>
+<li class="toctree-l1"><a class="reference internal" href="projects.html">프로젝트와 Recipe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="outputs.html">Outputs와 Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fitting.html">Parameter Estimation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="packaging.html">패키징</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">개발자 문서</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">구조</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id2">패키지 개요</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#engine-boundary">Engine Boundary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#backend">Backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#reactor-models">Reactor Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#reaction-dsl">Reaction DSL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#gui-boundary">GUI Boundary</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation.html">검증과 Benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extending.html">확장 가이드</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">용어</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="packaging.html" title="이전 장">패키징</a></li>
+      <li>Next: <a href="api.html" title="다음 장">API Reference</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="id1">
+<h1>구조<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h1>
+<section id="id2">
+<h2>패키지 개요<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>predici_clone/
+  api/          project schema, IO, automation, validation
+  app/          PySide6 GUI and worker thread
+  core/         Galerkin basis, mesh, moment, adaptive tools
+  engine/       SimulationEngine, SimulationResult, shooting
+  integrator/   solver helpers and Jacobian utilities
+  kinetics/     reaction DSL, templates, rate terms
+  postprocess/  outputs, GPC, fitting, reports, sensitivity
+  reactor/      Batch, Semi-batch, CSTR, Cascade, PFR, energy balance
+  validation/   benchmark cases
+</pre></div>
+</div>
+</section>
+<section id="engine-boundary">
+<h2>Engine Boundary<a class="headerlink" href="#engine-boundary" title="Link to this heading">¶</a></h2>
+<p>GUI, tests, scripts는 직접 reactor를 호출하지 않고 <a class="reference internal" href="api.html#predici_clone.engine.simulation_engine.SimulationEngine" title="predici_clone.engine.simulation_engine.SimulationEngine"><code class="xref py py-class docutils literal notranslate"><span class="pre">predici_clone.engine.simulation_engine.SimulationEngine</span></code></a>
+을 사용한다.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">SimulationEngine</span><span class="p">(</span><span class="n">project</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">SimulationEngine</span></code> 은 다음을 담당한다.</p>
+<ul class="simple">
+<li><p>project schema 해석</p></li>
+<li><p>reactor instance 구성</p></li>
+<li><p>discrete/Galerkin backend 선택</p></li>
+<li><p>recipe profile과 pre-schedule 적용</p></li>
+<li><p>heat balance coupling</p></li>
+<li><p>generic metadata와 output trajectory 구성</p></li>
+</ul>
+</section>
+<section id="backend">
+<h2>Backend<a class="headerlink" href="#backend" title="Link to this heading">¶</a></h2>
+<p>지원 backend:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">discrete</span></code>: chain length vector 직접 적분</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">galerkin</span></code>: discrete result를 Galerkin field로 projection/reconstruction</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">galerkin_direct</span></code>: coefficient-space PBE system 적분</p></li>
+</ul>
+</section>
+<section id="reactor-models">
+<h2>Reactor Models<a class="headerlink" href="#reactor-models" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Batch</p></li>
+<li><p>Semi-batch</p></li>
+<li><p>CSTR</p></li>
+<li><p>CSTR Cascade</p></li>
+<li><p>PFR approximation via cascade/staged logic</p></li>
+<li><p>lumped heat balance and heat exchanger hooks</p></li>
+</ul>
+</section>
+<section id="reaction-dsl">
+<h2>Reaction DSL<a class="headerlink" href="#reaction-dsl" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">kinetics</span></code> 패키지는 reaction step과 rate law를 정의한다.</p>
+<p>대표 reaction kind:</p>
+<ul class="simple">
+<li><p>initiation</p></li>
+<li><p>propagation</p></li>
+<li><p>termination</p></li>
+<li><p>chain transfer</p></li>
+<li><p>branching</p></li>
+<li><p>scission</p></li>
+<li><p>PolymerPartition</p></li>
+</ul>
+</section>
+<section id="gui-boundary">
+<h2>GUI Boundary<a class="headerlink" href="#gui-boundary" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">app</span></code> 은 PySide6 전용이다. 계산 로직은 <code class="docutils literal notranslate"><span class="pre">engine</span></code> 과 <code class="docutils literal notranslate"><span class="pre">api</span></code> 에 유지하여 CLI/API/test에서도 재사용한다.</p>
+<p><code class="docutils literal notranslate"><span class="pre">SimulationWorker</span></code> 는 long-running simulation을 GUI thread와 분리하고 다음 signal을 제공한다.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">progress</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">step_done</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">finished</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">error</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">log</span></code></p></li>
+</ul>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &#169;.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/architecture.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

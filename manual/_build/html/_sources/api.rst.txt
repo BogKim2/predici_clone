@@ -1,0 +1,53 @@
+﻿API Reference
+=============
+
+Public API
+----------
+
+.. automodule:: predici_clone.api
+   :members:
+   :undoc-members:
+
+Project Schema
+--------------
+
+.. automodule:: predici_clone.api.project_schema
+   :members:
+   :undoc-members:
+
+Automation and Interoperability
+-------------------------------
+
+.. automodule:: predici_clone.api.automation
+   :members:
+   :undoc-members:
+
+.. automodule:: predici_clone.api.interoperability
+   :members:
+   :undoc-members:
+
+Engine
+------
+
+.. automodule:: predici_clone.engine.simulation_engine
+   :members:
+   :undoc-members:
+
+.. automodule:: predici_clone.engine.simulation_result
+   :members:
+   :undoc-members:
+
+Postprocess
+-----------
+
+.. automodule:: predici_clone.postprocess.generic_outputs
+   :members:
+   :undoc-members:
+
+.. automodule:: predici_clone.postprocess.gpc
+   :members:
+   :undoc-members:
+
+.. automodule:: predici_clone.postprocess.parameter_estimation
+   :members:
+   :undoc-members:

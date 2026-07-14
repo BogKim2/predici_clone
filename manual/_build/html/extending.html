@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+
+<html lang="ko" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>확장 가이드 &#8212; PREDICI Clone Manual</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=ac66fb28" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=030cfef0" />
+    <script src="_static/documentation_options.js?v=d6a8a7ef"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/translations.js?v=afa94a99"></script>
+    <link rel="index" title="색인" href="genindex.html" />
+    <link rel="search" title="검색" href="search.html" />
+    <link rel="next" title="용어" href="glossary.html" />
+    <link rel="prev" title="검증과 Benchmark" href="validation.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">PREDICI Clone Manual</a></h1>
+
+
+
+<p class="blurb">Polymerization simulation, GUI, API, and validation guide</p>
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="이동" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>탐색</h3>
+<p class="caption" role="heading"><span class="caption-text">사용자 문서</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">설치</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">빠른 시작</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gui.html">GUI 사용법</a></li>
+<li class="toctree-l1"><a class="reference internal" href="projects.html">프로젝트와 Recipe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="outputs.html">Outputs와 Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fitting.html">Parameter Estimation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="packaging.html">패키징</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">개발자 문서</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">구조</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation.html">검증과 Benchmark</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">확장 가이드</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#reactor">새 Reactor 추가</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#generic-output">새 Generic Output 추가</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#reaction-step">새 Reaction Step 추가</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#gui">새 GUI 기능 추가</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">문서 업데이트</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">용어</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="validation.html" title="이전 장">검증과 Benchmark</a></li>
+      <li>Next: <a href="glossary.html" title="다음 장">용어</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="id1">
+<h1>확장 가이드<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h1>
+<section id="reactor">
+<h2>새 Reactor 추가<a class="headerlink" href="#reactor" title="Link to this heading">¶</a></h2>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">predici_clone/reactor</span></code> 에 reactor class를 추가한다.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ReactorConfig.kind</span></code> 와 validation을 확장한다.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SimulationEngine._build_reactor</span></code> 에 dispatch를 추가한다.</p></li>
+<li><p>recipe/profile/pre-schedule coupling이 필요한지 확인한다.</p></li>
+<li><p>reactor unit test와 engine integration test를 추가한다.</p></li>
+</ol>
+</section>
+<section id="generic-output">
+<h2>새 Generic Output 추가<a class="headerlink" href="#generic-output" title="Link to this heading">¶</a></h2>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">postprocess/generic_outputs.py</span></code> 에 provider를 추가한다.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">OutputConfig.enabled_generic_outputs</span></code> 에서 사용할 이름을 문서화한다.</p></li>
+<li><p>GUI dashboard와 export에서 표시가 필요한지 확인한다.</p></li>
+<li><p>output test를 추가한다.</p></li>
+</ol>
+</section>
+<section id="reaction-step">
+<h2>새 Reaction Step 추가<a class="headerlink" href="#reaction-step" title="Link to this heading">¶</a></h2>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">kinetics/reaction.py</span></code> 의 enum/step schema를 확장한다.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kinetics/rate_terms.py</span></code> 에 distribution RHS 효과를 추가한다.</p></li>
+<li><p>필요하면 <code class="docutils literal notranslate"><span class="pre">kinetics/templates.py</span></code> 에 template을 추가한다.</p></li>
+<li><p>reaction DSL test와 engine regression test를 추가한다.</p></li>
+</ol>
+</section>
+<section id="gui">
+<h2>새 GUI 기능 추가<a class="headerlink" href="#gui" title="Link to this heading">¶</a></h2>
+<p>GUI 변경은 다음 원칙을 따른다.</p>
+<ul class="simple">
+<li><p>계산 로직은 <code class="docutils literal notranslate"><span class="pre">app</span></code> 밖의 API/engine/postprocess에 둔다.</p></li>
+<li><p>GUI는 project snapshot을 만들고 worker에 전달한다.</p></li>
+<li><p>text label, unit, validation state를 명확히 표시한다.</p></li>
+<li><p>offscreen GUI test를 추가한다.</p></li>
+</ul>
+</section>
+<section id="id2">
+<h2>문서 업데이트<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
+<p>기능을 추가하면 이 <code class="docutils literal notranslate"><span class="pre">manual</span></code> 과 <code class="docutils literal notranslate"><span class="pre">docs/plan3_progress.md</span></code> 의 관련 항목을 갱신한다.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &#169;.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/extending.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

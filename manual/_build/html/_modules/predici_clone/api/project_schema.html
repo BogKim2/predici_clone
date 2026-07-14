@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+
+<html lang="ko" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>predici_clone.api.project_schema &#8212; PREDICI Clone Manual</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=ac66fb28" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=030cfef0" />
+    <script src="../../../_static/documentation_options.js?v=d6a8a7ef"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/translations.js?v=afa94a99"></script>
+    <link rel="index" title="색인" href="../../../genindex.html" />
+    <link rel="search" title="검색" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">PREDICI Clone Manual</a></h1>
+
+
+
+<p class="blurb">Polymerization simulation, GUI, API, and validation guide</p>
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="이동" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>탐색</h3>
+<p class="caption" role="heading"><span class="caption-text">사용자 문서</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">설치</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">빠른 시작</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gui.html">GUI 사용법</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../projects.html">프로젝트와 Recipe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../outputs.html">Outputs와 Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../fitting.html">Parameter Estimation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../packaging.html">패키징</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">개발자 문서</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../architecture.html">구조</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../validation.html">검증과 Benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../extending.html">확장 가이드</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">용어</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">모듈 코드</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>predici_clone.api.project_schema의 소스 코드</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">asdict</span><span class="p">,</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">predici_clone.kinetics.reaction</span><span class="w"> </span><span class="kn">import</span> <span class="n">RateLaw</span><span class="p">,</span> <span class="n">ReactionKind</span><span class="p">,</span> <span class="n">ReactionStep</span>
+
+
+<span class="n">ReactorKind</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;Batch&quot;</span><span class="p">,</span> <span class="s2">&quot;Semi-batch&quot;</span><span class="p">,</span> <span class="s2">&quot;CSTR&quot;</span><span class="p">,</span> <span class="s2">&quot;Cascade&quot;</span><span class="p">,</span> <span class="s2">&quot;PFR&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="FRPParameters">
+<a class="viewcode-back" href="../../../api.html#predici_clone.api.FRPParameters">[문서]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FRPParameters</span><span class="p">:</span>
+    <span class="n">kp</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.08</span>
+    <span class="n">kt</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span>
+    <span class="n">kd</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.02</span>
+    <span class="n">initiator_efficiency</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.6</span></div>
+
+
+
+<div class="viewcode-block" id="InitialConditions">
+<a class="viewcode-back" href="../../../api.html#predici_clone.api.InitialConditions">[문서]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">InitialConditions</span><span class="p">:</span>
+    <span class="n">monomer</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span>
+    <span class="n">initiator</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.15</span>
+    <span class="n">radicals</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span></div>
+
+
+
+<div class="viewcode-block" id="FeedStream">
+<a class="viewcode-back" href="../../../api.html#predici_clone.api.FeedStream">[문서]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FeedStream</span><span class="p">:</span>
+    <span class="n">monomer</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span>
+    <span class="n">initiator</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.15</span>
+    <span class="n">radicals</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">rate</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.06</span></div>
+
+
+
+<div class="viewcode-block" id="ProfilePoint">
+<a class="viewcode-back" href="../../../api.html#predici_clone.api.ProfilePoint">[문서]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ProfilePoint</span><span class="p">:</span>
+    <span class="n">time</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">value</span><span class="p">:</span> <span class="nb">float</span></div>
+
+
+
+<div class="viewcode-block" id="IntegrationControl">
+<a class="viewcode-back" href="../../../api.html#predici_clone.api.IntegrationControl">[문서]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">IntegrationControl</span><span class="p">:</span>
+    <span class="n">t_final</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">30.0</span>
+    <span class="n">output_points</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">80</span>
+    <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;BDF&quot;</span>
+    <span class="n">rtol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-7</span>
+    <span class="n">atol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-10</span>
+    <span class="n">backend</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;discrete&quot;</span>
+    <span class="n">galerkin_cells</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span>
+    <span class="n">galerkin_degree</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span></div>
+
+
+
+<div class="viewcode-block" id="ReactorConfig">
+<a class="viewcode-back" href="../../../api.html#predici_clone.api.ReactorConfig">[문서]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ReactorConfig</span><span class="p">:</span>
+    <span class="n">kind</span><span class="p">:</span> <span class="n">ReactorKind</span> <span class="o">=</span> <span class="s2">&quot;Batch&quot;</span>
+    <span class="n">nmax</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">120</span>
+    <span class="n">volume</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="n">residence_time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">8.0</span>
+    <span class="n">stages</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">axial_cells</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">12</span></div>
+
+
+
+<div class="viewcode-block" id="OutputConfig">
+<a class="viewcode-back" href="../../../api.html#predici_clone.api.OutputConfig">[문서]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">OutputConfig</span><span class="p">:</span>
+    <span class="n">distribution_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;weight&quot;</span>
+    <span class="n">log_axis</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">gpc_convolution</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">enabled_generic_outputs</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Mn&quot;</span><span class="p">,</span> <span class="s2">&quot;Mw&quot;</span><span class="p">,</span> <span class="s2">&quot;PDI&quot;</span><span class="p">,</span> <span class="s2">&quot;conversion&quot;</span><span class="p">)</span>
+    <span class="n">scripted_outputs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="HeatBalanceConfig">
+<a class="viewcode-back" href="../../../api.html#predici_clone.api.HeatBalanceConfig">[문서]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">HeatBalanceConfig</span><span class="p">:</span>
+    <span class="n">enabled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">use_heat_exchanger</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">heat_transfer</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">area</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">heat_capacity</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">mass_flow</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">mass_holdup</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">initial_feed_temp</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">298.15</span>
+    <span class="n">coolant_temperature</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">298.15</span>
+    <span class="n">additional_heat</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">counter_current</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
+
+<div class="viewcode-block" id="Recipe">
+<a class="viewcode-back" href="../../../api.html#predici_clone.api.Recipe">[문서]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Recipe</span><span class="p">:</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span>
+    <span class="n">unit_system</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;SI&quot;</span>
+    <span class="n">initial</span><span class="p">:</span> <span class="n">InitialConditions</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">InitialConditions</span><span class="p">)</span>
+    <span class="n">feed</span><span class="p">:</span> <span class="n">FeedStream</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">FeedStream</span><span class="p">)</span>
+    <span class="n">feed_tanks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">FeedStream</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">polymer_feed</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">integration</span><span class="p">:</span> <span class="n">IntegrationControl</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">IntegrationControl</span><span class="p">)</span>
+    <span class="n">pre_schedule</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">temperature_profile</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ProfilePoint</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">pressure_profile</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ProfilePoint</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">shooting_control</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="Project">
+<a class="viewcode-back" href="../../../api.html#predici_clone.api.Project">[문서]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Project</span><span class="p">:</span>
+    <span class="n">schema_version</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PREDICI Clone Project&quot;</span>
+    <span class="n">reactor</span><span class="p">:</span> <span class="n">ReactorConfig</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">ReactorConfig</span><span class="p">)</span>
+    <span class="n">kinetics</span><span class="p">:</span> <span class="n">FRPParameters</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">FRPParameters</span><span class="p">)</span>
+    <span class="n">recipe</span><span class="p">:</span> <span class="n">Recipe</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">Recipe</span><span class="p">)</span>
+    <span class="n">outputs</span><span class="p">:</span> <span class="n">OutputConfig</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">OutputConfig</span><span class="p">)</span>
+    <span class="n">heat_balance</span><span class="p">:</span> <span class="n">HeatBalanceConfig</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">HeatBalanceConfig</span><span class="p">)</span>
+    <span class="n">substances</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">polymers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">reaction_steps</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ReactionStep</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">generic_parameters</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Project.to_dict">
+<a class="viewcode-back" href="../../../api.html#predici_clone.api.Project.to_dict">[문서]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Project.from_dict">
+<a class="viewcode-back" href="../../../api.html#predici_clone.api.Project.from_dict">[문서]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;Project&quot;</span><span class="p">:</span>
+        <span class="n">recipe_data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;recipe&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">recipe</span> <span class="o">=</span> <span class="n">Recipe</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">recipe_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;default&quot;</span><span class="p">),</span>
+            <span class="n">unit_system</span><span class="o">=</span><span class="n">recipe_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;unit_system&quot;</span><span class="p">,</span> <span class="s2">&quot;SI&quot;</span><span class="p">),</span>
+            <span class="n">initial</span><span class="o">=</span><span class="n">InitialConditions</span><span class="p">(</span><span class="o">**</span><span class="n">recipe_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;initial&quot;</span><span class="p">,</span> <span class="p">{})),</span>
+            <span class="n">feed</span><span class="o">=</span><span class="n">FeedStream</span><span class="p">(</span><span class="o">**</span><span class="n">recipe_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;feed&quot;</span><span class="p">,</span> <span class="p">{})),</span>
+            <span class="n">feed_tanks</span><span class="o">=</span><span class="p">[</span><span class="n">_feed_stream_from_dict</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">recipe_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;feed_tanks&quot;</span><span class="p">,</span> <span class="p">[])],</span>
+            <span class="n">polymer_feed</span><span class="o">=</span><span class="n">recipe_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;polymer_feed&quot;</span><span class="p">,</span> <span class="p">[]),</span>
+            <span class="n">integration</span><span class="o">=</span><span class="n">IntegrationControl</span><span class="p">(</span><span class="o">**</span><span class="n">recipe_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;integration&quot;</span><span class="p">,</span> <span class="p">{})),</span>
+            <span class="n">pre_schedule</span><span class="o">=</span><span class="n">recipe_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;pre_schedule&quot;</span><span class="p">,</span> <span class="p">[]),</span>
+            <span class="n">temperature_profile</span><span class="o">=</span><span class="p">[</span><span class="n">_profile_point_from_dict</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">recipe_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;temperature_profile&quot;</span><span class="p">,</span> <span class="p">[])],</span>
+            <span class="n">pressure_profile</span><span class="o">=</span><span class="p">[</span><span class="n">_profile_point_from_dict</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">recipe_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;pressure_profile&quot;</span><span class="p">,</span> <span class="p">[])],</span>
+            <span class="n">shooting_control</span><span class="o">=</span><span class="n">recipe_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;shooting_control&quot;</span><span class="p">,</span> <span class="p">{}),</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">schema_version</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;schema_version&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;PREDICI Clone Project&quot;</span><span class="p">),</span>
+            <span class="n">reactor</span><span class="o">=</span><span class="n">ReactorConfig</span><span class="p">(</span><span class="o">**</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reactor&quot;</span><span class="p">,</span> <span class="p">{})),</span>
+            <span class="n">kinetics</span><span class="o">=</span><span class="n">FRPParameters</span><span class="p">(</span><span class="o">**</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;kinetics&quot;</span><span class="p">,</span> <span class="p">{})),</span>
+            <span class="n">recipe</span><span class="o">=</span><span class="n">recipe</span><span class="p">,</span>
+            <span class="n">outputs</span><span class="o">=</span><span class="n">OutputConfig</span><span class="p">(</span><span class="o">**</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;outputs&quot;</span><span class="p">,</span> <span class="p">{})),</span>
+            <span class="n">heat_balance</span><span class="o">=</span><span class="n">HeatBalanceConfig</span><span class="p">(</span><span class="o">**</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;heat_balance&quot;</span><span class="p">,</span> <span class="p">{})),</span>
+            <span class="n">substances</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;substances&quot;</span><span class="p">,</span> <span class="p">[]),</span>
+            <span class="n">polymers</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;polymers&quot;</span><span class="p">,</span> <span class="p">[]),</span>
+            <span class="n">reaction_steps</span><span class="o">=</span><span class="p">[</span><span class="n">_reaction_step_from_dict</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reaction_steps&quot;</span><span class="p">,</span> <span class="p">[])],</span>
+            <span class="n">generic_parameters</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;generic_parameters&quot;</span><span class="p">,</span> <span class="p">{}),</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="sample_project">
+<a class="viewcode-back" href="../../../api.html#predici_clone.api.sample_project">[문서]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">sample_project</span><span class="p">(</span><span class="n">kind</span><span class="p">:</span> <span class="n">ReactorKind</span> <span class="o">=</span> <span class="s2">&quot;Batch&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Project</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">Project</span><span class="p">(</span><span class="n">reactor</span><span class="o">=</span><span class="n">ReactorConfig</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="n">kind</span><span class="p">))</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_reaction_step_from_dict</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="n">ReactionStep</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReactionStep</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ReactionStep</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">data</span>
+    <span class="n">rate_data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;rate_law&quot;</span><span class="p">,</span> <span class="p">{})</span>
+    <span class="k">return</span> <span class="n">ReactionStep</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;reaction&quot;</span><span class="p">),</span>
+        <span class="n">kind</span><span class="o">=</span><span class="n">ReactionKind</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;kind&quot;</span><span class="p">,</span> <span class="n">ReactionKind</span><span class="o">.</span><span class="n">PROPAGATION</span><span class="p">)),</span>
+        <span class="n">reactants</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reactants&quot;</span><span class="p">,</span> <span class="p">())),</span>
+        <span class="n">products</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;products&quot;</span><span class="p">,</span> <span class="p">())),</span>
+        <span class="n">rate_law</span><span class="o">=</span><span class="n">RateLaw</span><span class="p">(</span>
+            <span class="n">expression</span><span class="o">=</span><span class="n">rate_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;expression&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+            <span class="n">parameters</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">rate_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;parameters&quot;</span><span class="p">,</span> <span class="p">())),</span>
+        <span class="p">),</span>
+        <span class="n">enabled</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;enabled&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="n">site</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;site&quot;</span><span class="p">,</span> <span class="s2">&quot;default&quot;</span><span class="p">),</span>
+        <span class="n">reactor_scope</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reactor_scope&quot;</span><span class="p">,</span> <span class="s2">&quot;all&quot;</span><span class="p">),</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_profile_point_from_dict</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="n">ProfilePoint</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ProfilePoint</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ProfilePoint</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">data</span>
+    <span class="k">return</span> <span class="n">ProfilePoint</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)),</span> <span class="n">value</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_feed_stream_from_dict</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="n">FeedStream</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FeedStream</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">FeedStream</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">data</span>
+    <span class="k">return</span> <span class="n">FeedStream</span><span class="p">(</span>
+        <span class="n">monomer</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;monomer&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)),</span>
+        <span class="n">initiator</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;initiator&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)),</span>
+        <span class="n">radicals</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;radicals&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)),</span>
+        <span class="n">rate</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;rate&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)),</span>
+    <span class="p">)</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &#169;.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

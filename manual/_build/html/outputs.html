@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+
+<html lang="ko" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Outputs와 Reports &#8212; PREDICI Clone Manual</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=ac66fb28" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=030cfef0" />
+    <script src="_static/documentation_options.js?v=d6a8a7ef"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/translations.js?v=afa94a99"></script>
+    <link rel="index" title="색인" href="genindex.html" />
+    <link rel="search" title="검색" href="search.html" />
+    <link rel="next" title="Parameter Estimation" href="fitting.html" />
+    <link rel="prev" title="프로젝트와 Recipe" href="projects.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">PREDICI Clone Manual</a></h1>
+
+
+
+<p class="blurb">Polymerization simulation, GUI, API, and validation guide</p>
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="이동" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>탐색</h3>
+<p class="caption" role="heading"><span class="caption-text">사용자 문서</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">설치</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">빠른 시작</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gui.html">GUI 사용법</a></li>
+<li class="toctree-l1"><a class="reference internal" href="projects.html">프로젝트와 Recipe</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Outputs와 Reports</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#generic-outputs">Generic Outputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mwd-gpc">MWD/GPC</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#report-export">Report Export</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="fitting.html">Parameter Estimation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="packaging.html">패키징</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">개발자 문서</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">구조</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation.html">검증과 Benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extending.html">확장 가이드</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">용어</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="projects.html" title="이전 장">프로젝트와 Recipe</a></li>
+      <li>Next: <a href="fitting.html" title="다음 장">Parameter Estimation</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="outputs-reports">
+<h1>Outputs와 Reports<a class="headerlink" href="#outputs-reports" title="Link to this heading">¶</a></h1>
+<section id="generic-outputs">
+<h2>Generic Outputs<a class="headerlink" href="#generic-outputs" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">OutputConfig.enabled_generic_outputs</span></code> 로 계산할 scalar output을 선택한다.</p>
+<p>지원되는 대표 output:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Mn</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Mw</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PDI</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">M0</span></code>, <code class="docutils literal notranslate"><span class="pre">M1</span></code>, <code class="docutils literal notranslate"><span class="pre">M2</span></code>, <code class="docutils literal notranslate"><span class="pre">M3</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Mz</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">AMW</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mass</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">conversion</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">temperature</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pressure</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">heat_duty</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MFI</span></code></p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">predici_clone.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">OutputConfig</span><span class="p">,</span> <span class="n">Project</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">predici_clone.engine</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimulationEngine</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">predici_clone.postprocess.generic_outputs</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_generic_outputs</span>
+
+<span class="n">project</span> <span class="o">=</span> <span class="n">Project</span><span class="p">(</span><span class="n">outputs</span><span class="o">=</span><span class="n">OutputConfig</span><span class="p">(</span><span class="n">enabled_generic_outputs</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Mn&quot;</span><span class="p">,</span> <span class="s2">&quot;Mw&quot;</span><span class="p">,</span> <span class="s2">&quot;PDI&quot;</span><span class="p">,</span> <span class="s2">&quot;MFI&quot;</span><span class="p">)))</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">SimulationEngine</span><span class="p">(</span><span class="n">project</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="n">outputs</span> <span class="o">=</span> <span class="n">compute_generic_outputs</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">project</span><span class="o">.</span><span class="n">outputs</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="mwd-gpc">
+<h2>MWD/GPC<a class="headerlink" href="#mwd-gpc" title="Link to this heading">¶</a></h2>
+<p>GPC profile 변환은 chain length distribution을 molecular weight axis로 변환하고, 선택적으로
+Gaussian convolution을 적용한다.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">predici_clone.postprocess.gpc</span><span class="w"> </span><span class="kn">import</span> <span class="n">distribution_to_gpc_profile</span>
+
+<span class="n">profile</span> <span class="o">=</span> <span class="n">distribution_to_gpc_profile</span><span class="p">(</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">final_distribution</span><span class="p">,</span>
+    <span class="n">first_length</span><span class="o">=</span><span class="n">result</span><span class="o">.</span><span class="n">first_length</span><span class="p">,</span>
+    <span class="n">monomer_mw</span><span class="o">=</span><span class="mf">100.0</span><span class="p">,</span>
+    <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;weight&quot;</span><span class="p">,</span>
+    <span class="n">log_axis</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">convolution_sigma</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="report-export">
+<h2>Report Export<a class="headerlink" href="#report-export" title="Link to this heading">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">predici_clone.postprocess.moments_report</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_distribution_report</span>
+
+<span class="n">write_distribution_report</span><span class="p">(</span><span class="s2">&quot;distribution.csv&quot;</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">final_distribution</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>GUI에서는 MWD chart를 PNG/PDF로 export할 수 있다.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &#169;.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/outputs.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

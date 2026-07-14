@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+
+<html lang="ko" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Parameter Estimation &#8212; PREDICI Clone Manual</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=ac66fb28" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=030cfef0" />
+    <script src="_static/documentation_options.js?v=d6a8a7ef"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/translations.js?v=afa94a99"></script>
+    <link rel="index" title="색인" href="genindex.html" />
+    <link rel="search" title="검색" href="search.html" />
+    <link rel="next" title="패키징" href="packaging.html" />
+    <link rel="prev" title="Outputs와 Reports" href="outputs.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">PREDICI Clone Manual</a></h1>
+
+
+
+<p class="blurb">Polymerization simulation, GUI, API, and validation guide</p>
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="이동" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>탐색</h3>
+<p class="caption" role="heading"><span class="caption-text">사용자 문서</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">설치</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">빠른 시작</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gui.html">GUI 사용법</a></li>
+<li class="toctree-l1"><a class="reference internal" href="projects.html">프로젝트와 Recipe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="outputs.html">Outputs와 Reports</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Parameter Estimation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#workflow">지원 workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#local-fitting">Local Fitting 예시</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sensitivity">Sensitivity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#shooting-control">Shooting Control</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="packaging.html">패키징</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">개발자 문서</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">구조</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation.html">검증과 Benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extending.html">확장 가이드</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">용어</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="outputs.html" title="이전 장">Outputs와 Reports</a></li>
+      <li>Next: <a href="packaging.html" title="다음 장">패키징</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="parameter-estimation">
+<h1>Parameter Estimation<a class="headerlink" href="#parameter-estimation" title="Link to this heading">¶</a></h1>
+<section id="workflow">
+<h2>지원 workflow<a class="headerlink" href="#workflow" title="Link to this heading">¶</a></h2>
+<ol class="arabic simple">
+<li><p>실험 CSV 로드</p></li>
+<li><p>observation column과 model output 매핑</p></li>
+<li><p>trimming window 설정</p></li>
+<li><p>parameter bounds 설정</p></li>
+<li><p>global search 또는 local least-squares 실행</p></li>
+<li><p>covariance/correlation/condition diagnostics 확인</p></li>
+<li><p>uncertainty sampling 또는 multi-experiment fitting 실행</p></li>
+</ol>
+</section>
+<section id="local-fitting">
+<h2>Local Fitting 예시<a class="headerlink" href="#local-fitting" title="Link to this heading">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">predici_clone.postprocess.parameter_estimation</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">FittingProblem</span><span class="p">,</span>
+    <span class="n">OutputTarget</span><span class="p">,</span>
+    <span class="n">ParameterSpec</span><span class="p">,</span>
+    <span class="n">fit_generic_parameters</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">problem</span> <span class="o">=</span> <span class="n">FittingProblem</span><span class="p">(</span>
+    <span class="n">project</span><span class="o">=</span><span class="n">project</span><span class="p">,</span>
+    <span class="n">parameters</span><span class="o">=</span><span class="p">(</span><span class="n">ParameterSpec</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;GP_kp&quot;</span><span class="p">,</span> <span class="n">initial</span><span class="o">=</span><span class="mf">0.08</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mf">1.0</span><span class="p">),),</span>
+    <span class="n">targets</span><span class="o">=</span><span class="p">(</span><span class="n">OutputTarget</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;mass&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mf">1.0</span><span class="p">),),</span>
+<span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">fit_generic_parameters</span><span class="p">(</span><span class="n">problem</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="sensitivity">
+<h2>Sensitivity<a class="headerlink" href="#sensitivity" title="Link to this heading">¶</a></h2>
+<p>지원되는 sensitivity/global search 도구:</p>
+<ul class="simple">
+<li><p>finite-difference style sensitivity</p></li>
+<li><p>sigma-point sensitivity</p></li>
+<li><p>Monte Carlo sensitivity</p></li>
+<li><p>grid variation for up to three parameters</p></li>
+<li><p>differential evolution</p></li>
+<li><p>dual annealing</p></li>
+</ul>
+</section>
+<section id="shooting-control">
+<h2>Shooting Control<a class="headerlink" href="#shooting-control" title="Link to this heading">¶</a></h2>
+<p>Automation API의 <code class="docutils literal notranslate"><span class="pre">activate_detailed_iteration</span></code> 은 target output에 맞게 generic parameter를 조정한다.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">predici_clone.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">activate_detailed_iteration</span>
+
+<span class="n">shooting</span> <span class="o">=</span> <span class="n">activate_detailed_iteration</span><span class="p">(</span>
+    <span class="n">project</span><span class="p">,</span>
+    <span class="n">target_output</span><span class="o">=</span><span class="s2">&quot;mass&quot;</span><span class="p">,</span>
+    <span class="n">target_value</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">tune_parameter</span><span class="o">=</span><span class="s2">&quot;GP_kp&quot;</span><span class="p">,</span>
+    <span class="n">initial</span><span class="o">=</span><span class="mf">0.08</span><span class="p">,</span>
+    <span class="n">lower</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span>
+    <span class="n">upper</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &#169;.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/fitting.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

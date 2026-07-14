@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+
+<html lang="ko" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>predici_clone.api.interoperability &#8212; PREDICI Clone Manual</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=ac66fb28" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=030cfef0" />
+    <script src="../../../_static/documentation_options.js?v=d6a8a7ef"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/translations.js?v=afa94a99"></script>
+    <link rel="index" title="색인" href="../../../genindex.html" />
+    <link rel="search" title="검색" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">PREDICI Clone Manual</a></h1>
+
+
+
+<p class="blurb">Polymerization simulation, GUI, API, and validation guide</p>
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="이동" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>탐색</h3>
+<p class="caption" role="heading"><span class="caption-text">사용자 문서</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">설치</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">빠른 시작</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gui.html">GUI 사용법</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../projects.html">프로젝트와 Recipe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../outputs.html">Outputs와 Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../fitting.html">Parameter Estimation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../packaging.html">패키징</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">개발자 문서</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../architecture.html">구조</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../validation.html">검증과 Benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../extending.html">확장 가이드</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">용어</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">모듈 코드</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>predici_clone.api.interoperability의 소스 코드</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">predici_clone.api.automation</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">activate_detailed_iteration</span><span class="p">,</span>
+    <span class="n">check_enthalpy</span><span class="p">,</span>
+    <span class="n">create_recipe</span><span class="p">,</span>
+    <span class="n">get_dist_moments</span><span class="p">,</span>
+    <span class="n">get_dist_points</span><span class="p">,</span>
+    <span class="n">get_reactor_pressure</span><span class="p">,</span>
+    <span class="n">set_dist_lumping</span><span class="p">,</span>
+    <span class="n">set_enthalpy</span><span class="p">,</span>
+    <span class="n">set_feed_rate</span><span class="p">,</span>
+    <span class="n">set_heat_exchanger</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">predici_clone.api.project_schema</span><span class="w"> </span><span class="kn">import</span> <span class="n">Project</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">predici_clone.engine.simulation_result</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimulationResult</span>
+
+
+<div class="viewcode-block" id="export_matlab_moment_equations">
+<a class="viewcode-back" href="../../../api.html#predici_clone.api.export_matlab_moment_equations">[문서]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">export_matlab_moment_equations</span><span class="p">(</span><span class="n">project</span><span class="p">:</span> <span class="n">Project</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">_moment_equation_text</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="n">language</span><span class="o">=</span><span class="s2">&quot;matlab&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">text</span></div>
+
+
+
+<div class="viewcode-block" id="export_c_moment_equations">
+<a class="viewcode-back" href="../../../api.html#predici_clone.api.export_c_moment_equations">[문서]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">export_c_moment_equations</span><span class="p">(</span><span class="n">project</span><span class="p">:</span> <span class="n">Project</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">_moment_equation_text</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="n">language</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">text</span></div>
+
+
+
+<div class="viewcode-block" id="execute_public_command">
+<a class="viewcode-back" href="../../../api.html#predici_clone.api.execute_public_command">[문서]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">execute_public_command</span><span class="p">(</span>
+    <span class="n">command</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">project</span><span class="p">:</span> <span class="n">Project</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">result</span><span class="p">:</span> <span class="n">SimulationResult</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="n">commands</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;CreateRecipe&quot;</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">create_recipe</span><span class="p">(</span>
+            <span class="n">_require_project</span><span class="p">(</span><span class="n">project</span><span class="p">),</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;recipe_name&quot;</span><span class="p">]),</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;option&quot;</span><span class="p">,</span> <span class="s2">&quot;copy&quot;</span><span class="p">)),</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;GetDistPoints&quot;</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">get_dist_points</span><span class="p">(</span><span class="n">_require_result</span><span class="p">(</span><span class="n">result</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">),</span>
+        <span class="s2">&quot;GetDistMoments&quot;</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">get_dist_moments</span><span class="p">(</span><span class="n">_require_result</span><span class="p">(</span><span class="n">result</span><span class="p">)),</span>
+        <span class="s2">&quot;GetReactorPressure&quot;</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">get_reactor_pressure</span><span class="p">(</span><span class="n">_require_result</span><span class="p">(</span><span class="n">result</span><span class="p">),</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reactor_name&quot;</span><span class="p">,</span> <span class="s2">&quot;default&quot;</span><span class="p">)),</span>
+        <span class="s2">&quot;CheckEnthalpy&quot;</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">check_enthalpy</span><span class="p">(</span><span class="n">_require_project</span><span class="p">(</span><span class="n">project</span><span class="p">),</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reactor_name&quot;</span><span class="p">,</span> <span class="s2">&quot;default&quot;</span><span class="p">)),</span>
+        <span class="s2">&quot;ActivateDetailedIteration&quot;</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">activate_detailed_iteration</span><span class="p">(</span><span class="n">_require_project</span><span class="p">(</span><span class="n">project</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">),</span>
+        <span class="s2">&quot;SetFeedRate&quot;</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">set_feed_rate</span><span class="p">(</span><span class="n">_require_project</span><span class="p">(</span><span class="n">project</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;rate&quot;</span><span class="p">])),</span>
+        <span class="s2">&quot;SetDistLumping&quot;</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">set_dist_lumping</span><span class="p">(</span><span class="n">_require_project</span><span class="p">(</span><span class="n">project</span><span class="p">),</span> <span class="nb">bool</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;on_off&quot;</span><span class="p">])),</span>
+        <span class="s2">&quot;SetEnthalpy&quot;</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">set_enthalpy</span><span class="p">(</span>
+            <span class="n">_require_project</span><span class="p">(</span><span class="n">project</span><span class="p">),</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;step_type&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)),</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reactant&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)),</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]),</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;SetHeatExchanger&quot;</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">set_heat_exchanger</span><span class="p">(</span><span class="n">_require_project</span><span class="p">(</span><span class="n">project</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">),</span>
+    <span class="p">}</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">commands</span><span class="p">[</span><span class="n">command</span><span class="p">]()</span>
+    <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported public command: </span><span class="si">{</span><span class="n">command</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_moment_equation_text</span><span class="p">(</span><span class="n">project</span><span class="p">:</span> <span class="n">Project</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">language</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">kp</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">project</span><span class="o">.</span><span class="n">generic_parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GP_kp&quot;</span><span class="p">,</span> <span class="n">project</span><span class="o">.</span><span class="n">kinetics</span><span class="o">.</span><span class="n">kp</span><span class="p">))</span>
+    <span class="n">kt</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">project</span><span class="o">.</span><span class="n">generic_parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GP_kt&quot;</span><span class="p">,</span> <span class="n">project</span><span class="o">.</span><span class="n">kinetics</span><span class="o">.</span><span class="n">kt</span><span class="p">))</span>
+    <span class="n">kd</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">project</span><span class="o">.</span><span class="n">generic_parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GP_kd&quot;</span><span class="p">,</span> <span class="n">project</span><span class="o">.</span><span class="n">kinetics</span><span class="o">.</span><span class="n">kd</span><span class="p">))</span>
+    <span class="n">efficiency</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">project</span><span class="o">.</span><span class="n">kinetics</span><span class="o">.</span><span class="n">initiator_efficiency</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">language</span> <span class="o">==</span> <span class="s2">&quot;matlab&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="s2">&quot;function dydt = predici_moments(t, y)&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;kp = </span><span class="si">{</span><span class="n">kp</span><span class="si">:</span><span class="s2">.17g</span><span class="si">}</span><span class="s2">; kt = </span><span class="si">{</span><span class="n">kt</span><span class="si">:</span><span class="s2">.17g</span><span class="si">}</span><span class="s2">; kd = </span><span class="si">{</span><span class="n">kd</span><span class="si">:</span><span class="s2">.17g</span><span class="si">}</span><span class="s2">; f = </span><span class="si">{</span><span class="n">efficiency</span><span class="si">:</span><span class="s2">.17g</span><span class="si">}</span><span class="s2">;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;% y = [M; I; R; M0; M1; M2; M3]&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;M = y(1); I = y(2); R = y(3); M0 = y(4); M1 = y(5); M2 = y(6); M3 = y(7);&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;dM = -kp * M * R;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;dI = -kd * I;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;dR = 2 * f * kd * I - kt * R * R;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;dM0 = kp * M * R;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;dM1 = kp * M * (M0 + R);&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;dM2 = kp * M * (2 * M1 + M0 + R);&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;dM3 = kp * M * (3 * M2 + 3 * M1 + M0 + R);&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;dydt = [dM; dI; dR; dM0; dM1; dM2; dM3];&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;end&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">language</span> <span class="o">==</span> <span class="s2">&quot;c&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="s2">&quot;void predici_moments(double t, const double y[7], double dydt[7]) {&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;  const double kp = </span><span class="si">{</span><span class="n">kp</span><span class="si">:</span><span class="s2">.17g</span><span class="si">}</span><span class="s2">, kt = </span><span class="si">{</span><span class="n">kt</span><span class="si">:</span><span class="s2">.17g</span><span class="si">}</span><span class="s2">, kd = </span><span class="si">{</span><span class="n">kd</span><span class="si">:</span><span class="s2">.17g</span><span class="si">}</span><span class="s2">, f = </span><span class="si">{</span><span class="n">efficiency</span><span class="si">:</span><span class="s2">.17g</span><span class="si">}</span><span class="s2">;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;  const double M = y[0], I = y[1], R = y[2], M0 = y[3], M1 = y[4], M2 = y[5];&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;  (void)t;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;  dydt[0] = -kp * M * R;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;  dydt[1] = -kd * I;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;  dydt[2] = 2.0 * f * kd * I - kt * R * R;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;  dydt[3] = kp * M * R;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;  dydt[4] = kp * M * (M0 + R);&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;  dydt[5] = kp * M * (2.0 * M1 + M0 + R);&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;  dydt[6] = kp * M * (3.0 * M2 + 3.0 * M1 + M0 + R);&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;}&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported export language: </span><span class="si">{</span><span class="n">language</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_require_project</span><span class="p">(</span><span class="n">project</span><span class="p">:</span> <span class="n">Project</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Project</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">project</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;project is required&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">project</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_require_result</span><span class="p">(</span><span class="n">result</span><span class="p">:</span> <span class="n">SimulationResult</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SimulationResult</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;result is required&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &#169;.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

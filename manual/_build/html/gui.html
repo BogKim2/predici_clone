@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+
+<html lang="ko" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>GUI 사용법 &#8212; PREDICI Clone Manual</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=ac66fb28" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=030cfef0" />
+    <script src="_static/documentation_options.js?v=d6a8a7ef"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/translations.js?v=afa94a99"></script>
+    <link rel="index" title="색인" href="genindex.html" />
+    <link rel="search" title="검색" href="search.html" />
+    <link rel="next" title="프로젝트와 Recipe" href="projects.html" />
+    <link rel="prev" title="빠른 시작" href="quickstart.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">PREDICI Clone Manual</a></h1>
+
+
+
+<p class="blurb">Polymerization simulation, GUI, API, and validation guide</p>
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="이동" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>탐색</h3>
+<p class="caption" role="heading"><span class="caption-text">사용자 문서</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">설치</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">빠른 시작</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">GUI 사용법</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">전체 레이아웃</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dashboard">Dashboard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#simulation">Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mwd-viewer">MWD Viewer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#model-builder">Model Builder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#recipe-editor">Recipe Editor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fitting">Fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#script">Script</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="projects.html">프로젝트와 Recipe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="outputs.html">Outputs와 Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fitting.html">Parameter Estimation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="packaging.html">패키징</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">개발자 문서</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">구조</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation.html">검증과 Benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extending.html">확장 가이드</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">용어</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="quickstart.html" title="이전 장">빠른 시작</a></li>
+      <li>Next: <a href="projects.html" title="다음 장">프로젝트와 Recipe</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="gui">
+<h1>GUI 사용법<a class="headerlink" href="#gui" title="Link to this heading">¶</a></h1>
+<section id="id1">
+<h2>전체 레이아웃<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+<p>GUI는 <code class="docutils literal notranslate"><span class="pre">QMainWindow</span></code> 기반의 전문 공정 시뮬레이션 작업 환경으로 구성되어 있다.</p>
+<ul class="simple">
+<li><p>상단: menu bar, toolbar, run/stop/export action</p></li>
+<li><p>왼쪽 dock: project tree</p></li>
+<li><p>중앙 workspace: Dashboard, Model Builder, Recipe Editor, Simulation, MWD Viewer, Fitting, Script tab</p></li>
+<li><p>오른쪽 dock: inspector와 validation message</p></li>
+<li><p>하단 dock/status bar: log, progress, solver status</p></li>
+</ul>
+</section>
+<section id="dashboard">
+<h2>Dashboard<a class="headerlink" href="#dashboard" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">Dashboard</span></code> 는 현재 프로젝트와 최근 시뮬레이션 결과를 요약한다.</p>
+<ul class="simple">
+<li><p>reactor kind</p></li>
+<li><p>backend</p></li>
+<li><p>key generic outputs</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Mn</span></code>, <code class="docutils literal notranslate"><span class="pre">Mw</span></code>, <code class="docutils literal notranslate"><span class="pre">PDI</span></code></p></li>
+<li><p>validation error/warning count</p></li>
+</ul>
+</section>
+<section id="simulation">
+<h2>Simulation<a class="headerlink" href="#simulation" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">Simulation</span></code> tab에서는 기본 반응기와 solver 조건을 설정한다.</p>
+<ul class="simple">
+<li><p>reactor: <code class="docutils literal notranslate"><span class="pre">Batch</span></code>, <code class="docutils literal notranslate"><span class="pre">Semi-batch</span></code>, <code class="docutils literal notranslate"><span class="pre">CSTR</span></code>, <code class="docutils literal notranslate"><span class="pre">Cascade</span></code>, <code class="docutils literal notranslate"><span class="pre">PFR</span></code></p></li>
+<li><p>backend: discrete, projected Galerkin, direct Galerkin</p></li>
+<li><p>integration time, output points, tolerance</p></li>
+<li><p>heat balance와 profile output</p></li>
+</ul>
+<p>긴 실행은 <code class="docutils literal notranslate"><span class="pre">SimulationWorker</span></code> 를 통해 GUI thread와 분리된다. <code class="docutils literal notranslate"><span class="pre">Stop</span></code> 요청은 solver loop에서
+stop flag를 확인하는 방식으로 처리된다.</p>
+</section>
+<section id="mwd-viewer">
+<h2>MWD Viewer<a class="headerlink" href="#mwd-viewer" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">MWD</span> <span class="pre">Viewer</span></code> 는 molecular weight distribution을 분석하는 핵심 화면이다.</p>
+<p>지원 기능:</p>
+<ul class="simple">
+<li><p>mole fraction / weight fraction toggle</p></li>
+<li><p>chain length / molecular weight / log molecular weight axis</p></li>
+<li><p>GPC convolution toggle</p></li>
+<li><p>time slider로 transient distribution 탐색</p></li>
+<li><p>이전 실행 결과와 benchmark/reference overlay</p></li>
+<li><p>moment table</p></li>
+<li><p>CSV, PNG, PDF export</p></li>
+</ul>
+</section>
+<section id="model-builder">
+<h2>Model Builder<a class="headerlink" href="#model-builder" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">Model</span> <span class="pre">Builder</span></code> 는 reaction step과 template 기반 multi-step 모델을 다룬다.</p>
+<ul class="simple">
+<li><p>reaction step 추가/삭제</p></li>
+<li><p>enabled flag</p></li>
+<li><p>reaction kind, site, reactants, products</p></li>
+<li><p>rate expression과 generic parameter binding</p></li>
+<li><p>RAFT, NMP, ATRP, condensation, polyurethane, polyester, Ziegler-Natta 계열 template</p></li>
+</ul>
+</section>
+<section id="recipe-editor">
+<h2>Recipe Editor<a class="headerlink" href="#recipe-editor" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">Recipe</span> <span class="pre">Editor</span></code> 는 공정 recipe를 table 형태로 편집한다.</p>
+<ul class="simple">
+<li><p>initial conditions</p></li>
+<li><p>feed stream과 multiple feed tanks</p></li>
+<li><p>polymer feed</p></li>
+<li><p>integration control</p></li>
+<li><p>temperature/pressure profile</p></li>
+<li><p>pre-schedule: feed rate, temperature, pressure, residence time, coolant temperature, additional heat</p></li>
+</ul>
+</section>
+<section id="fitting">
+<h2>Fitting<a class="headerlink" href="#fitting" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">Fitting</span></code> tab은 실험 데이터와 모델 output을 매핑하고 parameter estimation을 수행한다.</p>
+<ul class="simple">
+<li><p>CSV experiment import</p></li>
+<li><p>trimming window</p></li>
+<li><p>model output과 observation column mapping</p></li>
+<li><p>local least-squares</p></li>
+<li><p>differential evolution, dual annealing</p></li>
+<li><p>Bayesian sampling</p></li>
+<li><p>multi-experiment shared parameter fitting</p></li>
+<li><p>covariance, correlation, condition number, confidence interval, essential direction diagnostics</p></li>
+</ul>
+</section>
+<section id="script">
+<h2>Script<a class="headerlink" href="#script" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">Script</span></code> tab은 user-defined output을 정의한다.</p>
+<p>지원되는 안전한 subset:</p>
+<ul class="simple">
+<li><p>scalar expression</p></li>
+<li><p>assignment</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">for</span></code> / <code class="docutils literal notranslate"><span class="pre">range</span></code> loop</p></li>
+<li><p>list/tuple indexing</p></li>
+<li><p>augmented assignment</p></li>
+</ul>
+<p>임의의 <code class="docutils literal notranslate"><span class="pre">exec</span></code> 나 unsafe attribute access는 허용하지 않는다.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &#169;.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/gui.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
