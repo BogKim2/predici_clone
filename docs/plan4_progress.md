@@ -61,6 +61,9 @@ This file tracks implementation evidence against `plan4.md`.
   - Recipe tab exposes the seven `Input as` modes with volume/total-mass/total-moles basis controls
   - `Normalize Mode` applies the core recipe normalization service and writes mass/moles/concentration/parts back to the table
   - tests: `tests/test_postprocess_and_gui.py`, `tests/test_recipe_consistency.py`
+- M25 recipe consistency warning styling
+  - inconsistent density/concentration sums are marked in the consistency label and table row background
+  - tests: `tests/test_postprocess_and_gui.py`
 - M27 script command catalog/template foundation
   - data-driven script function catalog with implemented/stub command markers
   - safe scripted-output evaluator supports string arguments and whitelisted command callables
@@ -131,7 +134,6 @@ This file tracks implementation evidence against `plan4.md`.
 
 - M23 validation styling in GUI
 - M24 drag/drop slot assignment interaction
-- M25 visual warning styling for recipe-entry consistency
 - M27 PDE-specific numerical semantics for advanced commands beyond supplied-state helpers
 - M29 multi-script debugger panes and edit-in-place workflow
 - M32 true moments backend and Monte Carlo/tau-leaping numerical execution

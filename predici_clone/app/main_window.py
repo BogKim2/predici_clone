@@ -6,7 +6,7 @@ import numpy as np
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from PySide6.QtCore import QSettings, Qt, QThread
-from PySide6.QtGui import QAction
+from PySide6.QtGui import QAction, QColor
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QCheckBox,
@@ -1148,7 +1148,20 @@ class MainWindow(QMainWindow):
             for column, value in enumerate(values):
                 self.recipe_consistency_table.setItem(row, column, QTableWidgetItem(f"{value:.12g}" if isinstance(value, float) else str(value)))
         self._refresh_recipe_consistency_targets()
-        self.recipe_consistency_sum.setText(f"sum: {consistency_sum(components):.6g}")
+        self._update_recipe_consistency_warning(components)
+
+    def _update_recipe_consistency_warning(self, components: tuple[RecipeComponent, ...]) -> None:
+        total = consistency_sum(components)
+        inconsistent = bool(components) and abs(total - 1.0) > 1e-6
+        suffix = " | inconsistent" if inconsistent else ""
+        self.recipe_consistency_sum.setText(f"sum: {total:.6g}{suffix}")
+        self.recipe_consistency_sum.setStyleSheet("color: #b91c1c; font-weight: 600;" if inconsistent else "")
+        color = QColor("#fee2e2") if inconsistent else QColor("white")
+        for row in range(self.recipe_consistency_table.rowCount()):
+            for column in range(self.recipe_consistency_table.columnCount()):
+                item = self.recipe_consistency_table.item(row, column)
+                if item is not None:
+                    item.setBackground(color)
 
     def _refresh_recipe_consistency_targets(self) -> None:
         current = self.recipe_consistency_target.currentText()

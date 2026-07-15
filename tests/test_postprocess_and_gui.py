@@ -758,6 +758,24 @@ def test_main_window_recipe_consistency_mode_selector_normalizes_table():
     app.processEvents()
 
 
+def test_main_window_recipe_consistency_marks_inconsistent_rows():
+    app = QApplication.instance() or QApplication([])
+    window = MainWindow()
+    window._add_recipe_consistency_row()
+    window.recipe_consistency_table.item(0, 0).setText("A")
+    window.recipe_consistency_table.item(0, 1).setText("100")
+    window.recipe_consistency_table.item(0, 2).setText("1000")
+    window.recipe_consistency_table.item(0, 5).setText("2")
+
+    window._set_recipe_consistency_components(window._recipe_consistency_components())
+
+    assert "inconsistent" in window.recipe_consistency_sum.text()
+    assert "#b91c1c" in window.recipe_consistency_sum.styleSheet()
+    assert window.recipe_consistency_table.item(0, 0).background().color().name() == "#fee2e2"
+    window.close()
+    app.processEvents()
+
+
 def test_main_window_recipe_table_applies_feed_tank_rows():
     app = QApplication.instance() or QApplication([])
     window = MainWindow()
