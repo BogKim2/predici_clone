@@ -114,6 +114,34 @@ def test_main_window_mwd_mode_axis_and_gpc_controls_redraw_plot():
     app.processEvents()
 
 
+def test_main_window_components_information_board_updates_from_distribution():
+    app = QApplication.instance() or QApplication([])
+    window = MainWindow()
+    window.nmax.setValue(24)
+    window.t_final.setValue(1.0)
+
+    window._run_simulation()
+
+    values = {
+        window.component_info_table.item(row, 0).text(): window.component_info_table.item(row, 1).text()
+        for row in range(window.component_info_table.rowCount())
+    }
+    assert set(values) == {
+        "concentration_mol",
+        "concentration_mass",
+        "mn",
+        "mw",
+        "dispersity",
+        "reference_volume",
+        "last_value",
+    }
+    assert float(values["concentration_mol"]) > 0.0
+    assert float(values["mw"]) >= float(values["mn"]) > 0.0
+    assert float(values["reference_volume"]) == window.project.reactor.volume
+    window.close()
+    app.processEvents()
+
+
 def test_main_entrypoint_smoke_mode_runs_and_exports_result():
     assert _smoke() == 0
 

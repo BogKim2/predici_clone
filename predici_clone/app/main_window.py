@@ -372,6 +372,10 @@ class MainWindow(QMainWindow):
         self.clear_mwd_overlays_button = QPushButton("Clear Overlays")
         self.clear_mwd_overlays_button.clicked.connect(self._clear_mwd_overlays)
         self.moment_table = QTableWidget(0, 2)
+        self.component_info_table = QTableWidget(0, 2)
+        self.component_info_table.setHorizontalHeaderLabels(["field", "value"])
+        self.component_info_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.component_info_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         controls = QHBoxLayout()
         controls.addWidget(self.mwd_time_label)
         controls.addWidget(self.mwd_time_slider, 1)
@@ -384,6 +388,8 @@ class MainWindow(QMainWindow):
         layout.addLayout(controls)
         layout.addWidget(self.summary_label)
         layout.addWidget(self.moment_table)
+        layout.addWidget(QLabel("Components information"))
+        layout.addWidget(self.component_info_table)
         return page
 
     def _build_recipe_tab(self) -> QWidget:
@@ -1806,7 +1812,29 @@ class MainWindow(QMainWindow):
         axes.grid(True, alpha=0.25)
         self.canvas.draw_idle()
         self._fill_table(self.moment_table, report_frame(report))
+        self._populate_component_info_board(report, lengths)
         self.summary_label.setText(f"Mn={report.mn:.4g}  Mw={report.mw:.4g}  PDI={report.pdi:.4g}")
+
+    def _populate_component_info_board(self, report: MomentReport, lengths: np.ndarray) -> None:
+        if not hasattr(self, "component_info_table"):
+            return
+        values = np.maximum(np.asarray(self.current_distribution, dtype=float), 0.0)
+        monomer_mw = self._mwd_monomer_mw()
+        rows = [
+            ("concentration_mol", float(np.sum(values))),
+            ("concentration_mass", float(np.sum(values * lengths * monomer_mw))),
+            ("mn", report.mn),
+            ("mw", report.mw),
+            ("dispersity", report.pdi),
+            ("reference_volume", self.project.reactor.volume),
+            ("last_value", float(values[-1]) if values.size else 0.0),
+        ]
+        self.component_info_table.setRowCount(len(rows))
+        for row, (name, value) in enumerate(rows):
+            self.component_info_table.setItem(row, 0, QTableWidgetItem(name))
+            item = QTableWidgetItem(f"{value:.12g}")
+            item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+            self.component_info_table.setItem(row, 1, item)
 
     def _fill_table(self, table: QTableWidget, frame) -> None:
         table.setRowCount(len(frame))

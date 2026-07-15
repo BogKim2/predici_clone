@@ -75,6 +75,10 @@ This file tracks implementation evidence against `plan4.md`.
   - reference `.dat`, structured `.npz`, and two-column GPC CSV IO paths
   - `gpc_tail` residual weighting contract
   - tests: `tests/test_chart_reference_io.py`
+- M26 components information board GUI foundation
+  - MWD Viewer renders concentration, mass concentration, Mn, Mw, dispersity, reference volume, and last value
+  - board updates whenever the current distribution changes
+  - tests: `tests/test_postprocess_and_gui.py`
 - M29/M32 run-control engine foundation
   - `SimulationEngine.run_to_time(t)` API
   - `SimulationEngine.single_step()` API
@@ -96,7 +100,7 @@ This file tracks implementation evidence against `plan4.md`.
 - M23 richer thermodynamic/phase fields and validation styling in GUI
 - M24 drag/drop visual preview and richer template catalog
 - M25 full 7-mode recipe-entry table integration and visual warning styling
-- M26 chart administration GUI and components information board
+- M26 chart administration GUI
 - M27 additional command implementations beyond the tutorial-critical subset
 - M28 modifier-to-engine execution hooks
 - M29 multi-script debugger panes and edit-in-place workflow
