@@ -39,6 +39,10 @@ This file tracks implementation evidence against `plan4.md`.
   - Model Builder exposes reaction pattern catalog selector
   - `Add Pattern` uses reaction-builder service and auto-declares species/parameters
   - tests: `tests/test_postprocess_and_gui.py`
+- M24 PatternFinder catalog preview GUI foundation
+  - Model Builder renders the full reaction pattern catalog with category/kind/slots/parameter metadata
+  - selected pattern preview shows reactant/product slot structure and parameter names
+  - tests: `tests/test_postprocess_and_gui.py`
 - M25 recipe consistency service foundation
   - seven recipe input modes normalize to mass/mole/concentration tables
   - `Set concentration consistent` density rule
@@ -112,7 +116,7 @@ This file tracks implementation evidence against `plan4.md`.
 ## Still Incomplete
 
 - M23 richer thermodynamic/phase fields and validation styling in GUI
-- M24 drag/drop visual preview and richer template catalog
+- M24 drag/drop slot assignment interaction
 - M25 full 7-mode recipe-entry table integration and visual warning styling
 - M27 PDE-specific numerical semantics for advanced commands beyond supplied-state helpers
 - M28 modifier-to-engine execution hooks

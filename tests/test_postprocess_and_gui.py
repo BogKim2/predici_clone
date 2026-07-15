@@ -376,6 +376,27 @@ def test_main_window_model_builder_adds_patternfinder_reaction():
     app.processEvents()
 
 
+def test_main_window_model_builder_shows_pattern_catalog_preview():
+    app = QApplication.instance() or QApplication([])
+    window = MainWindow()
+
+    assert window.reaction_pattern_catalog_table.rowCount() >= 5
+    names = {
+        window.reaction_pattern_catalog_table.item(row, 0).text()
+        for row in range(window.reaction_pattern_catalog_table.rowCount())
+    }
+    assert {"Propagation", "GeneralKinetic"} <= names
+
+    window.reaction_pattern_selector.setCurrentText("TerminationCombination")
+
+    preview = window.reaction_pattern_preview.text()
+    assert "TerminationCombination" in preview
+    assert "polymer_radical + polymer_radical" in preview
+    assert "GP_ktc" in preview
+    window.close()
+    app.processEvents()
+
+
 def test_main_window_component_tables_apply_schema_objects():
     app = QApplication.instance() or QApplication([])
     window = MainWindow()

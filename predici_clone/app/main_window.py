@@ -276,6 +276,7 @@ class MainWindow(QMainWindow):
         self.reaction_kind_selector.addItems([kind.value for kind in ReactionKind])
         self.reaction_pattern_selector = QComboBox()
         self.reaction_pattern_selector.addItems([pattern.name for pattern in reaction_pattern_catalog() if pattern.kind is not None])
+        self.reaction_pattern_selector.currentTextChanged.connect(self._update_reaction_pattern_preview)
         add = QPushButton("Add Reaction")
         add.clicked.connect(self._add_selected_reaction_step)
         add_pattern = QPushButton("Add Pattern")
@@ -306,10 +307,22 @@ class MainWindow(QMainWindow):
         self.reaction_table = QTableWidget(0, 7)
         self.reaction_table.setHorizontalHeaderLabels(["enabled", "name", "kind", "site", "reactants", "products", "rate"])
         self.reaction_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.reaction_pattern_preview = QLabel()
+        self.reaction_pattern_preview.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.reaction_pattern_catalog_table = QTableWidget(0, 8)
+        self.reaction_pattern_catalog_table.setHorizontalHeaderLabels(
+            ["name", "category", "kind", "reactants", "products", "parameters", "flow", "description"]
+        )
+        self.reaction_pattern_catalog_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.reaction_pattern_catalog_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         layout.addLayout(buttons)
+        layout.addWidget(self.reaction_pattern_preview)
+        layout.addWidget(self.reaction_pattern_catalog_table)
         layout.addLayout(modifier_buttons)
         layout.addWidget(self.reaction_modifier_script)
         layout.addWidget(self.reaction_table)
+        self._populate_reaction_pattern_catalog_table()
+        self._update_reaction_pattern_preview()
         return page
 
     def _build_component_tab(self) -> QWidget:
@@ -2227,6 +2240,40 @@ class MainWindow(QMainWindow):
             ]
             for column, value in enumerate(values):
                 self.reaction_table.setItem(row, column, QTableWidgetItem(value))
+
+    def _populate_reaction_pattern_catalog_table(self) -> None:
+        if not hasattr(self, "reaction_pattern_catalog_table"):
+            return
+        patterns = reaction_pattern_catalog()
+        self.reaction_pattern_catalog_table.setRowCount(len(patterns))
+        for row, pattern in enumerate(patterns):
+            values = [
+                pattern.name,
+                pattern.category,
+                pattern.kind.value if pattern.kind is not None else "general",
+                ";".join(pattern.reactant_slots),
+                ";".join(pattern.product_slots),
+                ";".join(pattern.parameter_slots),
+                "yes" if pattern.category in {"flow", "phase", "profile"} else "no",
+                pattern.description,
+            ]
+            for column, value in enumerate(values):
+                self.reaction_pattern_catalog_table.setItem(row, column, QTableWidgetItem(value))
+
+    def _update_reaction_pattern_preview(self) -> None:
+        if not hasattr(self, "reaction_pattern_preview"):
+            return
+        pattern_name = self.reaction_pattern_selector.currentText()
+        pattern = next((item for item in reaction_pattern_catalog() if item.name == pattern_name), None)
+        if pattern is None:
+            self.reaction_pattern_preview.setText("")
+            return
+        reactants = " + ".join(pattern.reactant_slots) or "-"
+        products = " + ".join(pattern.product_slots) or "-"
+        parameters = ", ".join(pattern.parameter_slots) or "-"
+        self.reaction_pattern_preview.setText(
+            f"{pattern.name}: {reactants} -> {products} | parameters: {parameters} | {pattern.description}"
+        )
 
     def _add_default_reaction_step(self) -> None:
         self._add_reaction_step(ReactionKind.PROPAGATION)
