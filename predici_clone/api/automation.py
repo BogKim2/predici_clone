@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 import numpy as np
 
-from predici_clone.api.project_schema import FeedStream, HeatBalanceConfig, Project, Recipe
+from predici_clone.api.project_schema import FeedStream, HeatBalanceConfig, IntegrationControl, OutputConfig, Project, ReactorConfig, Recipe
+from predici_clone.engine import SimulationEngine
 from predici_clone.engine.simulation_result import SimulationResult
 
 
@@ -122,6 +125,46 @@ def get_dist_moments(result: SimulationResult) -> dict[str, float]:
         "AMW": report.amw,
         "mass": report.mass,
     }
+
+
+def export_result_npz(result: SimulationResult, path: str | Path) -> Path:
+    target = Path(path)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    np.savez(
+        target,
+        time=result.time,
+        state_history=result.state_history,
+        distribution_history=result.distribution_history,
+        final_distribution=result.final_distribution,
+        first_length=np.asarray([result.first_length], dtype=int),
+    )
+    return target
+
+
+def run_automation_workflow(
+    *,
+    reactor_kind: str = "Batch",
+    t_final: float = 0.5,
+    output_points: int = 4,
+    nmax: int = 12,
+    export_path: str | Path | None = None,
+) -> dict[str, object]:
+    project = Project(
+        reactor=ReactorConfig(kind=reactor_kind, nmax=nmax),
+        recipe=Recipe(integration=IntegrationControl(t_final=t_final, output_points=output_points)),
+        outputs=OutputConfig(enabled_generic_outputs=("Mn", "Mw", "PDI", "conversion", "mass")),
+    )
+    recipe_project = create_recipe(project, "automation_recipe")
+    result = SimulationEngine(recipe_project).run()
+    payload: dict[str, object] = {
+        "project": recipe_project,
+        "result": result,
+        "points": get_dist_points(result),
+        "moments": get_dist_moments(result),
+    }
+    if export_path is not None:
+        payload["npz"] = export_result_npz(result, export_path)
+    return payload
 
 
 def set_dist_lumping(project: Project, on_off: bool) -> Project:

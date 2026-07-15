@@ -52,6 +52,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">설치</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">빠른 시작</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials.html">Tutorial Workflows</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../gui.html">GUI 사용법</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../projects.html">프로젝트와 Recipe</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../outputs.html">Outputs와 Reports</a></li>
@@ -102,9 +103,11 @@
     <span class="n">activate_detailed_iteration</span><span class="p">,</span>
     <span class="n">check_enthalpy</span><span class="p">,</span>
     <span class="n">create_recipe</span><span class="p">,</span>
+    <span class="n">export_result_npz</span><span class="p">,</span>
     <span class="n">get_dist_moments</span><span class="p">,</span>
     <span class="n">get_dist_points</span><span class="p">,</span>
     <span class="n">get_reactor_pressure</span><span class="p">,</span>
+    <span class="n">run_automation_workflow</span><span class="p">,</span>
     <span class="n">set_dist_lumping</span><span class="p">,</span>
     <span class="n">set_enthalpy</span><span class="p">,</span>
     <span class="n">set_feed_rate</span><span class="p">,</span>
@@ -151,6 +154,8 @@
         <span class="p">),</span>
         <span class="s2">&quot;GetDistPoints&quot;</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">get_dist_points</span><span class="p">(</span><span class="n">_require_result</span><span class="p">(</span><span class="n">result</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">),</span>
         <span class="s2">&quot;GetDistMoments&quot;</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">get_dist_moments</span><span class="p">(</span><span class="n">_require_result</span><span class="p">(</span><span class="n">result</span><span class="p">)),</span>
+        <span class="s2">&quot;ExportResultNPZ&quot;</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">export_result_npz</span><span class="p">(</span><span class="n">_require_result</span><span class="p">(</span><span class="n">result</span><span class="p">),</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">]),</span>
+        <span class="s2">&quot;RunAutomationWorkflow&quot;</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">run_automation_workflow</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">),</span>
         <span class="s2">&quot;GetReactorPressure&quot;</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">get_reactor_pressure</span><span class="p">(</span><span class="n">_require_result</span><span class="p">(</span><span class="n">result</span><span class="p">),</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reactor_name&quot;</span><span class="p">,</span> <span class="s2">&quot;default&quot;</span><span class="p">)),</span>
         <span class="s2">&quot;CheckEnthalpy&quot;</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">check_enthalpy</span><span class="p">(</span><span class="n">_require_project</span><span class="p">(</span><span class="n">project</span><span class="p">),</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reactor_name&quot;</span><span class="p">,</span> <span class="s2">&quot;default&quot;</span><span class="p">)),</span>
         <span class="s2">&quot;ActivateDetailedIteration&quot;</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">activate_detailed_iteration</span><span class="p">(</span><span class="n">_require_project</span><span class="p">(</span><span class="n">project</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">),</span>

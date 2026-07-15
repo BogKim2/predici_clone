@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from pathlib import Path
 
@@ -67,6 +67,8 @@ from predici_clone.api import (
 from predici_clone.api.project_schema import sample_project
 from predici_clone.api.validation import validate_project, validation_summary
 from predici_clone.app.workers.simulation_worker import SimulationWorker
+from predici_clone.app.widgets.editable_table import EditableTableWidget
+from predici_clone.app.widgets.species_icon import color_tokens
 from predici_clone.core.moments import MomentReport, from_discrete_distribution
 from predici_clone.engine import SimulationEngine
 from predici_clone.engine.simulation_result import SimulationResult
@@ -234,7 +236,7 @@ class MainWindow(QMainWindow):
         self.addDockWidget(Qt.LeftDockWidgetArea, project_dock)
 
         inspector_dock = QDockWidget("Inspector", self)
-        self.inspector = QTableWidget(0, 2)
+        self.inspector = EditableTableWidget(0, 2)
         self.inspector.setHorizontalHeaderLabels(["Property", "Value"])
         self.inspector.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         inspector_dock.setWidget(self.inspector)
@@ -252,7 +254,7 @@ class MainWindow(QMainWindow):
         self.dashboard_summary = QLabel()
         self.dashboard_summary.setTextInteractionFlags(Qt.TextSelectableByMouse)
         self.dashboard_summary.setObjectName("DashboardSummary")
-        self.output_table = QTableWidget(0, 2)
+        self.output_table = EditableTableWidget(0, 2)
         self.output_table.setHorizontalHeaderLabels(["Output", "Value"])
         self.output_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         layout.addWidget(self.dashboard_summary)
@@ -307,18 +309,18 @@ class MainWindow(QMainWindow):
         modifier_buttons.addWidget(QLabel("Modifier"))
         modifier_buttons.addWidget(self.reaction_modifier_expression)
         modifier_buttons.addWidget(apply_modifier)
-        self.reaction_table = QTableWidget(0, 7)
+        self.reaction_table = EditableTableWidget(0, 7)
         self.reaction_table.setHorizontalHeaderLabels(["enabled", "name", "kind", "site", "reactants", "products", "rate"])
         self.reaction_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.reaction_pattern_preview = QLabel()
         self.reaction_pattern_preview.setTextInteractionFlags(Qt.TextSelectableByMouse)
-        self.reaction_pattern_catalog_table = QTableWidget(0, 8)
+        self.reaction_pattern_catalog_table = EditableTableWidget(0, 8)
         self.reaction_pattern_catalog_table.setHorizontalHeaderLabels(
             ["name", "category", "kind", "reactants", "products", "parameters", "flow", "description"]
         )
         self.reaction_pattern_catalog_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.reaction_pattern_catalog_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.reaction_pattern_slot_table = QTableWidget(0, 3)
+        self.reaction_pattern_slot_table = EditableTableWidget(0, 3)
         self.reaction_pattern_slot_table.setHorizontalHeaderLabels(["type", "slot", "value"])
         self.reaction_pattern_slot_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.reaction_pattern_slot_table.setDragEnabled(True)
@@ -355,17 +357,17 @@ class MainWindow(QMainWindow):
         buttons.addWidget(add_parameter)
         buttons.addWidget(apply)
         buttons.addStretch(1)
-        self.substance_table = QTableWidget(0, 12)
+        self.substance_table = EditableTableWidget(0, 12)
         self.substance_table.setHorizontalHeaderLabels(
             ["name", "alias", "kind", "MW", "density", "monomer", "phase", "rho mode", "rho a", "rho b", "cp coeffs", "cp K"]
         )
         self.substance_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.polymer_table = QTableWidget(0, 13)
+        self.polymer_table = EditableTableWidget(0, 13)
         self.polymer_table.setHorizontalHeaderLabels(
             ["name", "alias", "base", "active", "dead", "MW", "density", "phase", "rho mode", "rho a", "rho b", "cp coeffs", "cp K"]
         )
         self.polymer_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.parameter_table = QTableWidget(0, 5)
+        self.parameter_table = EditableTableWidget(0, 5)
         self.parameter_table.setHorizontalHeaderLabels(["name", "value", "unit", "kind", "Ea"])
         self.parameter_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         layout.addLayout(buttons)
@@ -401,8 +403,8 @@ class MainWindow(QMainWindow):
         self.mwd_overlay_toggle.toggled.connect(self._redraw_current_distribution)
         self.clear_mwd_overlays_button = QPushButton("Clear Overlays")
         self.clear_mwd_overlays_button.clicked.connect(self._clear_mwd_overlays)
-        self.moment_table = QTableWidget(0, 2)
-        self.component_info_table = QTableWidget(0, 2)
+        self.moment_table = EditableTableWidget(0, 2)
+        self.component_info_table = EditableTableWidget(0, 2)
         self.component_info_table.setHorizontalHeaderLabels(["field", "value"])
         self.component_info_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.component_info_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
@@ -412,10 +414,10 @@ class MainWindow(QMainWindow):
         add_chart_graph.clicked.connect(self._add_chart_graph_row)
         apply_charts = QPushButton("Apply Charts")
         apply_charts.clicked.connect(self._apply_chart_administration)
-        self.chart_page_table = QTableWidget(0, 3)
+        self.chart_page_table = EditableTableWidget(0, 3)
         self.chart_page_table.setHorizontalHeaderLabels(["page", "title", "layout"])
         self.chart_page_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.chart_graph_table = QTableWidget(0, 7)
+        self.chart_graph_table = EditableTableWidget(0, 7)
         self.chart_graph_table.setHorizontalHeaderLabels(["page", "graph", "mode", "y axis", "x axis", "scale", "source"])
         self.chart_graph_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         controls = QHBoxLayout()
@@ -447,7 +449,7 @@ class MainWindow(QMainWindow):
     def _build_recipe_tab(self) -> QWidget:
         page = QWidget()
         layout = QVBoxLayout(page)
-        self.recipe_table = QTableWidget(0, 3)
+        self.recipe_table = EditableTableWidget(0, 3)
         self.recipe_table.setHorizontalHeaderLabels(["section", "field", "value"])
         self.recipe_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         refresh = QPushButton("Refresh From Controls")
@@ -524,7 +526,7 @@ class MainWindow(QMainWindow):
         consistency_buttons.addWidget(set_rest)
         consistency_buttons.addStretch(1)
         self.recipe_consistency_sum = QLabel("sum: 0")
-        self.recipe_consistency_table = QTableWidget(0, 8)
+        self.recipe_consistency_table = EditableTableWidget(0, 8)
         self.recipe_consistency_table.setHorizontalHeaderLabels(
             ["name", "MW", "density", "mass", "moles", "concentration", "mass part", "mole part"]
         )
@@ -563,26 +565,26 @@ class MainWindow(QMainWindow):
         add_parameter.clicked.connect(self._add_fitting_parameter_row)
         remove_parameter = QPushButton("Remove Parameter")
         remove_parameter.clicked.connect(self._remove_selected_fitting_parameter_row)
-        self.fitting_parameter_table = QTableWidget(1, 5)
+        self.fitting_parameter_table = EditableTableWidget(1, 5)
         self.fitting_parameter_table.setHorizontalHeaderLabels(["name", "initial", "lower", "upper", "fixed"])
         for column, value in enumerate(["GP_kp", "0.08", "0.001", "1.0", "False"]):
             self.fitting_parameter_table.setItem(0, column, QTableWidgetItem(value))
-        self.fitting_target_table = QTableWidget(1, 3)
+        self.fitting_target_table = EditableTableWidget(1, 3)
         self.fitting_target_table.setHorizontalHeaderLabels(["output", "target", "weight"])
         for column, value in enumerate(["mass", "0", "100000"]):
             self.fitting_target_table.setItem(0, column, QTableWidgetItem(value))
-        self.fitting_experiment_table = QTableWidget(2, 5)
+        self.fitting_experiment_table = EditableTableWidget(2, 5)
         self.fitting_experiment_table.setHorizontalHeaderLabels(["experiment", "t_final", "output", "target", "weight"])
         for row, values in enumerate((("exp_1", "1.5", "mass", "0", "100000"), ("exp_2", "2.5", "mass", "0", "100000"))):
             for column, value in enumerate(values):
                 self.fitting_experiment_table.setItem(row, column, QTableWidgetItem(value))
-        self.fitting_result_table = QTableWidget(0, 2)
+        self.fitting_result_table = EditableTableWidget(0, 2)
         self.fitting_result_table.setHorizontalHeaderLabels(["field", "value"])
-        self.fitting_residual_table = QTableWidget(0, 7)
+        self.fitting_residual_table = EditableTableWidget(0, 7)
         self.fitting_residual_table.setHorizontalHeaderLabels(
             ["experiment", "time", "output", "observed", "model", "weight", "residual"]
         )
-        self.fitting_residual_mapping_table = QTableWidget(1, 5)
+        self.fitting_residual_mapping_table = EditableTableWidget(1, 5)
         self.fitting_residual_mapping_table.setHorizontalHeaderLabels(["output", "column", "weight", "start", "end"])
         for column, value in enumerate(["mass", "mass_obs", "1.0", "", ""]):
             self.fitting_residual_mapping_table.setItem(0, column, QTableWidgetItem(value))
@@ -650,17 +652,17 @@ class MainWindow(QMainWindow):
         buttons.addWidget(run_debug)
         buttons.addWidget(move_debug)
         buttons.addStretch(1)
-        self.script_output_table = QTableWidget(0, 2)
+        self.script_output_table = EditableTableWidget(0, 2)
         self.script_output_table.setHorizontalHeaderLabels(["name", "expression"])
         self.script_output_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.debug_script_table = QTableWidget(0, 2)
+        self.debug_script_table = EditableTableWidget(0, 2)
         self.debug_script_table.setHorizontalHeaderLabels(["name", "script"])
         self.debug_script_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.debug_trace_table = QTableWidget(0, 5)
+        self.debug_trace_table = EditableTableWidget(0, 5)
         self.debug_trace_table.setHorizontalHeaderLabels(["script", "line", "text", "assignment", "value"])
         self.debug_trace_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.debug_trace_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.script_function_table = QTableWidget(0, 5)
+        self.script_function_table = EditableTableWidget(0, 5)
         self.script_function_table.setHorizontalHeaderLabels(["name", "args", "category", "status", "description"])
         self.script_function_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.script_function_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
@@ -758,11 +760,11 @@ class MainWindow(QMainWindow):
     def _build_live_table(self) -> QWidget:
         panel = QWidget()
         layout = QVBoxLayout(panel)
-        self.live_table = QTableWidget(0, 4)
+        self.live_table = EditableTableWidget(0, 4)
         self.live_table.setHorizontalHeaderLabels(["time", "Mn", "Mw", "PDI"])
         self.live_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.live_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.actual_values_table = QTableWidget(0, 4)
+        self.actual_values_table = EditableTableWidget(0, 4)
         self.actual_values_table.setHorizontalHeaderLabels(["step", "time", "stepsize", "variables"])
         self.actual_values_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.actual_values_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
@@ -918,7 +920,7 @@ class MainWindow(QMainWindow):
         self._append_log(f"Debug scripts traced: {len(rows)} rows")
 
     def _move_debug_trace_to_window(self) -> None:
-        table = QTableWidget(self.debug_trace_table.rowCount(), self.debug_trace_table.columnCount())
+        table = EditableTableWidget(self.debug_trace_table.rowCount(), self.debug_trace_table.columnCount())
         headers = [
             self.debug_trace_table.horizontalHeaderItem(column).text()
             for column in range(self.debug_trace_table.columnCount())
@@ -2919,21 +2921,23 @@ class MainWindow(QMainWindow):
             self._append_log(f"{message.severity.upper()} {message.path}: {message.message}")
 
     def _apply_stylesheet(self) -> None:
+        tokens = color_tokens()
         self.setStyleSheet(
-            """
-            QMainWindow, QWidget { background: #f5f6f7; color: #17212b; font-size: 12px; }
-            QMenuBar, QToolBar, QStatusBar { background: #ffffff; border-bottom: 1px solid #d6dbe0; }
-            QDockWidget::title { background: #e8edf2; padding: 5px; font-weight: 600; }
-            QGroupBox { border: 1px solid #c8d0d8; border-radius: 6px; margin-top: 12px; padding: 8px; font-weight: 600; }
-            QGroupBox::title { subcontrol-origin: margin; left: 8px; padding: 0 4px; }
-            QPushButton { background: #26547c; color: white; border: 0; border-radius: 5px; padding: 6px 10px; }
-            QPushButton:hover { background: #1d425f; }
-            QTableWidget, QTreeWidget, QPlainTextEdit { background: #ffffff; border: 1px solid #ccd4dc; gridline-color: #e1e6eb; }
-            QHeaderView::section { background: #eef2f5; border: 0; border-right: 1px solid #d6dbe0; padding: 5px; font-weight: 600; }
-            QTabWidget::pane { border: 1px solid #ccd4dc; background: #ffffff; }
-            QTabBar::tab { background: #e8edf2; padding: 7px 12px; border: 1px solid #ccd4dc; border-bottom: 0; }
-            QTabBar::tab:selected { background: #ffffff; }
-            QLabel#DashboardSummary { background: #ffffff; border: 1px solid #ccd4dc; border-radius: 6px; padding: 10px; font-weight: 600; }
+            f"""
+            QMainWindow, QWidget {{ background: #f5f6f7; color: #17212b; font-size: 12px; }}
+            QMenuBar, QToolBar, QStatusBar {{ background: #ffffff; border-bottom: 1px solid #d6dbe0; }}
+            QDockWidget::title {{ background: #e8edf2; padding: 5px; font-weight: 600; }}
+            QGroupBox {{ border: 1px solid #c8d0d8; border-radius: 6px; margin-top: 12px; padding: 8px; font-weight: 600; }}
+            QGroupBox::title {{ subcontrol-origin: margin; left: 8px; padding: 0 4px; }}
+            QPushButton {{ background: {tokens["color.primary_curve"]}; color: white; border: 0; border-radius: 5px; padding: 6px 10px; }}
+            QPushButton:hover {{ background: #1d425f; }}
+            QTableWidget, QTreeWidget, QPlainTextEdit {{ background: #ffffff; border: 1px solid #ccd4dc; gridline-color: #e1e6eb; }}
+            QTableWidget::item:selected {{ background: {tokens["color.primary_curve"]}; color: #ffffff; }}
+            QHeaderView::section {{ background: #eef2f5; border: 0; border-right: 1px solid #d6dbe0; padding: 5px; font-weight: 600; }}
+            QTabWidget::pane {{ border: 1px solid #ccd4dc; background: #ffffff; }}
+            QTabBar::tab {{ background: #e8edf2; padding: 7px 12px; border: 1px solid #ccd4dc; border-bottom: 0; }}
+            QTabBar::tab:selected {{ background: #ffffff; }}
+            QLabel#DashboardSummary {{ background: #ffffff; border: 1px solid #ccd4dc; border-radius: 6px; padding: 10px; font-weight: 600; }}
             """
         )
 
@@ -2952,3 +2956,4 @@ class MainWindow(QMainWindow):
         spin.setDecimals(6)
         spin.setSingleStep(max(value * 0.1, 0.01))
         return spin
+
