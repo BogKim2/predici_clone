@@ -3,6 +3,7 @@ from __future__ import annotations
 import ast
 import math
 import operator
+from collections.abc import Callable
 from typing import Any
 
 
@@ -35,6 +36,21 @@ def evaluate_expression(expression: str, variables: dict[str, Any]) -> float:
     except SyntaxError:
         return float(_eval_script(expression, variables))
     return float(_eval_node(tree.body, variables))
+
+
+def script_procedure_namespace(script: str, variables: dict[str, Any] | None = None) -> dict[str, Callable[..., Any]]:
+    tree = ast.parse(script, mode="exec")
+    scope: dict[str, Any] = dict(variables or {})
+    initial_names = set(scope)
+    for statement in tree.body:
+        if not isinstance(statement, ast.FunctionDef):
+            raise ValueError("Procedure libraries may only contain function definitions")
+        _eval_statement(statement, scope)
+    return {
+        name: value
+        for name, value in scope.items()
+        if name not in initial_names and isinstance(value, _ScriptProcedure)
+    }
 
 
 def evaluate_scripted_outputs(expressions: dict[str, str], variables: dict[str, float]) -> dict[str, float]:
@@ -95,6 +111,37 @@ def _eval_node(node: ast.AST, variables: dict[str, Any]) -> Any:
     raise ValueError(f"Unsupported expression element: {type(node).__name__}")
 
 
+class _ReturnValue(Exception):
+    def __init__(self, value: Any) -> None:
+        self.value = value
+
+
+class _ScriptProcedure:
+    def __init__(self, name: str, arguments: tuple[str, ...], body: list[ast.stmt], closure: dict[str, Any]) -> None:
+        self.name = name
+        self.arguments = arguments
+        self.body = body
+        self.closure = closure
+        self.active = False
+
+    def __call__(self, *args: Any) -> Any:
+        if self.active:
+            raise ValueError(f"Recursive procedure calls are not supported: {self.name}")
+        if len(args) != len(self.arguments):
+            raise ValueError(f"Procedure {self.name} expects {len(self.arguments)} arguments")
+        scope = dict(self.closure)
+        scope.update(dict(zip(self.arguments, args)))
+        self.active = True
+        try:
+            for statement in self.body:
+                _eval_statement(statement, scope)
+        except _ReturnValue as returned:
+            return returned.value
+        finally:
+            self.active = False
+        raise ValueError(f"Procedure {self.name} must return a value")
+
+
 def _eval_script(script: str, variables: dict[str, Any]) -> Any:
     tree = ast.parse(script, mode="exec")
     scope: dict[str, Any] = dict(variables)
@@ -109,6 +156,18 @@ def _eval_script(script: str, variables: dict[str, Any]) -> Any:
 
 
 def _eval_statement(statement: ast.stmt, scope: dict[str, Any]) -> Any:
+    if isinstance(statement, ast.FunctionDef):
+        if statement.decorator_list or statement.returns is not None:
+            raise ValueError("Procedure decorators and annotations are not supported")
+        if statement.args.vararg or statement.args.kwarg or statement.args.kwonlyargs or statement.args.defaults:
+            raise ValueError("Procedures only support required positional arguments")
+        arguments = tuple(arg.arg for arg in statement.args.args)
+        scope[statement.name] = _ScriptProcedure(statement.name, arguments, statement.body, scope)
+        return None
+    if isinstance(statement, ast.Return):
+        if statement.value is None:
+            raise ValueError("Procedure return must include a value")
+        raise _ReturnValue(_eval_node(statement.value, scope))
     if isinstance(statement, ast.Assign):
         if len(statement.targets) != 1 or not isinstance(statement.targets[0], ast.Name):
             raise ValueError("Only simple variable assignment is supported")

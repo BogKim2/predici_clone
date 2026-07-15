@@ -80,6 +80,11 @@ This file tracks implementation evidence against `plan4.md`.
   - PREDICI-style getters/setters: `getx`, `getco`, `getcoini`, `getconsum`, `getcf`, `getmy`, `gettotalmy`, `getkp`, `setkp`
   - template generator emits boilerplate from selected species/parameters and result slots
   - tests: `tests/test_script_catalog.py`, `tests/test_scripted_outputs.py`
+- M27 procedure/subscript foundation
+  - safe script evaluator supports positional `def` procedure definitions and `return` statements
+  - procedure libraries expose named callables that can be shared across output scripts
+  - recursive procedure calls are rejected at runtime
+  - tests: `tests/test_script_procedure.py`
 - M27 script command GUI foundation
   - Script tab renders the function catalog with implementation status
   - template generator inserts a scripted-output row from current species/parameters
@@ -99,6 +104,10 @@ This file tracks implementation evidence against `plan4.md`.
   - evaluates modifier scripts through the safe command namespace
   - supports multi-result scripts (`result1`, `result2`, ...) for multi-coefficient reaction steps
   - tests: `tests/test_reaction_modifiers.py`
+- M28 procedure reuse for modifier/output scripts
+  - reaction modifier evaluation accepts the same procedure namespace used by scripted outputs
+  - shared Gel/Glass-effect style procedure calls remove duplicated formula text across modifier and output scripts
+  - tests: `tests/test_script_procedure.py`
 - M28 reaction modifier GUI/persistence foundation
   - Model Builder applies `k(File)`/`k*File` modifier expressions to selected reaction steps
   - modifier scripts are stored in project schema and round-trip through project save/load

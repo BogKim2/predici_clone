@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Literal
 
@@ -42,10 +43,11 @@ def evaluate_reaction_rate_modifier(
     state: ScriptCommandState,
     base_value: float,
     result_count: int = 1,
+    procedures: dict[str, Callable[..., object]] | None = None,
 ) -> ModifierEvaluation:
     if modifier.script_name not in scripts:
         raise ValueError(f"Unknown modifier script: {modifier.script_name}")
-    scope = evaluate_script_scope(scripts[modifier.script_name], script_command_namespace(state))
+    scope = evaluate_script_scope(scripts[modifier.script_name], script_command_namespace(state, procedures=procedures))
     values = _result_values(scope, result_count)
     if modifier.mode == "multiply":
         values = tuple(float(base_value) * value for value in values)
@@ -58,6 +60,7 @@ def evaluate_modifier_expression(
     scripts: dict[str, str],
     state: ScriptCommandState,
     result_count: int = 1,
+    procedures: dict[str, Callable[..., object]] | None = None,
 ) -> ModifierEvaluation:
     modifier = parse_reaction_rate_modifier(expression)
     base_value = state.parameters.get(modifier.parameter, 0.0)
@@ -67,6 +70,7 @@ def evaluate_modifier_expression(
         state=state,
         base_value=base_value,
         result_count=result_count,
+        procedures=procedures,
     )
 
 

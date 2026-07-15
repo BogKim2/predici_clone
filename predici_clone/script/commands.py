@@ -96,7 +96,7 @@ def _surface_profile_value(
     return weighted_sum / weight_total if weight_total else float(default)
 
 
-def script_command_namespace(state: ScriptCommandState) -> dict[str, object]:
+def script_command_namespace(state: ScriptCommandState, procedures: dict[str, object] | None = None) -> dict[str, object]:
     def getx(name: str) -> float:
         return float(state.variables.get(name, state.current_concentrations.get(name, 0.0)))
 
@@ -179,4 +179,6 @@ def script_command_namespace(state: ScriptCommandState) -> dict[str, object]:
         "getuxr": getuxr,
         "addvalue": addvalue,
     }
+    if procedures:
+        namespace.update(procedures)
     return namespace
