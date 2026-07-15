@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+
+<html lang="ko" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>predici_clone.script.function_catalog &#8212; PREDICI Clone Manual</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=ac66fb28" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=030cfef0" />
+    <script src="../../../_static/documentation_options.js?v=d6a8a7ef"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/translations.js?v=afa94a99"></script>
+    <link rel="index" title="색인" href="../../../genindex.html" />
+    <link rel="search" title="검색" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">PREDICI Clone Manual</a></h1>
+
+
+
+<p class="blurb">Polymerization simulation, GUI, API, and validation guide</p>
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="이동" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>탐색</h3>
+<p class="caption" role="heading"><span class="caption-text">사용자 문서</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">설치</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">빠른 시작</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gui.html">GUI 사용법</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../projects.html">프로젝트와 Recipe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../outputs.html">Outputs와 Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../fitting.html">Parameter Estimation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../packaging.html">패키징</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">개발자 문서</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../architecture.html">구조</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../validation.html">검증과 Benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../extending.html">확장 가이드</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">용어</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">모듈 코드</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>predici_clone.script.function_catalog의 소스 코드</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+
+
+<div class="viewcode-block" id="ScriptFunctionSpec">
+<a class="viewcode-back" href="../../../api.html#predici_clone.script.function_catalog.ScriptFunctionSpec">[문서]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ScriptFunctionSpec</span><span class="p">:</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">arguments</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+    <span class="n">category</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">implemented</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+
+<div class="viewcode-block" id="script_function_catalog">
+<a class="viewcode-back" href="../../../api.html#predici_clone.script.function_catalog.script_function_catalog">[문서]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">script_function_catalog</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ScriptFunctionSpec</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">ScriptFunctionSpec</span><span class="p">(</span><span class="s2">&quot;getx&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,),</span> <span class="s2">&quot;substance&quot;</span><span class="p">,</span> <span class="s2">&quot;Return the current scalar value for a named variable or species.&quot;</span><span class="p">),</span>
+        <span class="n">ScriptFunctionSpec</span><span class="p">(</span><span class="s2">&quot;getco&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;species&quot;</span><span class="p">,),</span> <span class="s2">&quot;substance&quot;</span><span class="p">,</span> <span class="s2">&quot;Return the current concentration of a species.&quot;</span><span class="p">),</span>
+        <span class="n">ScriptFunctionSpec</span><span class="p">(</span><span class="s2">&quot;getcoini&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;species&quot;</span><span class="p">,),</span> <span class="s2">&quot;substance&quot;</span><span class="p">,</span> <span class="s2">&quot;Return the initial concentration of a species.&quot;</span><span class="p">),</span>
+        <span class="n">ScriptFunctionSpec</span><span class="p">(</span><span class="s2">&quot;getconsum&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;species&quot;</span><span class="p">,),</span> <span class="s2">&quot;substance&quot;</span><span class="p">,</span> <span class="s2">&quot;Return initial minus current concentration.&quot;</span><span class="p">),</span>
+        <span class="n">ScriptFunctionSpec</span><span class="p">(</span><span class="s2">&quot;getcf&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;species&quot;</span><span class="p">,),</span> <span class="s2">&quot;substance&quot;</span><span class="p">,</span> <span class="s2">&quot;Return the final concentration of a species.&quot;</span><span class="p">),</span>
+        <span class="n">ScriptFunctionSpec</span><span class="p">(</span><span class="s2">&quot;getmy&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;moment&quot;</span><span class="p">,),</span> <span class="s2">&quot;distribution&quot;</span><span class="p">,</span> <span class="s2">&quot;Return a named distribution moment such as Mn or Mw.&quot;</span><span class="p">),</span>
+        <span class="n">ScriptFunctionSpec</span><span class="p">(</span><span class="s2">&quot;gettotalmy&quot;</span><span class="p">,</span> <span class="p">(),</span> <span class="s2">&quot;distribution&quot;</span><span class="p">,</span> <span class="s2">&quot;Return the total distribution mass moment.&quot;</span><span class="p">),</span>
+        <span class="n">ScriptFunctionSpec</span><span class="p">(</span><span class="s2">&quot;getkp&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;parameter&quot;</span><span class="p">,),</span> <span class="s2">&quot;parameter&quot;</span><span class="p">,</span> <span class="s2">&quot;Return a kinetic parameter value.&quot;</span><span class="p">),</span>
+        <span class="n">ScriptFunctionSpec</span><span class="p">(</span><span class="s2">&quot;setkp&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;parameter&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span> <span class="s2">&quot;parameter&quot;</span><span class="p">,</span> <span class="s2">&quot;Set a kinetic parameter in the local script command state.&quot;</span><span class="p">),</span>
+        <span class="n">ScriptFunctionSpec</span><span class="p">(</span><span class="s2">&quot;weightedmy&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;moment&quot;</span><span class="p">,),</span> <span class="s2">&quot;distribution&quot;</span><span class="p">,</span> <span class="s2">&quot;Weighted moment helper reserved for PDE workflows.&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+        <span class="n">ScriptFunctionSpec</span><span class="p">(</span><span class="s2">&quot;getuxr&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;reactor&quot;</span><span class="p">,),</span> <span class="s2">&quot;reactor&quot;</span><span class="p">,</span> <span class="s2">&quot;Reactor profile helper reserved for PDE workflows.&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+        <span class="n">ScriptFunctionSpec</span><span class="p">(</span><span class="s2">&quot;getkpt&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;parameter&quot;</span><span class="p">,</span> <span class="s2">&quot;time&quot;</span><span class="p">),</span> <span class="s2">&quot;parameter&quot;</span><span class="p">,</span> <span class="s2">&quot;Time-dependent parameter helper reserved for future workflows.&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+        <span class="n">ScriptFunctionSpec</span><span class="p">(</span><span class="s2">&quot;getkptp&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;parameter&quot;</span><span class="p">,</span> <span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;position&quot;</span><span class="p">),</span> <span class="s2">&quot;parameter&quot;</span><span class="p">,</span> <span class="s2">&quot;Time/position parameter helper reserved for future workflows.&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="p">)</span></div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &#169;.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -70,6 +70,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#module-predici_clone.api.component_admin">Component Administration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-predici_clone.kinetics.reaction_builder">Reaction Builder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-predici_clone.api.recipe_consistency">Recipe Consistency</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-predici_clone.script.function_catalog">Script Compatibility</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-predici_clone.api.automation">Automation and Interoperability</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-predici_clone.engine.simulation_engine">Engine</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-predici_clone.postprocess.generic_outputs">Postprocess</a></li>
@@ -2075,6 +2076,89 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="predici_clone.api.recipe_consistency.consistency_sum">
 <span class="sig-prename descclassname"><span class="pre">predici_clone.api.recipe_consistency.</span></span><span class="sig-name descname"><span class="pre">consistency_sum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">components</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/api/recipe_consistency.html#consistency_sum"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.api.recipe_consistency.consistency_sum" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-predici_clone.script.function_catalog">
+<span id="script-compatibility"></span><h2>Script Compatibility<a class="headerlink" href="#module-predici_clone.script.function_catalog" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="predici_clone.script.function_catalog.ScriptFunctionSpec">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">predici_clone.script.function_catalog.</span></span><span class="sig-name descname"><span class="pre">ScriptFunctionSpec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arguments</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'tuple[str,</span> <span class="pre">...]'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">category</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">implemented</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'bool'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/script/function_catalog.html#ScriptFunctionSpec"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.script.function_catalog.ScriptFunctionSpec" title="Link to this definition">¶</a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.script.function_catalog.ScriptFunctionSpec.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#predici_clone.script.function_catalog.ScriptFunctionSpec.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.script.function_catalog.ScriptFunctionSpec.arguments">
+<span class="sig-name descname"><span class="pre">arguments</span></span><a class="headerlink" href="#predici_clone.script.function_catalog.ScriptFunctionSpec.arguments" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.script.function_catalog.ScriptFunctionSpec.category">
+<span class="sig-name descname"><span class="pre">category</span></span><a class="headerlink" href="#predici_clone.script.function_catalog.ScriptFunctionSpec.category" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.script.function_catalog.ScriptFunctionSpec.description">
+<span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#predici_clone.script.function_catalog.ScriptFunctionSpec.description" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.script.function_catalog.ScriptFunctionSpec.implemented">
+<span class="sig-name descname"><span class="pre">implemented</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#predici_clone.script.function_catalog.ScriptFunctionSpec.implemented" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="predici_clone.script.function_catalog.script_function_catalog">
+<span class="sig-prename descclassname"><span class="pre">predici_clone.script.function_catalog.</span></span><span class="sig-name descname"><span class="pre">script_function_catalog</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/script/function_catalog.html#script_function_catalog"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.script.function_catalog.script_function_catalog" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class" id="module-predici_clone.script.commands">
+<dt class="sig sig-object py" id="predici_clone.script.commands.ScriptCommandState">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">predici_clone.script.commands.</span></span><span class="sig-name descname"><span class="pre">ScriptCommandState</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_concentrations:</span> <span class="pre">'dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float]'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_concentrations:</span> <span class="pre">'dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float]'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">final_concentrations:</span> <span class="pre">'dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float]'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">moments:</span> <span class="pre">'dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float]'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters:</span> <span class="pre">'dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float]'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variables:</span> <span class="pre">'dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float]'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/script/commands.html#ScriptCommandState"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.script.commands.ScriptCommandState" title="Link to this definition">¶</a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.script.commands.ScriptCommandState.current_concentrations">
+<span class="sig-name descname"><span class="pre">current_concentrations</span></span><a class="headerlink" href="#predici_clone.script.commands.ScriptCommandState.current_concentrations" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.script.commands.ScriptCommandState.initial_concentrations">
+<span class="sig-name descname"><span class="pre">initial_concentrations</span></span><a class="headerlink" href="#predici_clone.script.commands.ScriptCommandState.initial_concentrations" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.script.commands.ScriptCommandState.final_concentrations">
+<span class="sig-name descname"><span class="pre">final_concentrations</span></span><a class="headerlink" href="#predici_clone.script.commands.ScriptCommandState.final_concentrations" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.script.commands.ScriptCommandState.moments">
+<span class="sig-name descname"><span class="pre">moments</span></span><a class="headerlink" href="#predici_clone.script.commands.ScriptCommandState.moments" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.script.commands.ScriptCommandState.parameters">
+<span class="sig-name descname"><span class="pre">parameters</span></span><a class="headerlink" href="#predici_clone.script.commands.ScriptCommandState.parameters" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.script.commands.ScriptCommandState.variables">
+<span class="sig-name descname"><span class="pre">variables</span></span><a class="headerlink" href="#predici_clone.script.commands.ScriptCommandState.variables" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="predici_clone.script.commands.script_command_namespace">
+<span class="sig-prename descclassname"><span class="pre">predici_clone.script.commands.</span></span><span class="sig-name descname"><span class="pre">script_command_namespace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/script/commands.html#script_command_namespace"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.script.commands.script_command_namespace" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function" id="module-predici_clone.script.template">
+<dt class="sig sig-object py" id="predici_clone.script.template.generate_script_template">
+<span class="sig-prename descclassname"><span class="pre">predici_clone.script.template.</span></span><span class="sig-name descname"><span class="pre">generate_script_template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('result',)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/script/template.html#generate_script_template"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.script.template.generate_script_template" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </section>

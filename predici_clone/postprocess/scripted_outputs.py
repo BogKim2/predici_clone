@@ -29,7 +29,7 @@ _FUNCTIONS = {
 }
 
 
-def evaluate_expression(expression: str, variables: dict[str, float]) -> float:
+def evaluate_expression(expression: str, variables: dict[str, Any]) -> float:
     try:
         tree = ast.parse(expression, mode="eval")
     except SyntaxError:
@@ -44,8 +44,10 @@ def evaluate_scripted_outputs(expressions: dict[str, str], variables: dict[str, 
     return {name: outputs[name] for name in expressions}
 
 
-def _eval_node(node: ast.AST, variables: dict[str, float]) -> Any:
+def _eval_node(node: ast.AST, variables: dict[str, Any]) -> Any:
     if isinstance(node, ast.Constant) and isinstance(node.value, (int, float)):
+        return node.value
+    if isinstance(node, ast.Constant) and isinstance(node.value, str):
         return node.value
     if isinstance(node, ast.Name):
         if node.id not in variables:
@@ -70,14 +72,18 @@ def _eval_node(node: ast.AST, variables: dict[str, float]) -> Any:
             raise ValueError(f"Unsupported operator: {op_type.__name__}")
         return _UNARY_OPERATORS[op_type](_eval_node(node.operand, variables))
     if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
-        if node.func.id not in _FUNCTIONS:
+        if node.func.id in _FUNCTIONS:
+            function = _FUNCTIONS[node.func.id]
+        elif node.func.id in variables and callable(variables[node.func.id]):
+            function = variables[node.func.id]
+        else:
             raise ValueError(f"Unsupported function: {node.func.id}")
         args = [_eval_node(arg, variables) for arg in node.args]
-        return _FUNCTIONS[node.func.id](*args)
+        return function(*args)
     raise ValueError(f"Unsupported expression element: {type(node).__name__}")
 
 
-def _eval_script(script: str, variables: dict[str, float]) -> Any:
+def _eval_script(script: str, variables: dict[str, Any]) -> Any:
     tree = ast.parse(script, mode="exec")
     scope: dict[str, Any] = dict(variables)
     last_value: Any = None

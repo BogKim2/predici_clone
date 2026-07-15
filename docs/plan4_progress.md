@@ -37,6 +37,12 @@ This file tracks implementation evidence against `plan4.md`.
   - `Set rest` remainder fill for mass and mole parts
   - feed tank schema carries feed type, profile, script-control flags, and switch time
   - tests: `tests/test_recipe_consistency.py`
+- M27 script command catalog/template foundation
+  - data-driven script function catalog with implemented/stub command markers
+  - safe scripted-output evaluator supports string arguments and whitelisted command callables
+  - PREDICI-style getters/setters: `getx`, `getco`, `getcoini`, `getconsum`, `getcf`, `getmy`, `gettotalmy`, `getkp`, `setkp`
+  - template generator emits boilerplate from selected species/parameters and result slots
+  - tests: `tests/test_script_catalog.py`, `tests/test_scripted_outputs.py`
 
 ## Still Incomplete
 
@@ -44,7 +50,7 @@ This file tracks implementation evidence against `plan4.md`.
 - M24 PatternFinder-style GUI integration and richer template catalog
 - M25 recipe consistency GUI workflow
 - M26 chart administration/reference data
-- M27 tutorial script command aliases
+- M27 GUI catalog rendering and additional command implementations
 - M28 script-driven reaction modifiers
 - M29 script debugger and run-to-time control
 - M31 tutorial manual expansion and full regression suite

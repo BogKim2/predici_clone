@@ -36,6 +36,21 @@ Recipe Consistency
    :members:
    :undoc-members:
 
+Script Compatibility
+--------------------
+
+.. automodule:: predici_clone.script.function_catalog
+   :members:
+   :undoc-members:
+
+.. automodule:: predici_clone.script.commands
+   :members:
+   :undoc-members:
+
+.. automodule:: predici_clone.script.template
+   :members:
+   :undoc-members:
+
 Automation and Interoperability
 -------------------------------
 
