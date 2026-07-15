@@ -392,6 +392,33 @@ def test_main_window_model_builder_applies_reaction_table_edits():
     app.processEvents()
 
 
+def test_main_window_model_builder_applies_reaction_modifier(tmp_path):
+    app = QApplication.instance() or QApplication([])
+    window = MainWindow()
+    window._add_default_reaction_step()
+
+    window.reaction_table.selectRow(0)
+    window.reaction_modifier_expression.setEditText("GP_kp(File)")
+    window.reaction_modifier_script.setPlainText('result = getkp("GP_kp") * 1.5')
+    window._apply_reaction_modifier_to_selected_step()
+
+    step = window.project.reaction_steps[0]
+    assert step.rate_law.expression == "GP_kp(File)"
+    assert step.rate_law.parameters == ("GP_kp",)
+    assert window.project.reaction_modifier_scripts["File"] == 'result = getkp("GP_kp") * 1.5'
+    assert window.project.generic_parameters["GP_kp"] == window.project.kinetics.kp
+
+    path = tmp_path / "modifier.predici.json"
+    window._save_project_to_path(path)
+    window.project = Project()
+    window._open_project_from_path(path)
+
+    assert window.project.reaction_steps[0].rate_law.expression == "GP_kp(File)"
+    assert window.project.reaction_modifier_scripts["File"] == 'result = getkp("GP_kp") * 1.5'
+    window.close()
+    app.processEvents()
+
+
 def test_main_window_undo_redo_project_edits():
     app = QApplication.instance() or QApplication([])
     window = MainWindow()

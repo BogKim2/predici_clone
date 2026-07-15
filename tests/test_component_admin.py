@@ -18,6 +18,12 @@ def test_component_schema_round_trips_through_project_dict():
     project = add_substance(project, Substance("MMA", alias="M", molecular_weight=100.12, is_monomer=True))
     project = add_polymer_species(project, PolymerSpecies("PMMA*", base_monomer="MMA", active=True, dead=False))
     project = add_parameter(project, Parameter("kp", value=0.12, unit="L/mol/s", kind="Arrhenius", pre_exponential=1.0e5))
+    project = Project.from_dict(
+        {
+            **project.to_dict(),
+            "reaction_modifier_scripts": {"File": 'result = getkp("kp")'},
+        }
+    )
 
     loaded = Project.from_dict(project.to_dict())
 
@@ -26,6 +32,7 @@ def test_component_schema_round_trips_through_project_dict():
     assert loaded.parameters[0].name == "kp"
     assert loaded.parameters[0].pre_exponential == 1.0e5
     assert loaded.generic_parameters["kp"] == 0.12
+    assert loaded.reaction_modifier_scripts["File"] == 'result = getkp("kp")'
 
 
 def test_auto_declare_components_adds_numeric_constants_and_scalars():

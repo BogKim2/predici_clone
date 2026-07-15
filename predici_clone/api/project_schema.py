@@ -174,6 +174,7 @@ class Project:
     general_initial_conditions: dict[str, float] = field(default_factory=dict)
     generic_parameters: dict[str, float] = field(default_factory=dict)
     parameters: list[Parameter] = field(default_factory=list)
+    reaction_modifier_scripts: dict[str, str] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -215,6 +216,10 @@ class Project:
             },
             generic_parameters=data.get("generic_parameters", {}),
             parameters=[_parameter_from_dict(item) for item in data.get("parameters", [])],
+            reaction_modifier_scripts={
+                str(name): str(script)
+                for name, script in data.get("reaction_modifier_scripts", {}).items()
+            },
         )
 
 

@@ -94,7 +94,7 @@ from predici_clone.postprocess.parameter_estimation import (
     sample_bayesian_posterior,
     sample_multi_experiment_bayesian_posterior,
 )
-from predici_clone.script import generate_script_template, script_function_catalog
+from predici_clone.script import generate_script_template, parse_reaction_rate_modifier, script_function_catalog
 from predici_clone.validation.paper_benchmarks import available_cases
 
 
@@ -284,6 +284,14 @@ class MainWindow(QMainWindow):
         remove.clicked.connect(self._remove_selected_reaction_step)
         apply = QPushButton("Apply Table Edits")
         apply.clicked.connect(self._apply_reaction_table_edits)
+        self.reaction_modifier_expression = QComboBox()
+        self.reaction_modifier_expression.setEditable(True)
+        self.reaction_modifier_expression.addItems(["GP_kp(File)", "GP_kp*File", "GP_kt(File)"])
+        self.reaction_modifier_script = QPlainTextEdit()
+        self.reaction_modifier_script.setPlainText('result = getkp("GP_kp")')
+        self.reaction_modifier_script.setMaximumHeight(72)
+        apply_modifier = QPushButton("Apply Modifier")
+        apply_modifier.clicked.connect(self._apply_reaction_modifier_to_selected_step)
         buttons.addWidget(self.reaction_kind_selector)
         buttons.addWidget(add)
         buttons.addWidget(self.reaction_pattern_selector)
@@ -291,10 +299,16 @@ class MainWindow(QMainWindow):
         buttons.addWidget(remove)
         buttons.addWidget(apply)
         buttons.addStretch(1)
+        modifier_buttons = QHBoxLayout()
+        modifier_buttons.addWidget(QLabel("Modifier"))
+        modifier_buttons.addWidget(self.reaction_modifier_expression)
+        modifier_buttons.addWidget(apply_modifier)
         self.reaction_table = QTableWidget(0, 7)
         self.reaction_table.setHorizontalHeaderLabels(["enabled", "name", "kind", "site", "reactants", "products", "rate"])
         self.reaction_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         layout.addLayout(buttons)
+        layout.addLayout(modifier_buttons)
+        layout.addWidget(self.reaction_modifier_script)
         layout.addWidget(self.reaction_table)
         return page
 
@@ -680,6 +694,7 @@ class MainWindow(QMainWindow):
             reaction_steps=list(self.project.reaction_steps),
             generic_parameters=dict(self.project.generic_parameters),
             parameters=list(self.project.parameters),
+            reaction_modifier_scripts=dict(self.project.reaction_modifier_scripts),
         )
 
     def _project_snapshot(self) -> dict:
@@ -792,6 +807,7 @@ class MainWindow(QMainWindow):
             reaction_steps=list(self.project.reaction_steps),
             generic_parameters=dict(self.project.generic_parameters),
             parameters=list(self.project.parameters),
+            reaction_modifier_scripts=dict(self.project.reaction_modifier_scripts),
         )
         self._populate_project_tree()
         self._append_log("Applied scripted outputs")
@@ -945,6 +961,7 @@ class MainWindow(QMainWindow):
             reaction_steps=list(self.project.reaction_steps),
             generic_parameters=dict(self.project.generic_parameters),
             parameters=list(self.project.parameters),
+            reaction_modifier_scripts=dict(self.project.reaction_modifier_scripts),
         )
         self._sync_controls_from_project(self.project)
         self._populate_project_tree()
@@ -1585,6 +1602,7 @@ class MainWindow(QMainWindow):
             reaction_steps=list(self.project.reaction_steps),
             generic_parameters=dict(self.project.generic_parameters),
             parameters=list(self.project.parameters),
+            reaction_modifier_scripts=dict(self.project.reaction_modifier_scripts),
         )
 
     def _fill_fitting_result_table(self, rows: list[tuple[str, object]]) -> None:
@@ -2076,6 +2094,7 @@ class MainWindow(QMainWindow):
             general_initial_conditions=dict(self.project.general_initial_conditions),
             generic_parameters=dict(self.project.generic_parameters),
             parameters=[],
+            reaction_modifier_scripts=dict(self.project.reaction_modifier_scripts),
         )
         for row in range(self.substance_table.rowCount()):
             name = self._table_text(self.substance_table, row, 0).strip()
@@ -2159,6 +2178,7 @@ class MainWindow(QMainWindow):
             reaction_steps=[*self.project.reaction_steps, step],
             generic_parameters={**self.project.generic_parameters, parameter: parameter_value},
             parameters=list(self.project.parameters),
+            reaction_modifier_scripts=dict(self.project.reaction_modifier_scripts),
         )
         self._populate_project_tree()
         self._populate_project_inspector()
@@ -2182,6 +2202,7 @@ class MainWindow(QMainWindow):
             reaction_steps=steps,
             generic_parameters=dict(self.project.generic_parameters),
             parameters=list(self.project.parameters),
+            reaction_modifier_scripts=dict(self.project.reaction_modifier_scripts),
         )
         self._populate_project_tree()
         self._populate_project_inspector()
@@ -2208,10 +2229,60 @@ class MainWindow(QMainWindow):
             reaction_steps=steps,
             generic_parameters=generic_parameters,
             parameters=list(self.project.parameters),
+            reaction_modifier_scripts=dict(self.project.reaction_modifier_scripts),
         )
         self._populate_project_tree()
         self._populate_project_inspector()
         self._append_log("Applied reaction table edits")
+
+    def _apply_reaction_modifier_to_selected_step(self) -> None:
+        if self.reaction_table.rowCount() == 0:
+            return
+        row = self.reaction_table.currentRow()
+        if row < 0:
+            row = self.reaction_table.rowCount() - 1
+        expression = self.reaction_modifier_expression.currentText().strip()
+        script = self.reaction_modifier_script.toPlainText().strip()
+        try:
+            modifier = parse_reaction_rate_modifier(expression)
+        except ValueError as exc:
+            QMessageBox.critical(self, "Modifier failed", str(exc))
+            return
+        if not script:
+            QMessageBox.critical(self, "Modifier failed", "Modifier script is required")
+            return
+        if self.reaction_table.item(row, 6) is None:
+            self.reaction_table.setItem(row, 6, QTableWidgetItem(expression))
+        else:
+            self.reaction_table.item(row, 6).setText(expression)
+        self._record_project_edit()
+        steps = [
+            self._reaction_step_from_table_row(index)
+            for index in range(self.reaction_table.rowCount())
+        ]
+        generic_parameters = dict(self.project.generic_parameters)
+        generic_parameters.setdefault(modifier.parameter, self.project.kinetics.kp)
+        self.project = Project(
+            schema_version=self.project.schema_version,
+            name=self.project.name,
+            reactor=self.project.reactor,
+            kinetics=self.project.kinetics,
+            recipe=self.project.recipe,
+            outputs=self.project.outputs,
+            heat_balance=self.project.heat_balance,
+            substances=list(self.project.substances),
+            polymers=list(self.project.polymers),
+            reaction_steps=steps,
+            generic_parameters=generic_parameters,
+            parameters=list(self.project.parameters),
+            reaction_modifier_scripts={
+                **self.project.reaction_modifier_scripts,
+                modifier.script_name: script,
+            },
+        )
+        self._populate_project_tree()
+        self._populate_project_inspector()
+        self._append_log(f"Applied reaction modifier: {expression}")
 
     def _reaction_step_from_table_row(self, row: int) -> ReactionStep:
         enabled = self._table_text(self.reaction_table, row, 0).strip().lower() not in {"", "0", "false", "no", "off"}
@@ -2221,7 +2292,7 @@ class MainWindow(QMainWindow):
         reactants = self._split_species(self._table_text(self.reaction_table, row, 4))
         products = self._split_species(self._table_text(self.reaction_table, row, 5))
         rate = self._table_text(self.reaction_table, row, 6).strip() or "0.0"
-        parameters = (rate,) if rate.startswith("GP_") else ()
+        parameters = self._rate_law_parameters(rate)
         return ReactionStep(
             name=name,
             kind=ReactionKind(kind_text),
@@ -2231,6 +2302,15 @@ class MainWindow(QMainWindow):
             enabled=enabled,
             site=site,
         )
+
+    @staticmethod
+    def _rate_law_parameters(rate: str) -> tuple[str, ...]:
+        if not rate.startswith("GP_"):
+            return ()
+        try:
+            return (parse_reaction_rate_modifier(rate).parameter,)
+        except ValueError:
+            return (rate,)
 
     @staticmethod
     def _table_text(table: QTableWidget, row: int, column: int) -> str:

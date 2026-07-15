@@ -64,6 +64,11 @@ This file tracks implementation evidence against `plan4.md`.
   - evaluates modifier scripts through the safe command namespace
   - supports multi-result scripts (`result1`, `result2`, ...) for multi-coefficient reaction steps
   - tests: `tests/test_reaction_modifiers.py`
+- M28 reaction modifier GUI/persistence foundation
+  - Model Builder applies `k(File)`/`k*File` modifier expressions to selected reaction steps
+  - modifier scripts are stored in project schema and round-trip through project save/load
+  - modifier expressions register the base kinetic parameter instead of the whole modifier expression
+  - tests: `tests/test_component_admin.py`, `tests/test_postprocess_and_gui.py`
 - M26 chart/reference/GPC weighting core foundation
   - `ChartConfig` for distribution/moment/Monte Carlo chart options
   - GPC `W(log M)` profile calculation (`P(s) * s^2`)
@@ -93,7 +98,7 @@ This file tracks implementation evidence against `plan4.md`.
 - M25 full 7-mode recipe-entry table integration and visual warning styling
 - M26 chart administration GUI and components information board
 - M27 additional command implementations beyond the tutorial-critical subset
-- M28 GUI integration and modifier-to-engine execution hooks
+- M28 modifier-to-engine execution hooks
 - M29 multi-script debugger panes and edit-in-place workflow
 - M32 moments backend and Monte Carlo/tau-leaping GUI stubs
 - M31 fuller screenshot/manual expansion for GUI-specific tutorial dialogs
