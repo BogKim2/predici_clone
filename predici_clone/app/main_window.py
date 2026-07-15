@@ -636,12 +636,15 @@ class MainWindow(QMainWindow):
         remove_debug.clicked.connect(self._remove_selected_debug_script_row)
         run_debug = QPushButton("Run Debug")
         run_debug.clicked.connect(self._run_debug_scripts)
+        move_debug = QPushButton("Move Trace")
+        move_debug.clicked.connect(self._move_debug_trace_to_window)
         buttons.addWidget(add)
         buttons.addWidget(template)
         buttons.addWidget(apply)
         buttons.addWidget(add_debug)
         buttons.addWidget(remove_debug)
         buttons.addWidget(run_debug)
+        buttons.addWidget(move_debug)
         buttons.addStretch(1)
         self.script_output_table = QTableWidget(0, 2)
         self.script_output_table.setHorizontalHeaderLabels(["name", "expression"])
@@ -909,6 +912,27 @@ class MainWindow(QMainWindow):
             for column, value in enumerate(values):
                 self.debug_trace_table.setItem(row, column, QTableWidgetItem(str(value)))
         self._append_log(f"Debug scripts traced: {len(rows)} rows")
+
+    def _move_debug_trace_to_window(self) -> None:
+        table = QTableWidget(self.debug_trace_table.rowCount(), self.debug_trace_table.columnCount())
+        headers = [
+            self.debug_trace_table.horizontalHeaderItem(column).text()
+            for column in range(self.debug_trace_table.columnCount())
+        ]
+        table.setHorizontalHeaderLabels(headers)
+        table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        for row in range(self.debug_trace_table.rowCount()):
+            for column in range(self.debug_trace_table.columnCount()):
+                source = self.debug_trace_table.item(row, column)
+                table.setItem(row, column, QTableWidgetItem("" if source is None else source.text()))
+        dock = QDockWidget("Debug trace", self)
+        dock.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea | Qt.BottomDockWidgetArea)
+        dock.setWidget(table)
+        self.addDockWidget(Qt.RightDockWidgetArea, dock)
+        self.debug_trace_dock = dock
+        self.debug_trace_window_table = table
+        self._append_log("Moved debug trace to dock window")
 
     def _debug_script_trace(
         self,

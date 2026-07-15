@@ -973,6 +973,12 @@ def test_main_window_script_debugger_traces_multiple_scripts():
     assert ("accumulator", "a", "2") in rows
     assert ("accumulator", "b", "3") in rows
 
+    window._move_debug_trace_to_window()
+
+    assert window.debug_trace_dock.windowTitle() == "Debug trace"
+    assert window.debug_trace_window_table.rowCount() == window.debug_trace_table.rowCount()
+    assert window.debug_trace_window_table.item(0, 0).text() == window.debug_trace_table.item(0, 0).text()
+
     window.debug_script_table.selectRow(1)
     window._remove_selected_debug_script_row()
 
