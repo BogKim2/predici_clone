@@ -332,6 +332,7 @@ def _with_generic_parameters(project: Project, values: dict[str, float]) -> Proj
         general_initial_conditions=dict(project.general_initial_conditions),
         generic_parameters=parameters,
         parameters=list(project.parameters),
+        reaction_modifier_scripts=dict(project.reaction_modifier_scripts),
     )
 
 

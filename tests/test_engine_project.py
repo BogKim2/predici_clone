@@ -146,6 +146,39 @@ def test_project_reaction_steps_affect_engine_distribution():
     assert transfer_result.final_distribution[0] > base_result.final_distribution[0]
 
 
+def test_reaction_modifier_script_affects_engine_distribution():
+    base = Project(
+        reactor=ReactorConfig(kind="Batch", nmax=30),
+        recipe=Recipe(integration=IntegrationControl(t_final=2.0, output_points=8)),
+        reaction_steps=[
+            ReactionStep(
+                name="transfer",
+                kind=ReactionKind.CHAIN_TRANSFER_TO_MONOMER,
+                reactants=("R", "M"),
+                products=("P0",),
+                rate_law=RateLaw("GP_ctr(File)", ("GP_ctr",)),
+            )
+        ],
+        generic_parameters={"GP_ctr": 0.0},
+        reaction_modifier_scripts={"File": "result = 10.0"},
+    )
+
+    without_script = Project.from_dict(
+        {
+            **base.to_dict(),
+            "reaction_modifier_scripts": {},
+        }
+    )
+
+    scripted_result = SimulationEngine(base).run()
+    inactive_result = SimulationEngine(without_script).run()
+
+    assert scripted_result.metadata["reaction_steps_applied"] == 1
+    assert scripted_result.metadata["reaction_modifier_events"]
+    assert scripted_result.metadata["reaction_modifier_events"][0]["value"] == 10.0
+    assert scripted_result.final_distribution[0] > inactive_result.final_distribution[0]
+
+
 def test_automation_api_exposes_distribution_points_and_moments():
     project = Project(
         reactor=ReactorConfig(kind="Batch", nmax=20),

@@ -20,12 +20,14 @@ from predici_clone.api.recipe_profiles import (
 from predici_clone.core.adaptive import adapt_galerkin_field
 from predici_clone.core.galerkin import GalerkinField
 from predici_clone.core.grid import HPMesh
+from predici_clone.core.moments import from_discrete_distribution
 from predici_clone.kinetics import FRPScheme, SpeciesState
-from predici_clone.kinetics.rate_terms import assemble_reaction_network_rhs, frp_rhs
+from predici_clone.kinetics.rate_terms import assemble_reaction_step_rhs, frp_rhs
 from predici_clone.reactor import BatchReactor, CascadeReactor, CSTRReactor, PFRReactor, SemiBatchReactor, compute_lumped_energy_balance
 from predici_clone.engine.galerkin_backend import project_distribution_history
 from predici_clone.engine.galerkin_system import GalerkinFRPBatchSystem, GalerkinFRPCSTRSystem, GalerkinFRPSemiBatchSystem
 from predici_clone.engine.simulation_result import SimulationResult
+from predici_clone.script import ScriptCommandState, evaluate_modifier_expression
 
 
 @dataclass(frozen=True)
@@ -728,6 +730,7 @@ class SimulationEngine:
             reaction_steps=list(project.reaction_steps),
             generic_parameters=dict(project.generic_parameters),
             parameters=list(project.parameters),
+            reaction_modifier_scripts=dict(project.reaction_modifier_scripts),
         )
         solution_result = None
         stage_initial = project.recipe.initial
@@ -759,6 +762,7 @@ class SimulationEngine:
                 reaction_steps=list(stage_project.reaction_steps),
                 generic_parameters=dict(stage_project.generic_parameters),
                 parameters=list(stage_project.parameters),
+                reaction_modifier_scripts=dict(stage_project.reaction_modifier_scripts),
             )
             solution_result = self._run_coupled_thermal_cstr(stage_project, t_span, t_eval)
             outlet = SpeciesState.from_array(solution_result.state_history[:3, -1])
@@ -1001,7 +1005,8 @@ class SimulationEngine:
 
     def _apply_reaction_step_postprocess(self, project: Project, result: SimulationResult) -> SimulationResult:
         adjusted = result.distribution_history.copy()
-        params = dict(project.generic_parameters)
+        base_params = dict(project.generic_parameters)
+        modifier_events: list[dict[str, object]] = []
         if result.time.size > 1:
             dt_values = np.diff(result.time, prepend=result.time[0])
         else:
@@ -1009,7 +1014,19 @@ class SimulationEngine:
         for index, dt in enumerate(dt_values):
             if dt <= 0:
                 continue
-            rhs = assemble_reaction_network_rhs(adjusted[:, index], project.reaction_steps, params)
+            rhs = np.zeros_like(adjusted[:, index], dtype=float)
+            for step in project.reaction_steps:
+                params, event = self._params_for_reaction_step(
+                    project,
+                    step,
+                    base_params,
+                    adjusted[:, index],
+                    time=float(result.time[index]),
+                    index=index,
+                )
+                if event is not None:
+                    modifier_events.append(event)
+                rhs += assemble_reaction_step_rhs(adjusted[:, index], step, params)
             adjusted[:, index] = np.maximum(adjusted[:, index] + dt * rhs, 0.0)
         return SimulationResult(
             success=result.success,
@@ -1019,7 +1036,69 @@ class SimulationEngine:
             state_history=result.state_history,
             distribution_history=adjusted,
             first_length=result.first_length,
-            metadata={**result.metadata, "reaction_steps_applied": len(project.reaction_steps)},
+            metadata={
+                **result.metadata,
+                "reaction_steps_applied": len(project.reaction_steps),
+                "reaction_modifier_events": modifier_events,
+            },
+        )
+
+    def _params_for_reaction_step(
+        self,
+        project: Project,
+        step,
+        base_params: dict[str, float],
+        distribution: np.ndarray,
+        *,
+        time: float,
+        index: int,
+    ) -> tuple[dict[str, float], dict[str, object] | None]:
+        try:
+            evaluation = evaluate_modifier_expression(
+                step.rate_law.expression,
+                scripts=project.reaction_modifier_scripts,
+                state=self._reaction_modifier_state(base_params, distribution, time=time),
+            )
+        except ValueError:
+            return base_params, None
+        params = dict(base_params)
+        value = float(evaluation.values[0])
+        params[evaluation.modifier.parameter] = value
+        return params, {
+            "step": step.name,
+            "parameter": evaluation.modifier.parameter,
+            "script": evaluation.modifier.script_name,
+            "mode": evaluation.modifier.mode,
+            "time": time,
+            "index": index,
+            "value": value,
+        }
+
+    @staticmethod
+    def _reaction_modifier_state(
+        parameters: dict[str, float],
+        distribution: np.ndarray,
+        *,
+        time: float,
+    ) -> ScriptCommandState:
+        report = from_discrete_distribution(distribution, first_length=0)
+        return ScriptCommandState(
+            current_concentrations={
+                "distribution_total": float(np.sum(distribution)),
+                "mass": float(report.mass),
+            },
+            moments={
+                "M0": report.m0,
+                "M1": report.m1,
+                "M2": report.m2,
+                "M3": report.m3,
+                "Mn": report.mn,
+                "Mw": report.mw,
+                "PDI": report.pdi,
+                "mass": report.mass,
+            },
+            parameters=dict(parameters),
+            variables={"time": float(time)},
         )
 
     def _apply_heat_balance(self, project: Project, result: SimulationResult) -> SimulationResult:

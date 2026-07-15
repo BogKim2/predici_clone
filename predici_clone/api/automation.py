@@ -35,6 +35,7 @@ def create_recipe(project: Project, recipe_name: str, option: str = "copy") -> P
         general_initial_conditions=dict(project.general_initial_conditions),
         generic_parameters=dict(project.generic_parameters),
         parameters=list(project.parameters),
+        reaction_modifier_scripts=dict(project.reaction_modifier_scripts),
     )
 
 
@@ -81,6 +82,7 @@ def set_feed_rate(project: Project, rate: float) -> Project:
         general_initial_conditions=dict(project.general_initial_conditions),
         generic_parameters=dict(project.generic_parameters),
         parameters=list(project.parameters),
+        reaction_modifier_scripts=dict(project.reaction_modifier_scripts),
     )
 
 
@@ -140,6 +142,7 @@ def set_dist_lumping(project: Project, on_off: bool) -> Project:
         general_initial_conditions=dict(project.general_initial_conditions),
         generic_parameters=parameters,
         parameters=list(project.parameters),
+        reaction_modifier_scripts=dict(project.reaction_modifier_scripts),
     )
 
 
@@ -189,6 +192,7 @@ def set_heat_exchanger(
         general_initial_conditions=dict(project.general_initial_conditions),
         generic_parameters=dict(project.generic_parameters),
         parameters=list(project.parameters),
+        reaction_modifier_scripts=dict(project.reaction_modifier_scripts),
     )
 
 
@@ -232,6 +236,7 @@ def set_enthalpy(project: Project, step_type: str, reactant: str, value: float) 
         general_initial_conditions=dict(project.general_initial_conditions),
         generic_parameters=parameters,
         parameters=list(project.parameters),
+        reaction_modifier_scripts=dict(project.reaction_modifier_scripts),
     )
 
 

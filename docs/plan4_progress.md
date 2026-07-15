@@ -81,6 +81,12 @@ This file tracks implementation evidence against `plan4.md`.
   - modifier scripts are stored in project schema and round-trip through project save/load
   - modifier expressions register the base kinetic parameter instead of the whole modifier expression
   - tests: `tests/test_component_admin.py`, `tests/test_postprocess_and_gui.py`
+- M28 modifier-to-engine execution hook
+  - reaction-step postprocess evaluates `k(File)`/`k*File` scripts per step/time slice
+  - evaluated modifier values replace the base kinetic parameter for that step's RHS
+  - result metadata records modifier events with step, script, parameter, time, and value
+  - clone helpers preserve `reaction_modifier_scripts`
+  - tests: `tests/test_engine_project.py`, `tests/test_reaction_modifiers.py`
 - M26 chart/reference/GPC weighting core foundation
   - `ChartConfig` for distribution/moment/Monte Carlo chart options
   - GPC `W(log M)` profile calculation (`P(s) * s^2`)
@@ -123,7 +129,6 @@ This file tracks implementation evidence against `plan4.md`.
 - M24 drag/drop slot assignment interaction
 - M25 full 7-mode recipe-entry table integration and visual warning styling
 - M27 PDE-specific numerical semantics for advanced commands beyond supplied-state helpers
-- M28 modifier-to-engine execution hooks
 - M29 multi-script debugger panes and edit-in-place workflow
 - M32 true moments backend and Monte Carlo/tau-leaping numerical execution
 - M31 fuller screenshot/manual expansion for GUI-specific tutorial dialogs
