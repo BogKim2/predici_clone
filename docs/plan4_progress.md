@@ -50,6 +50,10 @@ This file tracks implementation evidence against `plan4.md`.
   - Model Builder renders the full reaction pattern catalog with category/kind/slots/parameter metadata
   - selected pattern preview shows reactant/product slot structure and parameter names
   - tests: `tests/test_postprocess_and_gui.py`
+- M24 PatternFinder slot assignment foundation
+  - Model Builder renders editable slot bindings for selected pattern reactants/products/parameters
+  - `Add Pattern` uses the slot table values and auto-declares the assigned species/parameter names
+  - tests: `tests/test_postprocess_and_gui.py`
 - M25 recipe consistency service foundation
   - seven recipe input modes normalize to mass/mole/concentration tables
   - `Set concentration consistent` density rule
@@ -148,7 +152,7 @@ This file tracks implementation evidence against `plan4.md`.
 
 ## Still Incomplete
 
-- M24 drag/drop slot assignment interaction
+- M24 mouse drag gesture for slot assignment
 - M27 PDE-specific numerical semantics for advanced commands beyond supplied-state helpers
 - M29 debugger move-to-window workflow
 - M32 Monte Carlo/tau-leaping numerical execution

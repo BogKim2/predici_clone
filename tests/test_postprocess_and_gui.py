@@ -397,6 +397,33 @@ def test_main_window_model_builder_shows_pattern_catalog_preview():
     app.processEvents()
 
 
+def test_main_window_model_builder_uses_pattern_slot_bindings():
+    app = QApplication.instance() or QApplication([])
+    window = MainWindow()
+    window.reaction_pattern_selector.setCurrentText("ChainTransfer")
+
+    slot_values = {
+        window.reaction_pattern_slot_table.item(row, 1).text(): row
+        for row in range(window.reaction_pattern_slot_table.rowCount())
+    }
+    window.reaction_pattern_slot_table.item(slot_values["polymer_radical"], 2).setText("R_live")
+    window.reaction_pattern_slot_table.item(slot_values["transfer_agent"], 2).setText("CTA")
+    window.reaction_pattern_slot_table.item(slot_values["dead_polymer"], 2).setText("P_dead")
+    window.reaction_pattern_slot_table.item(slot_values["new_radical"], 2).setText("R_new")
+    window.reaction_pattern_slot_table.item(slot_values["GP_cta"], 2).setText("k_cta")
+
+    window._add_selected_reaction_pattern()
+
+    step = window.project.reaction_steps[-1]
+    assert step.reactants == ("R_live", "CTA")
+    assert step.products == ("P_dead", "R_new")
+    assert step.rate_law.parameters == ("k_cta",)
+    assert {"R_live", "CTA", "P_dead", "R_new"} <= {item["name"] for item in window.project.substances}
+    assert window.project.generic_parameters["k_cta"] == 0.0
+    window.close()
+    app.processEvents()
+
+
 def test_main_window_component_tables_apply_schema_objects():
     app = QApplication.instance() or QApplication([])
     window = MainWindow()

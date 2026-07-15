@@ -279,6 +279,7 @@ class MainWindow(QMainWindow):
         self.reaction_pattern_selector = QComboBox()
         self.reaction_pattern_selector.addItems([pattern.name for pattern in reaction_pattern_catalog() if pattern.kind is not None])
         self.reaction_pattern_selector.currentTextChanged.connect(self._update_reaction_pattern_preview)
+        self.reaction_pattern_selector.currentTextChanged.connect(self._populate_reaction_pattern_slots)
         add = QPushButton("Add Reaction")
         add.clicked.connect(self._add_selected_reaction_step)
         add_pattern = QPushButton("Add Pattern")
@@ -317,14 +318,20 @@ class MainWindow(QMainWindow):
         )
         self.reaction_pattern_catalog_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.reaction_pattern_catalog_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.reaction_pattern_slot_table = QTableWidget(0, 3)
+        self.reaction_pattern_slot_table.setHorizontalHeaderLabels(["type", "slot", "value"])
+        self.reaction_pattern_slot_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         layout.addLayout(buttons)
         layout.addWidget(self.reaction_pattern_preview)
         layout.addWidget(self.reaction_pattern_catalog_table)
+        layout.addWidget(QLabel("Pattern slots"))
+        layout.addWidget(self.reaction_pattern_slot_table)
         layout.addLayout(modifier_buttons)
         layout.addWidget(self.reaction_modifier_script)
         layout.addWidget(self.reaction_table)
         self._populate_reaction_pattern_catalog_table()
         self._update_reaction_pattern_preview()
+        self._populate_reaction_pattern_slots()
         return page
 
     def _build_component_tab(self) -> QWidget:
@@ -2450,6 +2457,52 @@ class MainWindow(QMainWindow):
             f"{pattern.name}: {reactants} -> {products} | parameters: {parameters} | {pattern.description}"
         )
 
+    def _populate_reaction_pattern_slots(self) -> None:
+        if not hasattr(self, "reaction_pattern_slot_table"):
+            return
+        pattern_name = self.reaction_pattern_selector.currentText()
+        pattern = next((item for item in reaction_pattern_catalog() if item.name == pattern_name), None)
+        if pattern is None:
+            self.reaction_pattern_slot_table.setRowCount(0)
+            return
+        defaults = self._default_pattern_bindings(pattern.name)
+        rows: list[tuple[str, str, str]] = []
+        for index, slot in enumerate(pattern.reactant_slots):
+            value = defaults[0][index] if index < len(defaults[0]) else slot
+            rows.append(("reactant", slot, value))
+        for index, slot in enumerate(pattern.product_slots):
+            value = defaults[1][index] if index < len(defaults[1]) else slot
+            rows.append(("product", slot, value))
+        for index, slot in enumerate(pattern.parameter_slots):
+            value = defaults[2] if index == 0 else slot
+            rows.append(("parameter", slot, value))
+        self.reaction_pattern_slot_table.setRowCount(len(rows))
+        for row, values in enumerate(rows):
+            for column, value in enumerate(values):
+                item = QTableWidgetItem(value)
+                if column < 2:
+                    item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+                self.reaction_pattern_slot_table.setItem(row, column, item)
+
+    def _pattern_bindings_from_slot_table(self) -> tuple[tuple[str, ...], tuple[str, ...], str]:
+        reactants: list[str] = []
+        products: list[str] = []
+        parameter = ""
+        for row in range(self.reaction_pattern_slot_table.rowCount()):
+            slot_type = self._table_text(self.reaction_pattern_slot_table, row, 0).strip()
+            value = self._table_text(self.reaction_pattern_slot_table, row, 2).strip()
+            if not value:
+                continue
+            if slot_type == "reactant":
+                reactants.append(value)
+            elif slot_type == "product":
+                products.append(value)
+            elif slot_type == "parameter" and not parameter:
+                parameter = value
+        if not reactants or not products or not parameter:
+            return self._default_pattern_bindings(self.reaction_pattern_selector.currentText())
+        return tuple(reactants), tuple(products), parameter
+
     def _add_default_reaction_step(self) -> None:
         self._add_reaction_step(ReactionKind.PROPAGATION)
 
@@ -2459,7 +2512,7 @@ class MainWindow(QMainWindow):
     def _add_selected_reaction_pattern(self) -> None:
         self._record_project_edit()
         pattern_name = self.reaction_pattern_selector.currentText()
-        reactants, products, parameter = self._default_pattern_bindings(pattern_name)
+        reactants, products, parameter = self._pattern_bindings_from_slot_table()
         self.project = build_polymer_reaction_step(
             self.project,
             pattern_name=pattern_name,
