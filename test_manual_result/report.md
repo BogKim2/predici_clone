@@ -1,11 +1,11 @@
 # Manual reproduction report
 
-- Generated (UTC): `2026-07-15T10:27:16.407964+00:00`
-- Command: `python -m test_manuals --all --output .\test_manual_result`
+- Generated (UTC): `2026-07-15T10:34:28.974540+00:00`
+- Command: `python -m test_manuals --all --split --output .\test_manual_result`
 - Environment: Python 3.13.14 / Windows-11-10.0.26200-SP0
 - Result: PASS 39 / FAIL 0 / SKIP 0
 - PDF coverage: 39 / 39 (100.00%)
-- Total duration: 0.003342 seconds
+- Total duration: 0.005436 seconds
 
 ## By feature
 
@@ -50,7 +50,7 @@
 | Example | `cit_parameter_estimation` - CiT Parameter Estimation |
 | Classification | `fitting` / `M50` |
 | Status | **PASS** |
-| Duration | 0.000349 seconds |
+| Duration | 0.000358 seconds |
 | Metrics | `metric=1` |
 | Expected | `metric: [0, +inf]` |
 | Reason | - |
@@ -62,7 +62,7 @@
 | Example | `crosslinkingmodels` - CrossLinkingModels |
 | Classification | `crosslink` / `M44` |
 | Status | **PASS** |
-| Duration | 0.000008 seconds |
+| Duration | 0.000009 seconds |
 | Metrics | `metric=0.5` |
 | Expected | `metric: [0, +inf]` |
 | Reason | - |
@@ -74,7 +74,7 @@
 | Example | `egas` - eGAS |
 | Classification | `thermo` / `M48` |
 | Status | **PASS** |
-| Duration | 0.000215 seconds |
+| Duration | 0.000234 seconds |
 | Metrics | `metric=0.978640588861` |
 | Expected | `metric: [0, +inf]` |
 | Reason | - |
@@ -98,7 +98,7 @@
 | Example | `feed_and_heat_balance_v2` - Feed and heat balance v2 |
 | Classification | `reactors` / `M55` |
 | Status | **PASS** |
-| Duration | 0.000002 seconds |
+| Duration | 0.000001 seconds |
 | Metrics | `metric=1` |
 | Expected | `metric: [0, +inf]` |
 | Reason | - |
@@ -122,7 +122,7 @@
 | Example | `fugacities_in_predici_and_presto_kinetics` - Fugacities in Predici and Presto Kinetics |
 | Classification | `thermo` / `M48` |
 | Status | **PASS** |
-| Duration | 0.000095 seconds |
+| Duration | 0.000153 seconds |
 | Metrics | `metric=0.978640588861` |
 | Expected | `metric: [0, +inf]` |
 | Reason | - |
@@ -134,7 +134,7 @@
 | Example | `hutchinson_wulkow_et_el_functional_group_distribution_2014` - Hutchinson_Wulkow_et_el_Functional_group_distribution_2014 |
 | Classification | `crosslink` / `M44` |
 | Status | **PASS** |
-| Duration | 0.000003 seconds |
+| Duration | 0.000004 seconds |
 | Metrics | `metric=0.5` |
 | Expected | `metric: [0, +inf]` |
 | Reason | - |
@@ -146,7 +146,7 @@
 | Example | `listofmodels` - ListOfModels |
 | Classification | `kinetics` / `M41` |
 | Status | **PASS** |
-| Duration | 0.000001 seconds |
+| Duration | 0.000002 seconds |
 | Metrics | `metric=1` |
 | Expected | `metric: [0, +inf]` |
 | Reason | - |
@@ -158,7 +158,7 @@
 | Example | `new_condensation_flags` - New Condensation Flags |
 | Classification | `stepgrowth` / `M44` |
 | Status | **PASS** |
-| Duration | 0.000020 seconds |
+| Duration | 0.000026 seconds |
 | Metrics | `metric=1.9` |
 | Expected | `metric: [0, +inf]` |
 | Reason | - |
@@ -170,7 +170,7 @@
 | Example | `polycondensation_of_aa_dd` - Polycondensation of AA_DD |
 | Classification | `stepgrowth` / `M44` |
 | Status | **PASS** |
-| Duration | 0.000007 seconds |
+| Duration | 0.000006 seconds |
 | Metrics | `metric=1.9` |
 | Expected | `metric: [0, +inf]` |
 | Reason | - |
@@ -194,7 +194,7 @@
 | Example | `predici_parameter_estimation` - Predici Parameter Estimation |
 | Classification | `fitting` / `M50` |
 | Status | **PASS** |
-| Duration | 0.000067 seconds |
+| Duration | 0.000086 seconds |
 | Metrics | `metric=1` |
 | Expected | `metric: [0, +inf]` |
 | Reason | - |
@@ -230,7 +230,7 @@
 | Example | `predici11_cape_open` - Predici11_Cape-Open |
 | Classification | `thermo` / `M48` |
 | Status | **PASS** |
-| Duration | 0.000082 seconds |
+| Duration | 0.000093 seconds |
 | Metrics | `metric=0.978640588861` |
 | Expected | `metric: [0, +inf]` |
 | Reason | - |
@@ -242,7 +242,7 @@
 | Example | `predici11_hybrid_monte_carlo` - Predici11_Hybrid-Monte-Carlo |
 | Classification | `montecarlo` / `M42` |
 | Status | **PASS** |
-| Duration | 0.000720 seconds |
+| Duration | 0.002597 seconds |
 | Metrics | `metric=8.31` |
 | Expected | `metric: [0, +inf]` |
 | Reason | - |
@@ -254,7 +254,7 @@
 | Example | `predici11_kinetic_model` - Predici11_Kinetic_Model |
 | Classification | `kinetics` / `M41` |
 | Status | **PASS** |
-| Duration | 0.000001 seconds |
+| Duration | 0.000002 seconds |
 | Metrics | `metric=1` |
 | Expected | `metric: [0, +inf]` |
 | Reason | - |
@@ -290,7 +290,7 @@
 | Example | `predici11_workshop_november_2016_2_parameter_estimation` - Predici11_Workshop_November_2016_2. Parameter_Estimation |
 | Classification | `fitting` / `M50` |
 | Status | **PASS** |
-| Duration | 0.000073 seconds |
+| Duration | 0.000102 seconds |
 | Metrics | `metric=1` |
 | Expected | `metric: [0, +inf]` |
 | Reason | - |
@@ -302,7 +302,7 @@
 | Example | `predici11_workshop_november_2016_3_polymers1` - Predici11_Workshop_November_2016_3. Polymers1 |
 | Classification | `kinetics` / `M41` |
 | Status | **PASS** |
-| Duration | 0.000001 seconds |
+| Duration | 0.000002 seconds |
 | Metrics | `metric=1` |
 | Expected | `metric: [0, +inf]` |
 | Reason | - |
@@ -326,7 +326,7 @@
 | Example | `predici11_workshop_november_2016_5_monte_carlo_details` - Predici11_Workshop_November_2016_5. Monte-Carlo_Details |
 | Classification | `montecarlo` / `M42` |
 | Status | **PASS** |
-| Duration | 0.000476 seconds |
+| Duration | 0.000515 seconds |
 | Metrics | `metric=8.31` |
 | Expected | `metric: [0, +inf]` |
 | Reason | - |
@@ -338,7 +338,7 @@
 | Example | `predici11_workshop_november_2016_6_emulsion_polymerization` - Predici11_Workshop_November_2016_6. Emulsion_Polymerization |
 | Classification | `emulsion` / `M46` |
 | Status | **PASS** |
-| Duration | 0.000105 seconds |
+| Duration | 0.000113 seconds |
 | Metrics | `metric=1` |
 | Expected | `metric: [0, +inf]` |
 | Reason | - |
@@ -374,7 +374,7 @@
 | Example | `predicipsd_tutorial_2017` - PrediciPSD_Tutorial_2017 |
 | Classification | `psd` / `M45` |
 | Status | **PASS** |
-| Duration | 0.000075 seconds |
+| Duration | 0.000079 seconds |
 | Metrics | `metric=1.99910862682` |
 | Expected | `metric: [0, +inf]` |
 | Reason | - |
@@ -386,7 +386,7 @@
 | Example | `presto11_parameter_estimation` - Presto11 Parameter Estimation |
 | Classification | `fitting` / `M50` |
 | Status | **PASS** |
-| Duration | 0.000051 seconds |
+| Duration | 0.000055 seconds |
 | Metrics | `metric=1` |
 | Expected | `metric: [0, +inf]` |
 | Reason | - |
@@ -410,7 +410,7 @@
 | Example | `schuette_wulkow_predici_montecarlo` - Schuette-Wulkow_Predici-MonteCarlo |
 | Classification | `montecarlo` / `M42` |
 | Status | **PASS** |
-| Duration | 0.000450 seconds |
+| Duration | 0.000454 seconds |
 | Metrics | `metric=8.31` |
 | Expected | `metric: [0, +inf]` |
 | Reason | - |
@@ -506,7 +506,7 @@
 | Example | `predici_maxwell` - Predici_Maxwell |
 | Classification | `montecarlo` / `M42` |
 | Status | **PASS** |
-| Duration | 0.000432 seconds |
+| Duration | 0.000436 seconds |
 | Metrics | `metric=8.31` |
 | Expected | `metric: [0, +inf]` |
 | Reason | - |

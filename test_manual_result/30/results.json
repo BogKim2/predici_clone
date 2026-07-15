@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-07-15T10:34:29.058271+00:00",
+  "command": "python -m test_manuals --pdf \"Procedures in Predici.pdf\" --output .\\test_manual_result\\30",
+  "environment": {
+    "python": "3.13.14",
+    "platform": "Windows-11-10.0.26200-SP0"
+  },
+  "summary": {
+    "examples": 1,
+    "pass": 1,
+    "fail": 0,
+    "skip": 0,
+    "duration_seconds": 1e-06,
+    "selected_pdfs": 1,
+    "registered_pdfs": 39,
+    "pdf_coverage_percent": 2.56
+  },
+  "by_feature": [
+    {
+      "name": "automation",
+      "examples": 1,
+      "pdfs": 1,
+      "pass": 1,
+      "fail": 0,
+      "skip": 0
+    }
+  ],
+  "by_milestone": [
+    {
+      "name": "M54",
+      "examples": 1,
+      "pdfs": 1,
+      "pass": 1,
+      "fail": 0,
+      "skip": 0
+    }
+  ],
+  "results": [
+    {
+      "id": "procedures_in_predici",
+      "title": "Procedures in Predici",
+      "source_pdf": "Procedures in Predici.pdf",
+      "feature": "automation",
+      "milestone": "M54",
+      "status": "PASS",
+      "duration_seconds": 1e-06,
+      "metrics": {
+        "metric": 1.0
+      },
+      "expected": {
+        "metric": {
+          "minimum": 0.0,
+          "maximum": null
+        }
+      },
+      "reason": "",
+      "requires": [],
+      "speed": "fast"
+    }
+  ]
+}

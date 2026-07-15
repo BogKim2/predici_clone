@@ -7,7 +7,7 @@ import subprocess
 import sys
 
 from test_manuals.registry import examples
-from test_manuals.report import write_reports
+from test_manuals.report import write_reports, write_split_reports
 from test_manuals.runner import run_examples, select_examples
 
 
@@ -20,6 +20,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--feature")
     parser.add_argument("--milestone")
     parser.add_argument("--smoke", action="store_true")
+    parser.add_argument("--split", action="store_true", help="also write one numbered result directory per selected scenario")
     parser.add_argument("--output", default="test_manuals/outputs")
     args = parser.parse_args(cli_args)
     selected = select_examples(pdf=args.pdf, feature=args.feature, milestone=args.milestone, smoke=args.smoke)
@@ -33,6 +34,8 @@ def main(argv: list[str] | None = None) -> int:
     results = run_examples(selected)
     command = subprocess.list2cmdline(["python", "-m", "test_manuals", *cli_args])
     html, _markdown = write_reports(results, Path(args.output), command=command)
+    if args.split:
+        write_split_reports(results, Path(args.output))
     counts = Counter(item.status for item in results)
     print(f"PASS {counts['PASS']} / FAIL {counts['FAIL']} / SKIP {counts['SKIP']} - {html}")
     return 1 if counts["FAIL"] else 0

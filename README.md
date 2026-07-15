@@ -85,7 +85,7 @@ python -m test_manuals --smoke
 python -m test_manuals --all
 
 # 검증 결과를 저장소의 공식 결과 폴더에 생성
-python -m test_manuals --all --output .\test_manual_result
+python -m test_manuals --all --split --output .\test_manual_result
 ```
 
 정상 실행 시 콘솔에는 다음 형식의 요약이 표시됩니다.
@@ -155,6 +155,40 @@ Start-Process .\artifacts\manual-suite\report.html
 2026-07-15 전체 실행 결과는 [test_manual_result/README.md](test_manual_result/README.md)에
 정리되어 있습니다. 결과는 `PASS 39 / FAIL 0 / SKIP 0`, PDF 커버리지는 `39 / 39 (100%)`이며,
 같은 폴더의 HTML, Markdown, JSON, CSV에서 각 PDF의 계산 지표를 확인할 수 있습니다.
+
+`--split`을 사용하면 `test_manual_result\1`부터 `test_manual_result\39`까지 번호 폴더도
+생성됩니다. 각 폴더에는 해당 PDF 한 건의 결과 5개와 독립 실행 파일 2개가 있습니다.
+
+```text
+test_manual_result/1/
+  run_test.ps1
+  run_test.cmd
+  README.md
+  report.html
+  report.md
+  results.json
+  results.csv
+```
+
+원하는 번호의 테스트만 다시 실행하는 방법은 다음과 같습니다. 두 실행 파일 모두 저장소 루트로
+이동하고 해당 PDF 한 건만 계산하여 같은 번호 폴더의 결과를 갱신한 뒤 HTML 보고서를 엽니다.
+
+```powershell
+# PowerShell 실행 정책이 허용된 경우
+& .\test_manual_result\1\run_test.ps1
+
+# 현재 프로세스에서만 실행 정책을 우회
+powershell -ExecutionPolicy Bypass -File .\test_manual_result\1\run_test.ps1
+
+# 결과를 갱신하되 브라우저는 열지 않음
+powershell -ExecutionPolicy Bypass -File .\test_manual_result\1\run_test.ps1 -NoOpen
+
+# CMD 실행 파일 사용
+.\test_manual_result\1\run_test.cmd
+```
+
+번호와 PDF의 전체 대응표는 [개별 테스트 폴더 색인](test_manual_result/README.md#개별-테스트-폴더)에
+있습니다. 실행 파일을 사용하려면 Python 3.11 이상과 프로젝트 의존성이 설치되어 있어야 합니다.
 
 ### 6. 판정과 종료 코드
 

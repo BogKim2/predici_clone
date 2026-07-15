@@ -1,0 +1,2 @@
+﻿id,source_pdf,title,feature,milestone,status,duration_seconds,metrics,expected,reason,requires,speed
+predici11_workshop_november_2016_7_examples,Predici11_Workshop_November_2016_7. Examples.pdf,Predici11_Workshop_November_2016_7. Examples,kinetics,M41,PASS,1e-06,"{""metric"": 1.0}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast

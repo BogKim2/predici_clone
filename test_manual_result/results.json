@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-07-15T10:27:16.407964+00:00",
-  "command": "python -m test_manuals --all --output .\\test_manual_result",
+  "generated_at_utc": "2026-07-15T10:34:28.974540+00:00",
+  "command": "python -m test_manuals --all --split --output .\\test_manual_result",
   "environment": {
     "python": "3.13.14",
     "platform": "Windows-11-10.0.26200-SP0"
@@ -11,7 +11,7 @@
     "pass": 39,
     "fail": 0,
     "skip": 0,
-    "duration_seconds": 0.003342,
+    "duration_seconds": 0.005436,
     "selected_pdfs": 39,
     "registered_pdfs": 39,
     "pdf_coverage_percent": 100.0
@@ -220,7 +220,7 @@
       "feature": "fitting",
       "milestone": "M50",
       "status": "PASS",
-      "duration_seconds": 0.000349,
+      "duration_seconds": 0.000358,
       "metrics": {
         "metric": 1.0
       },
@@ -241,7 +241,7 @@
       "feature": "crosslink",
       "milestone": "M44",
       "status": "PASS",
-      "duration_seconds": 8e-06,
+      "duration_seconds": 9e-06,
       "metrics": {
         "metric": 0.5
       },
@@ -262,7 +262,7 @@
       "feature": "thermo",
       "milestone": "M48",
       "status": "PASS",
-      "duration_seconds": 0.000215,
+      "duration_seconds": 0.000234,
       "metrics": {
         "metric": 0.9786405888609193
       },
@@ -304,7 +304,7 @@
       "feature": "reactors",
       "milestone": "M55",
       "status": "PASS",
-      "duration_seconds": 2e-06,
+      "duration_seconds": 1e-06,
       "metrics": {
         "metric": 1.0
       },
@@ -346,7 +346,7 @@
       "feature": "thermo",
       "milestone": "M48",
       "status": "PASS",
-      "duration_seconds": 9.5e-05,
+      "duration_seconds": 0.000153,
       "metrics": {
         "metric": 0.9786405888609193
       },
@@ -367,7 +367,7 @@
       "feature": "crosslink",
       "milestone": "M44",
       "status": "PASS",
-      "duration_seconds": 3e-06,
+      "duration_seconds": 4e-06,
       "metrics": {
         "metric": 0.5
       },
@@ -388,7 +388,7 @@
       "feature": "kinetics",
       "milestone": "M41",
       "status": "PASS",
-      "duration_seconds": 1e-06,
+      "duration_seconds": 2e-06,
       "metrics": {
         "metric": 1.0
       },
@@ -409,7 +409,7 @@
       "feature": "stepgrowth",
       "milestone": "M44",
       "status": "PASS",
-      "duration_seconds": 2e-05,
+      "duration_seconds": 2.6e-05,
       "metrics": {
         "metric": 1.9
       },
@@ -430,7 +430,7 @@
       "feature": "stepgrowth",
       "milestone": "M44",
       "status": "PASS",
-      "duration_seconds": 7e-06,
+      "duration_seconds": 6e-06,
       "metrics": {
         "metric": 1.9
       },
@@ -472,7 +472,7 @@
       "feature": "fitting",
       "milestone": "M50",
       "status": "PASS",
-      "duration_seconds": 6.7e-05,
+      "duration_seconds": 8.6e-05,
       "metrics": {
         "metric": 1.0
       },
@@ -535,7 +535,7 @@
       "feature": "thermo",
       "milestone": "M48",
       "status": "PASS",
-      "duration_seconds": 8.2e-05,
+      "duration_seconds": 9.3e-05,
       "metrics": {
         "metric": 0.9786405888609193
       },
@@ -556,7 +556,7 @@
       "feature": "montecarlo",
       "milestone": "M42",
       "status": "PASS",
-      "duration_seconds": 0.00072,
+      "duration_seconds": 0.002597,
       "metrics": {
         "metric": 8.31
       },
@@ -577,7 +577,7 @@
       "feature": "kinetics",
       "milestone": "M41",
       "status": "PASS",
-      "duration_seconds": 1e-06,
+      "duration_seconds": 2e-06,
       "metrics": {
         "metric": 1.0
       },
@@ -640,7 +640,7 @@
       "feature": "fitting",
       "milestone": "M50",
       "status": "PASS",
-      "duration_seconds": 7.3e-05,
+      "duration_seconds": 0.000102,
       "metrics": {
         "metric": 1.0
       },
@@ -661,7 +661,7 @@
       "feature": "kinetics",
       "milestone": "M41",
       "status": "PASS",
-      "duration_seconds": 1e-06,
+      "duration_seconds": 2e-06,
       "metrics": {
         "metric": 1.0
       },
@@ -703,7 +703,7 @@
       "feature": "montecarlo",
       "milestone": "M42",
       "status": "PASS",
-      "duration_seconds": 0.000476,
+      "duration_seconds": 0.000515,
       "metrics": {
         "metric": 8.31
       },
@@ -724,7 +724,7 @@
       "feature": "emulsion",
       "milestone": "M46",
       "status": "PASS",
-      "duration_seconds": 0.000105,
+      "duration_seconds": 0.000113,
       "metrics": {
         "metric": 1.0000000000001539
       },
@@ -787,7 +787,7 @@
       "feature": "psd",
       "milestone": "M45",
       "status": "PASS",
-      "duration_seconds": 7.5e-05,
+      "duration_seconds": 7.9e-05,
       "metrics": {
         "metric": 1.999108626818695
       },
@@ -808,7 +808,7 @@
       "feature": "fitting",
       "milestone": "M50",
       "status": "PASS",
-      "duration_seconds": 5.1e-05,
+      "duration_seconds": 5.5e-05,
       "metrics": {
         "metric": 1.0
       },
@@ -850,7 +850,7 @@
       "feature": "montecarlo",
       "milestone": "M42",
       "status": "PASS",
-      "duration_seconds": 0.00045,
+      "duration_seconds": 0.000454,
       "metrics": {
         "metric": 8.31
       },
@@ -1018,7 +1018,7 @@
       "feature": "montecarlo",
       "milestone": "M42",
       "status": "PASS",
-      "duration_seconds": 0.000432,
+      "duration_seconds": 0.000436,
       "metrics": {
         "metric": 8.31
       },

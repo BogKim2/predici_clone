@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-07-15T10:34:29.023202+00:00",
+  "command": "python -m test_manuals --pdf \"Predici and Presto-Kinetics - All Documents.pdf\" --output .\\test_manual_result\\12",
+  "environment": {
+    "python": "3.13.14",
+    "platform": "Windows-11-10.0.26200-SP0"
+  },
+  "summary": {
+    "examples": 1,
+    "pass": 1,
+    "fail": 0,
+    "skip": 0,
+    "duration_seconds": 1e-06,
+    "selected_pdfs": 1,
+    "registered_pdfs": 39,
+    "pdf_coverage_percent": 2.56
+  },
+  "by_feature": [
+    {
+      "name": "kinetics",
+      "examples": 1,
+      "pdfs": 1,
+      "pass": 1,
+      "fail": 0,
+      "skip": 0
+    }
+  ],
+  "by_milestone": [
+    {
+      "name": "M41",
+      "examples": 1,
+      "pdfs": 1,
+      "pass": 1,
+      "fail": 0,
+      "skip": 0
+    }
+  ],
+  "results": [
+    {
+      "id": "predici_and_presto_kinetics_all_documents",
+      "title": "Predici and Presto-Kinetics - All Documents",
+      "source_pdf": "Predici and Presto-Kinetics - All Documents.pdf",
+      "feature": "kinetics",
+      "milestone": "M41",
+      "status": "PASS",
+      "duration_seconds": 1e-06,
+      "metrics": {
+        "metric": 1.0
+      },
+      "expected": {
+        "metric": {
+          "minimum": 0.0,
+          "maximum": null
+        }
+      },
+      "reason": "",
+      "requires": [],
+      "speed": "fast"
+    }
+  ]
+}

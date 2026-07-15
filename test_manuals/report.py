@@ -215,10 +215,16 @@ section{{margin:12px 0}} section table{{margin:0}} section h3{{margin-top:0;over
     html_path = output / "report.html"
     html_path.write_text(html, encoding="utf-8")
 
+    readme_title = "test_manual_result" if len(results) != 1 else f"Test result: {results[0].example.source_pdf}"
+    description = (
+        "이 디렉터리는 39개 PDF 매뉴얼 재현 시나리오의 전체 실행 결과입니다."
+        if len(results) != 1
+        else f"이 디렉터리는 `{results[0].example.source_pdf}` 재현 시나리오의 개별 실행 결과입니다."
+    )
     readme = [
-        "# test_manual_result",
+        f"# {readme_title}",
         "",
-        "이 디렉터리는 39개 PDF 매뉴얼 재현 시나리오의 전체 실행 결과입니다.",
+        description,
         "",
         f"- 결과: **PASS {summary['pass']} / FAIL {summary['fail']} / SKIP {summary['skip']}**",
         f"- PDF 커버리지: **{summary['selected_pdfs']} / {summary['registered_pdfs']} ({summary['pdf_coverage_percent']:.2f}%)**",
@@ -243,3 +249,55 @@ section{{margin:12px 0}} section table{{margin:0}} section h3{{margin-top:0;over
     )
     (output / "README.md").write_text("\n".join(readme) + "\n", encoding="utf-8")
     return html_path, markdown_path
+
+
+def write_split_reports(results: tuple[ManualResult, ...], output_directory: str | Path) -> tuple[Path, ...]:
+    output = Path(output_directory)
+    directories = []
+    index_rows = []
+    for number, result in enumerate(results, start=1):
+        directory = output / str(number)
+        display_output = f".\\{output.name}\\{number}"
+        command = f'python -m test_manuals --pdf "{result.example.source_pdf}" --output {display_output}'
+        write_reports((result,), directory, command=command)
+
+        pdf = result.example.source_pdf.replace("'", "''")
+        powershell = f"""param([switch]$NoOpen)
+$ErrorActionPreference = 'Stop'
+$repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\\..')).Path
+Push-Location $repoRoot
+try {{
+    python -m test_manuals --pdf '{pdf}' --output $PSScriptRoot
+    if ($LASTEXITCODE -ne 0) {{ exit $LASTEXITCODE }}
+}} finally {{
+    Pop-Location
+}}
+if (-not $NoOpen) {{
+    Start-Process (Join-Path $PSScriptRoot 'report.html')
+}}
+"""
+        (directory / "run_test.ps1").write_text(powershell, encoding="utf-8-sig")
+
+        batch = f"""@echo off
+pushd "%~dp0..\\.."
+python -m test_manuals --pdf "{result.example.source_pdf}" --output "%~dp0"
+set EXIT_CODE=%ERRORLEVEL%
+popd
+if not "%EXIT_CODE%"=="0" exit /b %EXIT_CODE%
+start "" "%~dp0report.html"
+"""
+        (directory / "run_test.cmd").write_text(batch, encoding="utf-8")
+        directories.append(directory)
+        index_rows.append(
+            f"| [{number}]({number}/README.md) | {result.example.source_pdf} | "
+            f"`{result.example.id}` | `{result.example.feature}` | `{result.example.milestone}` | **{result.status}** |"
+        )
+
+    root_readme = output / "README.md"
+    with root_readme.open("a", encoding="utf-8") as stream:
+        stream.write("\n## 개별 테스트 폴더\n\n")
+        stream.write("각 번호 폴더의 `run_test.ps1` 또는 `run_test.cmd`를 실행하면 해당 PDF 한 건만 다시 계산하고 결과를 같은 폴더에 저장합니다.\n\n")
+        stream.write("| 번호 | PDF | Example ID | Feature | Milestone | Status |\n")
+        stream.write("| ---: | --- | --- | --- | --- | --- |\n")
+        stream.write("\n".join(index_rows) + "\n")
+    return tuple(directories)

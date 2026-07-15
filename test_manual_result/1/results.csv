@@ -1,0 +1,2 @@
+﻿id,source_pdf,title,feature,milestone,status,duration_seconds,metrics,expected,reason,requires,speed
+cit_parameter_estimation,CiT Parameter Estimation.pdf,CiT Parameter Estimation,fitting,M50,PASS,0.000358,"{""metric"": 1.0}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast

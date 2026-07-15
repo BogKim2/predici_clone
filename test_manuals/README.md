@@ -14,7 +14,7 @@ python -m pip install -e .
 python -m test_manuals --list
 python -m test_manuals --smoke
 python -m test_manuals --all
-python -m test_manuals --all --output .\test_manual_result
+python -m test_manuals --all --split --output .\test_manual_result
 ```
 
 기본 결과는 다음 위치에 생성됩니다.
@@ -48,6 +48,7 @@ python -m test_manuals --all --output .\artifacts\manual-suite
 - `--feature`: 등록된 feature와 정확히 일치
 - `--milestone`: 등록된 milestone과 정확히 일치
 - `--smoke`: fast 시나리오만 실행
+- `--split`: 선택된 시나리오별로 `1`, `2`, ... 번호 폴더와 독립 실행 파일 생성
 - `--output`: 보고서 저장 폴더 변경
 
 필터는 함께 지정할 수 있으며 AND 조건으로 적용됩니다. 사용 가능한 값은 `--list`로 확인합니다.
@@ -70,12 +71,27 @@ README에는 파일 색인과 39개 PDF 매핑이 생성됩니다. 동일한 출
 2026-07-15에 다음 명령으로 39개 시나리오를 모두 다시 실행했습니다.
 
 ```powershell
-python -m test_manuals --all --output .\test_manual_result
+python -m test_manuals --all --split --output .\test_manual_result
 ```
 
 결과는 `PASS 39 / FAIL 0 / SKIP 0`, PDF 커버리지는 `39 / 39 (100%)`입니다. 전체 PDF와
 시나리오 매핑 및 개별 수치는 [test_manual_result/README.md](../test_manual_result/README.md)와
 같은 폴더의 상세 보고서에서 확인할 수 있습니다.
+
+`test_manual_result/1`부터 `test_manual_result/39`까지 각 폴더에는 해당 테스트만 다시 실행하는
+`run_test.ps1`, `run_test.cmd`와 단건 `README.md`, `report.html`, `report.md`, `results.json`,
+`results.csv`가 있습니다. 예를 들어 1번 테스트는 다음 중 하나로 실행합니다.
+
+```powershell
+& .\test_manual_result\1\run_test.ps1
+powershell -ExecutionPolicy Bypass -File .\test_manual_result\1\run_test.ps1
+powershell -ExecutionPolicy Bypass -File .\test_manual_result\1\run_test.ps1 -NoOpen
+.\test_manual_result\1\run_test.cmd
+```
+
+성공하면 같은 폴더의 5개 결과가 갱신되고 `report.html`이 열립니다. 번호별 PDF 매핑은
+`-NoOpen`을 지정한 경우 보고서를 열지 않습니다. 번호별 PDF 매핑은
+[전체 결과 색인](../test_manual_result/README.md#개별-테스트-폴더)에 있습니다.
 
 ## 파일 구조
 

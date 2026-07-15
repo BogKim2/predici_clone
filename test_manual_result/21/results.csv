@@ -1,0 +1,2 @@
+﻿id,source_pdf,title,feature,milestone,status,duration_seconds,metrics,expected,reason,requires,speed
+predici11_workshop_november_2016_2_parameter_estimation,Predici11_Workshop_November_2016_2. Parameter_Estimation.pdf,Predici11_Workshop_November_2016_2. Parameter_Estimation,fitting,M50,PASS,0.000102,"{""metric"": 1.0}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast

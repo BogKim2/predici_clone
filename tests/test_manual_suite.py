@@ -16,7 +16,7 @@ def test_manual_registry_has_unique_39_pdf_coverage():
 def test_manual_list_and_smoke_generate_reports(tmp_path, capsys):
     assert main(["--list"]) == 0
     assert "PDF coverage = 39 / 39 (100%)" in capsys.readouterr().out
-    assert main(["--smoke", "--output", str(tmp_path)]) == 0
+    assert main(["--smoke", "--split", "--output", str(tmp_path)]) == 0
     assert (tmp_path / "report.html").exists()
     assert (tmp_path / "report.md").exists()
     assert (tmp_path / "README.md").exists()
@@ -29,6 +29,15 @@ def test_manual_list_and_smoke_generate_reports(tmp_path, capsys):
     assert len(data["results"]) == 39
     with (tmp_path / "results.csv").open(encoding="utf-8-sig", newline="") as stream:
         assert len(list(csv.DictReader(stream))) == 39
+    assert "[39](39/README.md)" in (tmp_path / "README.md").read_text(encoding="utf-8")
+    for number in (1, 39):
+        directory = tmp_path / str(number)
+        assert (directory / "run_test.ps1").exists()
+        assert (directory / "run_test.cmd").exists()
+        assert "param([switch]$NoOpen)" in (directory / "run_test.ps1").read_text(encoding="utf-8-sig")
+        individual = json.loads((directory / "results.json").read_text(encoding="utf-8"))
+        assert individual["summary"]["examples"] == 1
+        assert individual["results"][0]["status"] == "PASS"
 
 
 def test_v2_medium_benchmarks_pass():

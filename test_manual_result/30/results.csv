@@ -1,0 +1,2 @@
+﻿id,source_pdf,title,feature,milestone,status,duration_seconds,metrics,expected,reason,requires,speed
+procedures_in_predici,Procedures in Predici.pdf,Procedures in Predici,automation,M54,PASS,1e-06,"{""metric"": 1.0}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast
