@@ -49,8 +49,9 @@ Start-Process .\manual\_build\html\index.html
 
 ## Manual Reproduction Suite
 
-`test_manuals/`는 39개 기능 문서에 대응하는 headless 재현 시나리오를 등록하고 실행합니다.
-GUI를 열지 않으며, 시나리오별 상태와 수치 지표를 HTML/Markdown 보고서로 만듭니다.
+`test_manuals/`는 `plan6.md` M58b의 39개 기능 문서에 대응하는 headless 재현 시나리오를
+등록하고 실행합니다. GUI를 열지 않으며, 시나리오별 상태와 수치 지표를
+HTML/Markdown/JSON/CSV 보고서로 만듭니다.
 
 ### 1. 실행 준비
 
@@ -82,6 +83,9 @@ python -m test_manuals --smoke
 
 # 등록된 39개 시나리오 전체 실행
 python -m test_manuals --all
+
+# 검증 결과를 저장소의 공식 결과 폴더에 생성
+python -m test_manuals --all --output .\test_manual_result
 ```
 
 정상 실행 시 콘솔에는 다음 형식의 요약이 표시됩니다.
@@ -113,22 +117,32 @@ python -m test_manuals --list --feature thermo
 
 ### 5. 결과 폴더와 보고서 확인
 
-기본 출력 위치는 다음과 같습니다.
+기본 출력 위치는 `test_manuals/outputs/`입니다. `--output`으로 다른 경로를 지정해도 아래
+다섯 파일이 동일하게 생성됩니다.
 
 ```text
+test_manuals/outputs/README.md
 test_manuals/outputs/report.html
 test_manuals/outputs/report.md
+test_manuals/outputs/results.json
+test_manuals/outputs/results.csv
 ```
 
-- `report.html`: PDF, 시나리오, PASS/FAIL 상태, 실행 시간, 수치 지표, 실패 사유를 포함합니다.
-- `report.md`: 전체 상태 요약과 PDF별 실행 결과를 표 형태로 기록합니다.
-- 같은 출력 폴더로 다시 실행하면 두 보고서 파일을 최신 결과로 덮어씁니다.
+- `README.md`: 실행 요약, 파일 색인, 39개 PDF와 시나리오 매핑을 제공합니다.
+- `report.html`: 기능·마일스톤 집계와 PDF별 상태, 시간, 지표, 기대 범위, 실패 사유를 제공합니다.
+- `report.md`: HTML과 같은 상세 결과를 터미널과 GitHub에서 읽을 수 있게 기록합니다.
+- `results.json`: 명령, Python/플랫폼, 집계와 전체 개별 결과를 구조화해 기록합니다.
+- `results.csv`: PDF당 한 행을 UTF-8 BOM 형식으로 저장하여 Excel에서 바로 열 수 있습니다.
+- 같은 출력 폴더로 다시 실행하면 다섯 파일을 최신 결과로 덮어씁니다.
 
 PowerShell에서 결과를 여는 방법:
 
 ```powershell
 Start-Process .\test_manuals\outputs\report.html
 Get-Content -Encoding utf8 .\test_manuals\outputs\report.md
+$result = Get-Content .\test_manuals\outputs\results.json -Raw | ConvertFrom-Json
+$result.summary
+Import-Csv .\test_manuals\outputs\results.csv | Format-Table source_pdf,status,metrics
 ```
 
 별도 폴더에 결과를 보관하려면 `--output`을 사용합니다.
@@ -137,6 +151,10 @@ Get-Content -Encoding utf8 .\test_manuals\outputs\report.md
 python -m test_manuals --all --output .\artifacts\manual-suite
 Start-Process .\artifacts\manual-suite\report.html
 ```
+
+2026-07-15 전체 실행 결과는 [test_manual_result/README.md](test_manual_result/README.md)에
+정리되어 있습니다. 결과는 `PASS 39 / FAIL 0 / SKIP 0`, PDF 커버리지는 `39 / 39 (100%)`이며,
+같은 폴더의 HTML, Markdown, JSON, CSV에서 각 PDF의 계산 지표를 확인할 수 있습니다.
 
 ### 6. 판정과 종료 코드
 

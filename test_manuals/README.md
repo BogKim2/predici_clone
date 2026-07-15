@@ -1,7 +1,8 @@
 # Manual Reproduction Suite
 
 이 디렉터리는 39개 PREDICI/Presto-Kinetics 기능 문서에 대응하는 headless 실행 시나리오,
-필터/실행기, HTML/Markdown 보고서 생성기를 포함합니다.
+필터/실행기, HTML/Markdown/JSON/CSV 보고서 생성기를 포함합니다. 구현 기준은
+루트 `plan6.md`의 M58b입니다.
 
 ## 가장 빠른 실행 방법
 
@@ -13,18 +14,24 @@ python -m pip install -e .
 python -m test_manuals --list
 python -m test_manuals --smoke
 python -m test_manuals --all
+python -m test_manuals --all --output .\test_manual_result
 ```
 
 기본 결과는 다음 위치에 생성됩니다.
 
 ```text
+test_manuals/outputs/README.md
 test_manuals/outputs/report.html
 test_manuals/outputs/report.md
+test_manuals/outputs/results.json
+test_manuals/outputs/results.csv
 ```
 
 ```powershell
 Start-Process .\test_manuals\outputs\report.html
 Get-Content -Encoding utf8 .\test_manuals\outputs\report.md
+Get-Content .\test_manuals\outputs\results.json -Raw | ConvertFrom-Json
+Import-Csv .\test_manuals\outputs\results.csv
 ```
 
 ## 선택 옵션
@@ -53,14 +60,28 @@ python -m test_manuals --all --output .\artifacts\manual-suite
 - 종료 코드 `1`: 하나 이상 실패
 - 종료 코드 `2`: 잘못된 CLI 사용
 
-HTML 보고서는 지표와 실패 사유까지 포함하고, Markdown 보고서는 실행 요약과 PDF별 상태를
-제공합니다. 동일한 출력 폴더를 사용하면 보고서 파일은 최신 실행 결과로 덮어씁니다.
+HTML과 Markdown 보고서는 기능·마일스톤 집계, PDF별 지표, 기대 범위, 실패 사유를 포함합니다.
+JSON은 실행 명령과 환경을 포함한 전체 구조화 결과이며, CSV는 PDF당 한 행입니다. 출력 폴더의
+README에는 파일 색인과 39개 PDF 매핑이 생성됩니다. 동일한 출력 폴더를 사용하면 최신 결과로
+덮어씁니다.
+
+## 현재 전체 실행 결과
+
+2026-07-15에 다음 명령으로 39개 시나리오를 모두 다시 실행했습니다.
+
+```powershell
+python -m test_manuals --all --output .\test_manual_result
+```
+
+결과는 `PASS 39 / FAIL 0 / SKIP 0`, PDF 커버리지는 `39 / 39 (100%)`입니다. 전체 PDF와
+시나리오 매핑 및 개별 수치는 [test_manual_result/README.md](../test_manual_result/README.md)와
+같은 폴더의 상세 보고서에서 확인할 수 있습니다.
 
 ## 파일 구조
 
 - `registry.py`: `ManualExample`과 등록소
 - `runner.py`: 필터, 실행, 기대값 검증
-- `report.py`: HTML/Markdown 출력
+- `report.py`: HTML/Markdown/JSON/CSV 및 결과 README 출력
 - `cli.py`, `__main__.py`: CLI 진입점
 - `examples/catalog.py`: 39개 출처와 재현 시나리오 매핑
 - `outputs/`: 기본 결과 폴더. 생성 보고서는 Git에서 제외
