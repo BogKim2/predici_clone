@@ -376,6 +376,18 @@ class MainWindow(QMainWindow):
         self.component_info_table.setHorizontalHeaderLabels(["field", "value"])
         self.component_info_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.component_info_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        add_chart_page = QPushButton("Add Chart")
+        add_chart_page.clicked.connect(self._add_chart_page_row)
+        add_chart_graph = QPushButton("Add Graph")
+        add_chart_graph.clicked.connect(self._add_chart_graph_row)
+        apply_charts = QPushButton("Apply Charts")
+        apply_charts.clicked.connect(self._apply_chart_administration)
+        self.chart_page_table = QTableWidget(0, 3)
+        self.chart_page_table.setHorizontalHeaderLabels(["page", "title", "layout"])
+        self.chart_page_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.chart_graph_table = QTableWidget(0, 7)
+        self.chart_graph_table.setHorizontalHeaderLabels(["page", "graph", "mode", "y axis", "x axis", "scale", "source"])
+        self.chart_graph_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         controls = QHBoxLayout()
         controls.addWidget(self.mwd_time_label)
         controls.addWidget(self.mwd_time_slider, 1)
@@ -390,6 +402,16 @@ class MainWindow(QMainWindow):
         layout.addWidget(self.moment_table)
         layout.addWidget(QLabel("Components information"))
         layout.addWidget(self.component_info_table)
+        chart_buttons = QHBoxLayout()
+        chart_buttons.addWidget(add_chart_page)
+        chart_buttons.addWidget(add_chart_graph)
+        chart_buttons.addWidget(apply_charts)
+        chart_buttons.addStretch(1)
+        layout.addWidget(QLabel("Chart administration"))
+        layout.addLayout(chart_buttons)
+        layout.addWidget(self.chart_page_table)
+        layout.addWidget(self.chart_graph_table)
+        self._populate_chart_administration()
         return page
 
     def _build_recipe_tab(self) -> QWidget:
@@ -816,6 +838,8 @@ class MainWindow(QMainWindow):
                 gpc_convolution=self.project.outputs.gpc_convolution,
                 enabled_generic_outputs=tuple(enabled),
                 scripted_outputs=scripted,
+                chart_pages=list(self.project.outputs.chart_pages),
+                chart_graphs=list(self.project.outputs.chart_graphs),
             ),
             heat_balance=self.project.heat_balance,
             substances=list(self.project.substances),
@@ -1621,6 +1645,8 @@ class MainWindow(QMainWindow):
             gpc_convolution=self.project.outputs.gpc_convolution,
             enabled_generic_outputs=tuple(enabled_outputs),
             scripted_outputs=dict(self.project.outputs.scripted_outputs),
+            chart_pages=list(self.project.outputs.chart_pages),
+            chart_graphs=list(self.project.outputs.chart_graphs),
         )
         return Project(
             schema_version=self.project.schema_version,
@@ -1863,6 +1889,120 @@ class MainWindow(QMainWindow):
             item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
             self.component_info_table.setItem(row, 1, item)
 
+    def _populate_chart_administration(self) -> None:
+        if not hasattr(self, "chart_page_table"):
+            return
+        pages = self.project.outputs.chart_pages or [{"page": "Standard", "title": "Standard", "layout": "2x2"}]
+        graphs = self.project.outputs.chart_graphs or [
+            {
+                "page": "Standard",
+                "graph": "MWD",
+                "graphic_mode": "distribution",
+                "distribution_y_axis": "weight",
+                "x_axis_kind": "chain_length",
+                "x_axis_scale": "linear",
+                "source": "current",
+            }
+        ]
+        self.chart_page_table.setRowCount(len(pages))
+        for row, page in enumerate(pages):
+            values = [
+                page.get("page", "Standard"),
+                page.get("title", page.get("page", "Standard")),
+                page.get("layout", "2x2"),
+            ]
+            for column, value in enumerate(values):
+                self.chart_page_table.setItem(row, column, QTableWidgetItem(str(value)))
+        self.chart_graph_table.setRowCount(len(graphs))
+        for row, graph in enumerate(graphs):
+            values = [
+                graph.get("page", "Standard"),
+                graph.get("graph", f"Graph {row + 1}"),
+                graph.get("graphic_mode", "distribution"),
+                graph.get("distribution_y_axis", graph.get("moment_y_axis", "weight")),
+                graph.get("x_axis_kind", "chain_length"),
+                graph.get("x_axis_scale", "linear"),
+                graph.get("source", "current"),
+            ]
+            for column, value in enumerate(values):
+                self.chart_graph_table.setItem(row, column, QTableWidgetItem(str(value)))
+
+    def _add_chart_page_row(self) -> None:
+        row = self.chart_page_table.rowCount()
+        self.chart_page_table.insertRow(row)
+        for column, value in enumerate((f"Page {row + 1}", f"Page {row + 1}", "2x2")):
+            self.chart_page_table.setItem(row, column, QTableWidgetItem(value))
+
+    def _add_chart_graph_row(self) -> None:
+        row = self.chart_graph_table.rowCount()
+        page = self._table_text(self.chart_page_table, 0, 0).strip() or "Standard"
+        self.chart_graph_table.insertRow(row)
+        for column, value in enumerate((page, f"Graph {row + 1}", "distribution", "weight", "chain_length", "linear", "current")):
+            self.chart_graph_table.setItem(row, column, QTableWidgetItem(value))
+
+    def _apply_chart_administration(self) -> None:
+        self._record_project_edit()
+        pages = []
+        for row in range(self.chart_page_table.rowCount()):
+            page = self._table_text(self.chart_page_table, row, 0).strip()
+            if not page:
+                continue
+            pages.append(
+                {
+                    "page": page,
+                    "title": self._table_text(self.chart_page_table, row, 1).strip() or page,
+                    "layout": self._table_text(self.chart_page_table, row, 2).strip() or "2x2",
+                }
+            )
+        graphs = []
+        for row in range(self.chart_graph_table.rowCount()):
+            graph = self._table_text(self.chart_graph_table, row, 1).strip()
+            if not graph:
+                continue
+            mode = self._table_text(self.chart_graph_table, row, 2).strip() or "distribution"
+            y_axis = self._table_text(self.chart_graph_table, row, 3).strip() or "weight"
+            entry = {
+                "page": self._table_text(self.chart_graph_table, row, 0).strip() or "Standard",
+                "graph": graph,
+                "graphic_mode": mode,
+                "x_axis_kind": self._table_text(self.chart_graph_table, row, 4).strip() or "chain_length",
+                "x_axis_scale": self._table_text(self.chart_graph_table, row, 5).strip() or "linear",
+                "source": self._table_text(self.chart_graph_table, row, 6).strip() or "current",
+            }
+            if mode == "moment":
+                entry["moment_y_axis"] = y_axis
+            else:
+                entry["distribution_y_axis"] = y_axis
+            graphs.append(entry)
+        self.project = Project(
+            schema_version=self.project.schema_version,
+            name=self.project.name,
+            reactor=self.project.reactor,
+            kinetics=self.project.kinetics,
+            recipe=self.project.recipe,
+            outputs=OutputConfig(
+                distribution_mode=self.project.outputs.distribution_mode,
+                log_axis=self.project.outputs.log_axis,
+                gpc_convolution=self.project.outputs.gpc_convolution,
+                enabled_generic_outputs=self.project.outputs.enabled_generic_outputs,
+                scripted_outputs=dict(self.project.outputs.scripted_outputs),
+                chart_pages=pages,
+                chart_graphs=graphs,
+            ),
+            heat_balance=self.project.heat_balance,
+            substances=list(self.project.substances),
+            polymers=list(self.project.polymers),
+            reaction_steps=list(self.project.reaction_steps),
+            general_kinetic_steps=list(self.project.general_kinetic_steps),
+            general_initial_conditions=dict(self.project.general_initial_conditions),
+            generic_parameters=dict(self.project.generic_parameters),
+            parameters=list(self.project.parameters),
+            reaction_modifier_scripts=dict(self.project.reaction_modifier_scripts),
+        )
+        self._populate_project_tree()
+        self._populate_project_inspector()
+        self._append_log("Applied chart administration")
+
     def _fill_table(self, table: QTableWidget, frame) -> None:
         table.setRowCount(len(frame))
         table.setColumnCount(len(frame.columns))
@@ -2010,6 +2150,7 @@ class MainWindow(QMainWindow):
         self.axial_cells.setValue(project.reactor.axial_cells)
         self._populate_recipe_table()
         self._populate_component_tables()
+        self._populate_chart_administration()
 
     def _populate_project_tree(self) -> None:
         self.project_tree.clear()

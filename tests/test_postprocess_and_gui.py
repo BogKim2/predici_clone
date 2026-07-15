@@ -142,6 +142,40 @@ def test_main_window_components_information_board_updates_from_distribution():
     app.processEvents()
 
 
+def test_main_window_chart_administration_roundtrips(tmp_path):
+    app = QApplication.instance() or QApplication([])
+    window = MainWindow()
+
+    window.chart_page_table.item(0, 0).setText("Tutorial")
+    window.chart_page_table.item(0, 1).setText("Tutorial charts")
+    window.chart_page_table.item(0, 2).setText("2x1")
+    window.chart_graph_table.item(0, 0).setText("Tutorial")
+    window.chart_graph_table.item(0, 1).setText("GPC overlay")
+    window.chart_graph_table.item(0, 2).setText("distribution")
+    window.chart_graph_table.item(0, 3).setText("gpc")
+    window.chart_graph_table.item(0, 4).setText("molmass")
+    window.chart_graph_table.item(0, 5).setText("logarithmic")
+    window.chart_graph_table.item(0, 6).setText("current+reference")
+    window._apply_chart_administration()
+
+    assert window.project.outputs.chart_pages == [
+        {"page": "Tutorial", "title": "Tutorial charts", "layout": "2x1"}
+    ]
+    assert window.project.outputs.chart_graphs[0]["graph"] == "GPC overlay"
+    assert window.project.outputs.chart_graphs[0]["distribution_y_axis"] == "gpc"
+
+    path = tmp_path / "charts.predici.json"
+    window._save_project_to_path(path)
+    window.project = Project()
+    window._open_project_from_path(path)
+
+    assert window.chart_page_table.item(0, 0).text() == "Tutorial"
+    assert window.chart_graph_table.item(0, 3).text() == "gpc"
+    assert window.project.outputs.chart_graphs[0]["x_axis_scale"] == "logarithmic"
+    window.close()
+    app.processEvents()
+
+
 def test_main_entrypoint_smoke_mode_runs_and_exports_result():
     assert _smoke() == 0
 

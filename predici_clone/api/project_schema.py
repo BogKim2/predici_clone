@@ -78,6 +78,8 @@ class OutputConfig:
     gpc_convolution: bool = False
     enabled_generic_outputs: tuple[str, ...] = ("Mn", "Mw", "PDI", "conversion")
     scripted_outputs: dict[str, str] = field(default_factory=dict)
+    chart_pages: list[dict[str, Any]] = field(default_factory=list)
+    chart_graphs: list[dict[str, Any]] = field(default_factory=list)
 
 
 @dataclass(frozen=True)

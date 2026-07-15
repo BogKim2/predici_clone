@@ -83,6 +83,11 @@ This file tracks implementation evidence against `plan4.md`.
   - MWD Viewer renders concentration, mass concentration, Mn, Mw, dispersity, reference volume, and last value
   - board updates whenever the current distribution changes
   - tests: `tests/test_postprocess_and_gui.py`
+- M26 chart administration GUI foundation
+  - MWD Viewer exposes two-pane chart administration tables: Charts on pages and Graphs in chart
+  - chart page/graph definitions persist in `OutputConfig` and round-trip through project save/load
+  - graph rows preserve distribution/moment/Monte-Carlo mode fields compatible with `ChartConfig`
+  - tests: `tests/test_postprocess_and_gui.py`
 - M29/M32 run-control engine foundation
   - `SimulationEngine.run_to_time(t)` API
   - `SimulationEngine.single_step()` API
@@ -109,7 +114,6 @@ This file tracks implementation evidence against `plan4.md`.
 - M23 richer thermodynamic/phase fields and validation styling in GUI
 - M24 drag/drop visual preview and richer template catalog
 - M25 full 7-mode recipe-entry table integration and visual warning styling
-- M26 chart administration GUI
 - M27 PDE-specific numerical semantics for advanced commands beyond supplied-state helpers
 - M28 modifier-to-engine execution hooks
 - M29 multi-script debugger panes and edit-in-place workflow
