@@ -55,6 +55,10 @@ This file tracks implementation evidence against `plan4.md`.
   - PREDICI-style getters/setters: `getx`, `getco`, `getcoini`, `getconsum`, `getcf`, `getmy`, `gettotalmy`, `getkp`, `setkp`
   - template generator emits boilerplate from selected species/parameters and result slots
   - tests: `tests/test_script_catalog.py`, `tests/test_scripted_outputs.py`
+- M27 script command GUI foundation
+  - Script tab renders the function catalog with implementation status
+  - template generator inserts a scripted-output row from current species/parameters
+  - tests: `tests/test_postprocess_and_gui.py`
 - M28 script-driven reaction modifier foundation
   - parses `k(File)` replacement and `k*File` multiplier forms
   - evaluates modifier scripts through the safe command namespace
@@ -88,7 +92,7 @@ This file tracks implementation evidence against `plan4.md`.
 - M24 drag/drop visual preview and richer template catalog
 - M25 full 7-mode recipe-entry table integration and visual warning styling
 - M26 chart administration GUI and components information board
-- M27 GUI catalog rendering and additional command implementations
+- M27 additional command implementations beyond the tutorial-critical subset
 - M28 GUI integration and modifier-to-engine execution hooks
 - M29 multi-script debugger panes and edit-in-place workflow
 - M32 moments backend and Monte Carlo/tau-leaping GUI stubs

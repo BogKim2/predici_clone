@@ -14,8 +14,12 @@ from predici_clone.api import (
     Project,
     ReactorConfig,
     Recipe,
+    Parameter,
+    Substance,
+    add_parameter,
     add_feed_tank,
     add_polymer_feed,
+    add_substance,
     append_pre_schedule_step,
     set_pressure_profile,
     set_temperature_profile,
@@ -709,6 +713,29 @@ def test_main_window_scripted_output_editor_updates_project_outputs():
     assert "mw_over_mn" in window.project.outputs.enabled_generic_outputs
     assert window.project.outputs.scripted_outputs["mw_over_mn"] == "Mw / max(Mn, 1e-12)"
     assert any(window.output_table.item(row, 0).text() == "mw_over_mn" for row in range(window.output_table.rowCount()))
+    window.close()
+    app.processEvents()
+
+
+def test_main_window_script_tab_renders_catalog_and_generates_template():
+    app = QApplication.instance() or QApplication([])
+    window = MainWindow()
+    window.project = add_substance(window.project, Substance("M"))
+    window.project = add_parameter(window.project, Parameter("kp", value=0.2))
+
+    assert window.script_function_table.rowCount() >= 10
+    names = {
+        window.script_function_table.item(row, 0).text()
+        for row in range(window.script_function_table.rowCount())
+    }
+    assert {"getco", "getkp", "setkp"} <= names
+
+    window._generate_script_template_row()
+
+    expression = window.script_output_table.item(0, 1).text()
+    assert 'M = getco("M")' in expression
+    assert 'kp = getkp("kp")' in expression
+    assert "result = kp * M" in expression
     window.close()
     app.processEvents()
 

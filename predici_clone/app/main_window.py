@@ -94,6 +94,7 @@ from predici_clone.postprocess.parameter_estimation import (
     sample_bayesian_posterior,
     sample_multi_experiment_bayesian_posterior,
 )
+from predici_clone.script import generate_script_template, script_function_catalog
 from predici_clone.validation.paper_benchmarks import available_cases
 
 
@@ -529,16 +530,26 @@ class MainWindow(QMainWindow):
         buttons = QHBoxLayout()
         add = QPushButton("Add Scripted Output")
         add.clicked.connect(self._add_scripted_output)
+        template = QPushButton("Generate Template")
+        template.clicked.connect(self._generate_script_template_row)
         apply = QPushButton("Apply Scripted Outputs")
         apply.clicked.connect(self._apply_scripted_outputs_from_table)
         buttons.addWidget(add)
+        buttons.addWidget(template)
         buttons.addWidget(apply)
         buttons.addStretch(1)
         self.script_output_table = QTableWidget(0, 2)
         self.script_output_table.setHorizontalHeaderLabels(["name", "expression"])
         self.script_output_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.script_function_table = QTableWidget(0, 5)
+        self.script_function_table.setHorizontalHeaderLabels(["name", "args", "category", "status", "description"])
+        self.script_function_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.script_function_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         layout.addLayout(buttons)
         layout.addWidget(self.script_output_table)
+        layout.addWidget(QLabel("Function catalog"))
+        layout.addWidget(self.script_function_table)
+        self._populate_script_function_catalog()
         return page
 
     def _build_controls(self) -> QWidget:
@@ -711,6 +722,38 @@ class MainWindow(QMainWindow):
         self.script_output_table.insertRow(row)
         self.script_output_table.setItem(row, 0, QTableWidgetItem(f"scripted_{row + 1}"))
         self.script_output_table.setItem(row, 1, QTableWidgetItem("Mw / max(Mn, 1e-12)"))
+
+    def _generate_script_template_row(self) -> None:
+        species = tuple(item.get("name", "") for item in self.project.substances if item.get("name"))
+        parameters = tuple(parameter.name for parameter in self.project.parameters)
+        if not species:
+            species = ("M",)
+        if not parameters:
+            parameters = ("kp",)
+        row = self.script_output_table.rowCount()
+        self.script_output_table.insertRow(row)
+        self.script_output_table.setItem(row, 0, QTableWidgetItem(f"template_{row + 1}"))
+        self.script_output_table.setItem(
+            row,
+            1,
+            QTableWidgetItem(generate_script_template(species=species[:2], parameters=parameters[:2])),
+        )
+
+    def _populate_script_function_catalog(self) -> None:
+        if not hasattr(self, "script_function_table"):
+            return
+        catalog = script_function_catalog()
+        self.script_function_table.setRowCount(len(catalog))
+        for row, spec in enumerate(catalog):
+            values = [
+                spec.name,
+                ", ".join(spec.arguments),
+                spec.category,
+                "implemented" if spec.implemented else "stub",
+                spec.description,
+            ]
+            for column, value in enumerate(values):
+                self.script_function_table.setItem(row, column, QTableWidgetItem(value))
 
     def _apply_scripted_outputs_from_table(self) -> None:
         from predici_clone.api.project_schema import OutputConfig
