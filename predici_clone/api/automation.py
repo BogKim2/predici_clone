@@ -44,6 +44,14 @@ def set_feed_rate(project: Project, rate: float) -> Project:
         initiator=project.recipe.feed.initiator,
         radicals=project.recipe.feed.radicals,
         rate=rate,
+        feed_type=project.recipe.feed.feed_type,
+        temperature=project.recipe.feed.temperature,
+        time_profile=list(project.recipe.feed.time_profile),
+        use_feed_control=project.recipe.feed.use_feed_control,
+        feed_control_script=project.recipe.feed.feed_control_script,
+        use_temperature_control=project.recipe.feed.use_temperature_control,
+        temperature_control_script=project.recipe.feed.temperature_control_script,
+        switch_time=project.recipe.feed.switch_time,
     )
     recipe = Recipe(
         name=project.recipe.name,

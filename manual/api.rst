@@ -29,6 +29,13 @@ Reaction Builder
    :members:
    :undoc-members:
 
+Recipe Consistency
+------------------
+
+.. automodule:: predici_clone.api.recipe_consistency
+   :members:
+   :undoc-members:
+
 Automation and Interoperability
 -------------------------------
 

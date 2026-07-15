@@ -25,8 +25,39 @@ def set_pressure_profile(project: Project, points: list[tuple[float, float]] | t
     return _with_recipe(project, replace(project.recipe, pressure_profile=_profile(points)))
 
 
-def add_feed_tank(project: Project, *, monomer: float, initiator: float, radicals: float = 0.0, rate: float = 0.0) -> Project:
-    tanks = [*project.recipe.feed_tanks, FeedStream(monomer=monomer, initiator=initiator, radicals=radicals, rate=rate)]
+def add_feed_tank(
+    project: Project,
+    *,
+    monomer: float,
+    initiator: float,
+    radicals: float = 0.0,
+    rate: float = 0.0,
+    feed_type: str = "mass_stream_simple",
+    temperature: float | None = None,
+    time_profile: list[dict[str, float]] | None = None,
+    use_feed_control: bool = False,
+    feed_control_script: str = "",
+    use_temperature_control: bool = False,
+    temperature_control_script: str = "",
+    switch_time: float | None = None,
+) -> Project:
+    tanks = [
+        *project.recipe.feed_tanks,
+        FeedStream(
+            monomer=monomer,
+            initiator=initiator,
+            radicals=radicals,
+            rate=rate,
+            feed_type=feed_type,
+            temperature=temperature,
+            time_profile=[] if time_profile is None else list(time_profile),
+            use_feed_control=use_feed_control,
+            feed_control_script=feed_control_script,
+            use_temperature_control=use_temperature_control,
+            temperature_control_script=temperature_control_script,
+            switch_time=switch_time,
+        ),
+    ]
     return _with_recipe(project, replace(project.recipe, feed_tanks=tanks))
 
 
@@ -95,6 +126,14 @@ def apply_pre_schedule(project: Project, time: float) -> Project:
                 initiator=feed.initiator,
                 radicals=feed.radicals,
                 rate=float(step.get("rate", feed.rate)),
+                feed_type=feed.feed_type,
+                temperature=feed.temperature,
+                time_profile=list(feed.time_profile),
+                use_feed_control=feed.use_feed_control,
+                feed_control_script=feed.feed_control_script,
+                use_temperature_control=feed.use_temperature_control,
+                temperature_control_script=feed.temperature_control_script,
+                switch_time=feed.switch_time,
             )
         if action == "set_residence_time":
             reactor = replace(reactor, residence_time=float(step.get("value", step.get("residence_time", reactor.residence_time))))

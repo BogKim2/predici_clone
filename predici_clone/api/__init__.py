@@ -45,6 +45,14 @@ from predici_clone.api.recipe_profiles import (
     set_pressure_profile,
     set_temperature_profile,
 )
+from predici_clone.api.recipe_consistency import (
+    RecipeComponent,
+    RecipeComposition,
+    consistency_sum,
+    fill_remainder,
+    make_concentration_consistent,
+    normalize_recipe_components,
+)
 from predici_clone.api.result_io import load_result_manifest, save_simulation_result
 from predici_clone.api.spatial_profiles import FeedProfile, FlowDist, FluidBalance, flow_solve, fluid_balance
 from predici_clone.api.validation import ValidationMessage, validate_project, validation_summary
@@ -86,6 +94,8 @@ __all__ = [
     "Project",
     "ReactorConfig",
     "Recipe",
+    "RecipeComponent",
+    "RecipeComposition",
     "Substance",
     "activate_detailed_iteration",
     "add_feed_tank",
@@ -98,6 +108,7 @@ __all__ = [
     "auto_declare_components",
     "check_enthalpy",
     "component_references",
+    "consistency_sum",
     "cape_open_capability",
     "cape_open_manifest",
     "create_recipe",
@@ -109,6 +120,7 @@ __all__ = [
     "export_matlab_moment_equations",
     "fluid_balance",
     "flow_solve",
+    "fill_remainder",
     "scheduled_additional_heat",
     "scheduled_coolant_temperature",
     "scheduled_feed_rate",
@@ -121,6 +133,8 @@ __all__ = [
     "inspect_pyinstaller_packaging",
     "parameter_value",
     "load_result_manifest",
+    "make_concentration_consistent",
+    "normalize_recipe_components",
     "load_project",
     "save_simulation_result",
     "save_project",

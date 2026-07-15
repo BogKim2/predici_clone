@@ -31,12 +31,18 @@ This file tracks implementation evidence against `plan4.md`.
   - polymer reaction step builder with auto-declared species and parameters
   - general kinetic step builder with independent stoichiometry and order
   - tests: `tests/test_reaction_builder.py`
+- M25 recipe consistency service foundation
+  - seven recipe input modes normalize to mass/mole/concentration tables
+  - `Set concentration consistent` density rule
+  - `Set rest` remainder fill for mass and mole parts
+  - feed tank schema carries feed type, profile, script-control flags, and switch time
+  - tests: `tests/test_recipe_consistency.py`
 
 ## Still Incomplete
 
 - M23 component administration GUI polish
 - M24 PatternFinder-style GUI integration and richer template catalog
-- M25 recipe consistency workflow
+- M25 recipe consistency GUI workflow
 - M26 chart administration/reference data
 - M27 tutorial script command aliases
 - M28 script-driven reaction modifiers

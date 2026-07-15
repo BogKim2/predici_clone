@@ -30,6 +30,14 @@ class FeedStream:
     initiator: float = 0.15
     radicals: float = 0.0
     rate: float = 0.06
+    feed_type: str = "mass_stream_simple"
+    temperature: float | None = None
+    time_profile: list[dict[str, float]] = field(default_factory=list)
+    use_feed_control: bool = False
+    feed_control_script: str = ""
+    use_temperature_control: bool = False
+    temperature_control_script: str = ""
+    switch_time: float | None = None
 
 
 @dataclass(frozen=True)
@@ -247,6 +255,17 @@ def _feed_stream_from_dict(data: dict[str, Any] | FeedStream) -> FeedStream:
         initiator=float(data.get("initiator", 0.0)),
         radicals=float(data.get("radicals", 0.0)),
         rate=float(data.get("rate", 0.0)),
+        feed_type=str(data.get("feed_type", "mass_stream_simple")),
+        temperature=_optional_float(data.get("temperature")),
+        time_profile=[
+            {str(key): float(value) for key, value in item.items()}
+            for item in data.get("time_profile", [])
+        ],
+        use_feed_control=bool(data.get("use_feed_control", False)),
+        feed_control_script=str(data.get("feed_control_script", "")),
+        use_temperature_control=bool(data.get("use_temperature_control", False)),
+        temperature_control_script=str(data.get("temperature_control_script", "")),
+        switch_time=_optional_float(data.get("switch_time")),
     )
 
 
