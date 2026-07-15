@@ -85,6 +85,24 @@ class HeatBalanceConfig:
 
 
 @dataclass(frozen=True)
+class GeneralKineticParticipant:
+    species: str
+    stoichiometry: float = 1.0
+    order: float | None = None
+
+
+@dataclass(frozen=True)
+class GeneralKineticStep:
+    name: str
+    reactants: tuple[GeneralKineticParticipant, ...]
+    products: tuple[GeneralKineticParticipant, ...]
+    forward_parameter: str
+    backward_parameter: str = "0"
+    enabled: bool = True
+    equilibrium: bool = False
+
+
+@dataclass(frozen=True)
 class Recipe:
     name: str = "default"
     unit_system: str = "SI"
@@ -111,6 +129,8 @@ class Project:
     substances: list[dict[str, Any]] = field(default_factory=list)
     polymers: list[dict[str, Any]] = field(default_factory=list)
     reaction_steps: list[ReactionStep] = field(default_factory=list)
+    general_kinetic_steps: list[GeneralKineticStep] = field(default_factory=list)
+    general_initial_conditions: dict[str, float] = field(default_factory=dict)
     generic_parameters: dict[str, float] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -143,6 +163,14 @@ class Project:
             substances=data.get("substances", []),
             polymers=data.get("polymers", []),
             reaction_steps=[_reaction_step_from_dict(item) for item in data.get("reaction_steps", [])],
+            general_kinetic_steps=[
+                _general_kinetic_step_from_dict(item)
+                for item in data.get("general_kinetic_steps", [])
+            ],
+            general_initial_conditions={
+                str(name): float(value)
+                for name, value in data.get("general_initial_conditions", {}).items()
+            },
             generic_parameters=data.get("generic_parameters", {}),
         )
 
@@ -184,4 +212,29 @@ def _feed_stream_from_dict(data: dict[str, Any] | FeedStream) -> FeedStream:
         initiator=float(data.get("initiator", 0.0)),
         radicals=float(data.get("radicals", 0.0)),
         rate=float(data.get("rate", 0.0)),
+    )
+
+
+def _general_kinetic_participant_from_dict(data: dict[str, Any] | GeneralKineticParticipant) -> GeneralKineticParticipant:
+    if isinstance(data, GeneralKineticParticipant):
+        return data
+    order = data.get("order", None)
+    return GeneralKineticParticipant(
+        species=str(data.get("species", "")),
+        stoichiometry=float(data.get("stoichiometry", 1.0)),
+        order=None if order is None else float(order),
+    )
+
+
+def _general_kinetic_step_from_dict(data: dict[str, Any] | GeneralKineticStep) -> GeneralKineticStep:
+    if isinstance(data, GeneralKineticStep):
+        return data
+    return GeneralKineticStep(
+        name=str(data.get("name", "general_step")),
+        reactants=tuple(_general_kinetic_participant_from_dict(item) for item in data.get("reactants", ())),
+        products=tuple(_general_kinetic_participant_from_dict(item) for item in data.get("products", ())),
+        forward_parameter=str(data.get("forward_parameter", "0")),
+        backward_parameter=str(data.get("backward_parameter", "0")),
+        enabled=bool(data.get("enabled", True)),
+        equilibrium=bool(data.get("equilibrium", False)),
     )

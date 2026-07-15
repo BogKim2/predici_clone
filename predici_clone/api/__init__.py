@@ -43,6 +43,8 @@ from predici_clone.api.validation import ValidationMessage, validate_project, va
 from predici_clone.api.project_schema import (
     FeedStream,
     FRPParameters,
+    GeneralKineticParticipant,
+    GeneralKineticStep,
     HeatBalanceConfig,
     InitialConditions,
     IntegrationControl,
@@ -60,6 +62,8 @@ __all__ = [
     "FeedStream",
     "FlowDist",
     "FluidBalance",
+    "GeneralKineticParticipant",
+    "GeneralKineticStep",
     "HeatBalanceConfig",
     "InitialConditions",
     "IntegrationControl",

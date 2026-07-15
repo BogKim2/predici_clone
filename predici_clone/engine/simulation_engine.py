@@ -57,6 +57,12 @@ class SimulationEngine:
         project = apply_pre_schedule(project, 0.0)
 
         self._log(callbacks, f"Running {project.reactor.kind} simulation to t={t_final:g}")
+        if project.general_kinetic_steps:
+            result = self._run_general_kinetics(project, (0.0, t_final), t_eval)
+            self._emit_general_steps(callbacks, result)
+            if callbacks.on_progress:
+                callbacks.on_progress(1.0)
+            return result
         if integration.backend == "galerkin_direct":
             result = self._run_galerkin_direct(project, (0.0, t_final), t_eval)
             if project.heat_balance.enabled:
@@ -183,6 +189,97 @@ class SimulationEngine:
                 residence_time_schedule=residence_time_schedule,
             )
         raise ValueError(f"Unsupported reactor kind: {reactor.kind}")
+
+    def _run_general_kinetics(self, project: Project, t_span: tuple[float, float], t_eval: np.ndarray) -> SimulationResult:
+        species_names = self._general_species_names(project)
+        species_index = {name: index for index, name in enumerate(species_names)}
+        initial = np.asarray(
+            [float(project.general_initial_conditions.get(name, 0.0)) for name in species_names],
+            dtype=float,
+        )
+
+        def parameter_value(name: str) -> float:
+            if name in project.generic_parameters:
+                return float(project.generic_parameters[name])
+            try:
+                return float(name)
+            except ValueError:
+                return 0.0
+
+        def reaction_rate(state: np.ndarray, participants) -> float:
+            rate = 1.0
+            nonnegative = np.maximum(state, 0.0)
+            for participant in participants:
+                concentration = float(nonnegative[species_index[participant.species]])
+                order = participant.stoichiometry if participant.order is None else participant.order
+                rate *= concentration ** float(order)
+            return float(rate)
+
+        def rhs(_time: float, state: np.ndarray) -> np.ndarray:
+            derivative = np.zeros_like(state)
+            for step in project.general_kinetic_steps:
+                if not step.enabled:
+                    continue
+                forward = parameter_value(step.forward_parameter) * reaction_rate(state, step.reactants)
+                backward = parameter_value(step.backward_parameter) * reaction_rate(state, step.products)
+                net = forward - backward
+                for participant in step.reactants:
+                    derivative[species_index[participant.species]] -= participant.stoichiometry * net
+                for participant in step.products:
+                    derivative[species_index[participant.species]] += participant.stoichiometry * net
+            return derivative
+
+        solution = solve_ivp(
+            rhs,
+            t_span,
+            initial,
+            t_eval=t_eval,
+            method=project.recipe.integration.method,
+            rtol=project.recipe.integration.rtol,
+            atol=project.recipe.integration.atol,
+        )
+        concentrations = np.maximum(solution.y, 0.0)
+        concentration_history = {
+            name: concentrations[index, :].tolist()
+            for name, index in species_index.items()
+        }
+        return SimulationResult(
+            success=bool(solution.success),
+            message=str(solution.message),
+            reactor_kind=project.reactor.kind,
+            time=solution.t,
+            state_history=concentrations,
+            distribution_history=np.zeros((1, solution.t.size), dtype=float),
+            first_length=0,
+            metadata={
+                "solver_status": getattr(solution, "status", None),
+                "backend": "general_kinetics",
+                "general_kinetics": True,
+                "species_names": species_names,
+                "concentration_history": concentration_history,
+                "final_concentrations": {
+                    name: float(concentrations[index, -1])
+                    for name, index in species_index.items()
+                },
+                "general_kinetic_steps": len(project.general_kinetic_steps),
+            },
+        )
+
+    @staticmethod
+    def _general_species_names(project: Project) -> list[str]:
+        names: list[str] = []
+        for name in project.general_initial_conditions:
+            if name not in names:
+                names.append(name)
+        for item in project.substances:
+            name = str(item.get("name", ""))
+            if name and name not in names:
+                names.append(name)
+        for step in project.general_kinetic_steps:
+            for participant in (*step.reactants, *step.products):
+                if participant.species not in names:
+                    names.append(participant.species)
+        return names
 
     def _run_galerkin_direct(self, project: Project, t_span: tuple[float, float], t_eval: np.ndarray) -> SimulationResult:
         if project.reactor.kind not in {"Batch", "Semi-batch", "CSTR", "Cascade", "PFR"}:
@@ -1022,6 +1119,27 @@ class SimulationEngine:
                     "PDI": float(moments["PDI"][i]),
                 }
             )
+            if callbacks.on_progress:
+                callbacks.on_progress(float((i + 1) / count))
+
+    @staticmethod
+    def _emit_general_steps(callbacks: SimulationCallbacks, result: SimulationResult) -> None:
+        count = len(result.time)
+        species_names = list(result.metadata.get("species_names", []))
+        for i, t in enumerate(result.time):
+            if callbacks.should_stop and callbacks.should_stop():
+                break
+            if callbacks.on_step is not None:
+                callbacks.on_step(
+                    {
+                        "time": float(t),
+                        "progress": float((i + 1) / count),
+                        **{
+                            f"conc:{name}": float(result.state_history[index, i])
+                            for index, name in enumerate(species_names)
+                        },
+                    }
+                )
             if callbacks.on_progress:
                 callbacks.on_progress(float((i + 1) / count))
 
