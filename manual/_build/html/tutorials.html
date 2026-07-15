@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+
+<html lang="ko" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Tutorial Workflows &#8212; PREDICI Clone Manual</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=ac66fb28" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=030cfef0" />
+    <script src="_static/documentation_options.js?v=d6a8a7ef"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/translations.js?v=afa94a99"></script>
+    <link rel="index" title="색인" href="genindex.html" />
+    <link rel="search" title="검색" href="search.html" />
+    <link rel="next" title="GUI 사용법" href="gui.html" />
+    <link rel="prev" title="빠른 시작" href="quickstart.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">PREDICI Clone Manual</a></h1>
+
+
+
+<p class="blurb">Polymerization simulation, GUI, API, and validation guide</p>
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="이동" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>탐색</h3>
+<p class="caption" role="heading"><span class="caption-text">사용자 문서</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">설치</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">빠른 시작</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorial Workflows</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#polyethylene-basic-project">Polyethylene Basic Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#oregonator-general-kinetics">Oregonator / General Kinetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#run-control">Run Control</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#script-and-reaction-modifier-helpers">Script and Reaction Modifier Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#chart-and-reference-data">Chart and Reference Data</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="gui.html">GUI 사용법</a></li>
+<li class="toctree-l1"><a class="reference internal" href="projects.html">프로젝트와 Recipe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="outputs.html">Outputs와 Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fitting.html">Parameter Estimation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="packaging.html">패키징</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">개발자 문서</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">구조</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation.html">검증과 Benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extending.html">확장 가이드</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">용어</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="quickstart.html" title="이전 장">빠른 시작</a></li>
+      <li>Next: <a href="gui.html" title="다음 장">GUI 사용법</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="tutorial-workflows">
+<h1>Tutorial Workflows<a class="headerlink" href="#tutorial-workflows" title="Link to this heading">¶</a></h1>
+<section id="polyethylene-basic-project">
+<h2>Polyethylene Basic Project<a class="headerlink" href="#polyethylene-basic-project" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">examples/tutorial_polyethylene_basic.py</span></code> 는 tutorial PDF의 basic polyethylene 흐름을
+재현하기 위한 최소 프로젝트를 실행한다.</p>
+<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">examples</span><span class="p">\</span><span class="n">tutorial_polyethylene_basic</span><span class="p">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>동일한 프로젝트는 Python API에서도 생성할 수 있다.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">predici_clone.engine</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimulationEngine</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">predici_clone.validation.tutorial_projects</span><span class="w"> </span><span class="kn">import</span> <span class="n">polyethylene_basic_project</span>
+
+<span class="n">project</span> <span class="o">=</span> <span class="n">polyethylene_basic_project</span><span class="p">()</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">SimulationEngine</span><span class="p">(</span><span class="n">project</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">final_moments</span><span class="o">.</span><span class="n">mn</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">final_moments</span><span class="o">.</span><span class="n">mw</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="oregonator-general-kinetics">
+<h2>Oregonator / General Kinetics<a class="headerlink" href="#oregonator-general-kinetics" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">examples/tutorial_oregonator.py</span></code> 는 PRESTO-KINETICS 스타일의 general kinetic step을
+검증한다. 특히 stoichiometric coefficient와 reaction order가 서로 다를 수 있음을 보여준다.</p>
+<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">examples</span><span class="p">\</span><span class="n">tutorial_oregonator</span><span class="p">.</span><span class="n">py</span>
+</pre></div>
+</div>
+</section>
+<section id="run-control">
+<h2>Run Control<a class="headerlink" href="#run-control" title="Link to this heading">¶</a></h2>
+<p>run-to-time과 single-step API는 GUI의 <code class="docutils literal notranslate"><span class="pre">Proc</span></code> 및 <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">Step</span></code> 버튼과 같은 흐름을 위한
+엔진 레벨 API이다.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">predici_clone.engine</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimulationEngine</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">predici_clone.validation.tutorial_projects</span><span class="w"> </span><span class="kn">import</span> <span class="n">polyethylene_basic_project</span>
+
+<span class="n">engine</span> <span class="o">=</span> <span class="n">SimulationEngine</span><span class="p">(</span><span class="n">polyethylene_basic_project</span><span class="p">())</span>
+<span class="n">early</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">run_to_time</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="n">one_step</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">single_step</span><span class="p">()</span>
+<span class="n">final</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">run_to_time</span><span class="p">(</span><span class="n">engine</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">recipe</span><span class="o">.</span><span class="n">integration</span><span class="o">.</span><span class="n">t_final</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">early</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;run_control&quot;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">final</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;actual_values&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+</pre></div>
+</div>
+</section>
+<section id="script-and-reaction-modifier-helpers">
+<h2>Script and Reaction Modifier Helpers<a class="headerlink" href="#script-and-reaction-modifier-helpers" title="Link to this heading">¶</a></h2>
+<p>PREDICI-style script helper functions are available through a safe command namespace.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">predici_clone.postprocess.scripted_outputs</span><span class="w"> </span><span class="kn">import</span> <span class="n">evaluate_expression</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">predici_clone.script</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScriptCommandState</span><span class="p">,</span> <span class="n">script_command_namespace</span>
+
+<span class="n">state</span> <span class="o">=</span> <span class="n">ScriptCommandState</span><span class="p">(</span><span class="n">current_concentrations</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;M&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">},</span> <span class="n">parameters</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;kp&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">})</span>
+<span class="n">value</span> <span class="o">=</span> <span class="n">evaluate_expression</span><span class="p">(</span><span class="s1">&#39;getkp(&quot;kp&quot;) * getco(&quot;M&quot;)&#39;</span><span class="p">,</span> <span class="n">script_command_namespace</span><span class="p">(</span><span class="n">state</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Reaction coefficient modifiers support <code class="docutils literal notranslate"><span class="pre">k(File)</span></code> and <code class="docutils literal notranslate"><span class="pre">k*File</span></code> style expressions.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">predici_clone.script</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScriptCommandState</span><span class="p">,</span> <span class="n">evaluate_modifier_expression</span>
+
+<span class="n">state</span> <span class="o">=</span> <span class="n">ScriptCommandState</span><span class="p">(</span><span class="n">current_concentrations</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;M&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">},</span> <span class="n">parameters</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;kp&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">})</span>
+<span class="n">scripts</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;File&quot;</span><span class="p">:</span> <span class="s1">&#39;result = getkp(&quot;kp&quot;) * getco(&quot;M&quot;)&#39;</span><span class="p">}</span>
+<span class="n">modified</span> <span class="o">=</span> <span class="n">evaluate_modifier_expression</span><span class="p">(</span><span class="s2">&quot;kp(File)&quot;</span><span class="p">,</span> <span class="n">scripts</span><span class="o">=</span><span class="n">scripts</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="chart-and-reference-data">
+<h2>Chart and Reference Data<a class="headerlink" href="#chart-and-reference-data" title="Link to this heading">¶</a></h2>
+<p>The charting API separates display configuration, reference curve IO, and GPC-specific
+weighting.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">predici_clone.postprocess.charting</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChartConfig</span><span class="p">,</span> <span class="n">distribution_chart_profile</span>
+
+<span class="n">profile</span> <span class="o">=</span> <span class="n">distribution_chart_profile</span><span class="p">(</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]),</span>
+    <span class="n">ChartConfig</span><span class="p">(</span><span class="n">distribution_y_axis</span><span class="o">=</span><span class="s2">&quot;gpc&quot;</span><span class="p">,</span> <span class="n">x_axis_scale</span><span class="o">=</span><span class="s2">&quot;logarithmic&quot;</span><span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &#169;.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/tutorials.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -20,6 +20,7 @@
 
    installation
    quickstart
+   tutorials
    gui
    projects
    outputs

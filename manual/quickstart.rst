@@ -44,5 +44,9 @@ Python API로 실행
 .. code-block:: powershell
 
    python examples\industrial_semibatch_cstr.py
+   python examples\tutorial_polyethylene_basic.py
+   python examples\tutorial_oregonator.py
 
-이 예제는 semi-batch와 CSTR 조건을 비교하고 ``Mn``, ``Mw``, ``PDI`` 를 출력한다.
+첫 번째 예제는 semi-batch와 CSTR 조건을 비교하고 ``Mn``, ``Mw``, ``PDI`` 를 출력한다.
+두 tutorial 예제는 polyethylene basic workflow와 Oregonator general kinetic workflow를
+각각 검증한다.

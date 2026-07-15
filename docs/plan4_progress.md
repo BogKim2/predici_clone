@@ -60,6 +60,11 @@ This file tracks implementation evidence against `plan4.md`.
   - `SimulationResult.actual_values_history()` plus result metadata for step/time/stepsize/n_variables
   - deterministic final-time resume check against full run
   - tests: `tests/test_run_control.py`
+- M31 tutorial manual/regression foundation
+  - `manual/tutorials.rst` documents polyethylene, Oregonator, run-control, script modifier, and chart/reference workflows
+  - quickstart includes tutorial smoke commands
+  - examples: `examples/tutorial_polyethylene_basic.py`, `examples/tutorial_oregonator.py`
+  - validation: Sphinx build plus tutorial example smoke runs
 
 ## Still Incomplete
 
@@ -71,4 +76,4 @@ This file tracks implementation evidence against `plan4.md`.
 - M28 GUI integration and modifier-to-engine execution hooks
 - M29 GUI debugger/multi-script panes and edit-in-place workflow
 - M32 GUI simulation-mode controls and moments backend
-- M31 tutorial manual expansion and full regression suite
+- M31 fuller screenshot/manual expansion for GUI-specific tutorial dialogs
