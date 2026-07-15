@@ -407,9 +407,15 @@ def test_main_window_component_tables_apply_schema_objects():
     window.substance_table.item(0, 3).setText("100.12")
     window.substance_table.item(0, 4).setText("940")
     window.substance_table.item(0, 5).setText("true")
+    window.substance_table.item(0, 6).setText("own")
+    window.substance_table.item(0, 8).setText("945")
+    window.substance_table.item(0, 9).setText("0.8")
+    window.substance_table.item(0, 10).setText("1;2;3;4")
     window._add_component_polymer_row()
     window.polymer_table.item(0, 0).setText("PMMA*")
     window.polymer_table.item(0, 2).setText("MMA")
+    window.polymer_table.item(0, 7).setText("reactive")
+    window.polymer_table.item(0, 9).setText("1100")
     window._add_component_parameter_row()
     window.parameter_table.item(0, 0).setText("kp")
     window.parameter_table.item(0, 1).setText("0.12")
@@ -420,7 +426,13 @@ def test_main_window_component_tables_apply_schema_objects():
 
     assert window.project.substances[0]["name"] == "MMA"
     assert window.project.substances[0]["is_monomer"] is True
+    assert window.project.substances[0]["phase_setting"] == "own"
+    assert window.project.substances[0]["density_linear_a"] == 945.0
+    assert window.project.substances[0]["density_linear_b"] == 0.8
+    assert window.project.substances[0]["heat_capacity_coeffs"] == (1.0, 2.0, 3.0, 4.0)
     assert window.project.polymers[0]["base_monomer"] == "MMA"
+    assert window.project.polymers[0]["phase_setting"] == "reactive"
+    assert window.project.polymers[0]["density_linear_a"] == 1100.0
     assert window.project.parameters[0].name == "kp"
     assert window.project.parameters[0].activation_energy == 2500.0
     assert window.project.generic_parameters["kp"] == 0.12

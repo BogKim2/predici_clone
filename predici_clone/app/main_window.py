@@ -342,11 +342,15 @@ class MainWindow(QMainWindow):
         buttons.addWidget(add_parameter)
         buttons.addWidget(apply)
         buttons.addStretch(1)
-        self.substance_table = QTableWidget(0, 6)
-        self.substance_table.setHorizontalHeaderLabels(["name", "alias", "kind", "MW", "density", "monomer"])
+        self.substance_table = QTableWidget(0, 12)
+        self.substance_table.setHorizontalHeaderLabels(
+            ["name", "alias", "kind", "MW", "density", "monomer", "phase", "rho mode", "rho a", "rho b", "cp coeffs", "cp K"]
+        )
         self.substance_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.polymer_table = QTableWidget(0, 7)
-        self.polymer_table.setHorizontalHeaderLabels(["name", "alias", "base", "active", "dead", "MW", "density"])
+        self.polymer_table = QTableWidget(0, 13)
+        self.polymer_table.setHorizontalHeaderLabels(
+            ["name", "alias", "base", "active", "dead", "MW", "density", "phase", "rho mode", "rho a", "rho b", "cp coeffs", "cp K"]
+        )
         self.polymer_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.parameter_table = QTableWidget(0, 5)
         self.parameter_table.setHorizontalHeaderLabels(["name", "value", "unit", "kind", "Ea"])
@@ -2202,6 +2206,12 @@ class MainWindow(QMainWindow):
                 item.get("molecular_weight", 0.0),
                 item.get("density", 0.0),
                 item.get("is_monomer", False),
+                item.get("phase_setting", "main"),
+                item.get("density_mode", "linear"),
+                item.get("density_linear_a", item.get("density", 0.0)),
+                item.get("density_linear_b", 0.0),
+                self._format_coeffs(item.get("heat_capacity_coeffs", (0.0, 0.0, 0.0, 0.0))),
+                item.get("heat_capacity_kelvin", True),
             ]
             for column, value in enumerate(values):
                 self.substance_table.setItem(row, column, QTableWidgetItem(str(value)))
@@ -2215,6 +2225,12 @@ class MainWindow(QMainWindow):
                 item.get("dead", True),
                 item.get("molecular_weight", 0.0),
                 item.get("density", 0.0),
+                item.get("phase_setting", "main"),
+                item.get("density_mode", "linear"),
+                item.get("density_linear_a", item.get("density", 0.0)),
+                item.get("density_linear_b", 0.0),
+                self._format_coeffs(item.get("heat_capacity_coeffs", (0.0, 0.0, 0.0, 0.0))),
+                item.get("heat_capacity_kelvin", True),
             ]
             for column, value in enumerate(values):
                 self.polymer_table.setItem(row, column, QTableWidgetItem(str(value)))
@@ -2310,13 +2326,13 @@ class MainWindow(QMainWindow):
     def _add_component_substance_row(self) -> None:
         row = self.substance_table.rowCount()
         self.substance_table.insertRow(row)
-        for column, value in enumerate((f"S{row + 1}", "", "species", "0.0", "0.0", "False")):
+        for column, value in enumerate((f"S{row + 1}", "", "species", "0.0", "0.0", "False", "main", "linear", "0.0", "0.0", "0;0;0;0", "True")):
             self.substance_table.setItem(row, column, QTableWidgetItem(value))
 
     def _add_component_polymer_row(self) -> None:
         row = self.polymer_table.rowCount()
         self.polymer_table.insertRow(row)
-        for column, value in enumerate((f"P{row + 1}", "", "", "True", "False", "0.0", "0.0")):
+        for column, value in enumerate((f"P{row + 1}", "", "", "True", "False", "0.0", "0.0", "main", "linear", "0.0", "0.0", "0;0;0;0", "True")):
             self.polymer_table.setItem(row, column, QTableWidgetItem(value))
 
     def _add_component_parameter_row(self) -> None:
@@ -2355,6 +2371,12 @@ class MainWindow(QMainWindow):
                     molecular_weight=self._table_float(self.substance_table, row, 3, 0.0),
                     density=self._table_float(self.substance_table, row, 4, 0.0),
                     is_monomer=self._table_bool(self.substance_table, row, 5),
+                    phase_setting=self._table_text(self.substance_table, row, 6).strip() or "main",
+                    density_mode=self._table_text(self.substance_table, row, 7).strip() or "linear",
+                    density_linear_a=self._table_float(self.substance_table, row, 8, 0.0),
+                    density_linear_b=self._table_float(self.substance_table, row, 9, 0.0),
+                    heat_capacity_coeffs=self._parse_coeffs(self._table_text(self.substance_table, row, 10)),
+                    heat_capacity_kelvin=self._table_bool(self.substance_table, row, 11),
                 ),
             )
         for row in range(self.polymer_table.rowCount()):
@@ -2371,6 +2393,12 @@ class MainWindow(QMainWindow):
                     dead=self._table_bool(self.polymer_table, row, 4),
                     molecular_weight=self._table_float(self.polymer_table, row, 5, 0.0),
                     density=self._table_float(self.polymer_table, row, 6, 0.0),
+                    phase_setting=self._table_text(self.polymer_table, row, 7).strip() or "main",
+                    density_mode=self._table_text(self.polymer_table, row, 8).strip() or "linear",
+                    density_linear_a=self._table_float(self.polymer_table, row, 9, 0.0),
+                    density_linear_b=self._table_float(self.polymer_table, row, 10, 0.0),
+                    heat_capacity_coeffs=self._parse_coeffs(self._table_text(self.polymer_table, row, 11)),
+                    heat_capacity_kelvin=self._table_bool(self.polymer_table, row, 12),
                 ),
             )
         for row in range(self.parameter_table.rowCount()):
@@ -2571,6 +2599,28 @@ class MainWindow(QMainWindow):
     @classmethod
     def _table_bool(cls, table: QTableWidget, row: int, column: int) -> bool:
         return cls._table_text(table, row, column).strip().lower() in {"1", "true", "yes", "on"}
+
+    @staticmethod
+    def _format_coeffs(values: object) -> str:
+        if isinstance(values, str):
+            return values
+        try:
+            return ";".join(str(float(value)) for value in values)  # type: ignore[union-attr]
+        except TypeError:
+            return "0;0;0;0"
+
+    @staticmethod
+    def _parse_coeffs(value: str) -> tuple[float, float, float, float]:
+        parts = [part.strip() for part in value.replace(",", ";").split(";") if part.strip()]
+        numbers = []
+        for part in parts[:4]:
+            try:
+                numbers.append(float(part))
+            except ValueError:
+                numbers.append(0.0)
+        while len(numbers) < 4:
+            numbers.append(0.0)
+        return tuple(numbers)  # type: ignore[return-value]
 
     @staticmethod
     def _split_species(value: str) -> tuple[str, ...]:

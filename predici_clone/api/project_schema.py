@@ -124,6 +124,12 @@ class Substance:
     density: float = 0.0
     is_monomer: bool = False
     groups: tuple[str, ...] = ()
+    phase_setting: str = "main"
+    density_mode: str = "linear"
+    density_linear_a: float = 0.0
+    density_linear_b: float = 0.0
+    heat_capacity_coeffs: tuple[float, float, float, float] = (0.0, 0.0, 0.0, 0.0)
+    heat_capacity_kelvin: bool = True
 
 
 @dataclass(frozen=True)
@@ -136,6 +142,12 @@ class PolymerSpecies:
     molecular_weight: float = 0.0
     density: float = 0.0
     groups: tuple[str, ...] = ()
+    phase_setting: str = "main"
+    density_mode: str = "linear"
+    density_linear_a: float = 0.0
+    density_linear_b: float = 0.0
+    heat_capacity_coeffs: tuple[float, float, float, float] = (0.0, 0.0, 0.0, 0.0)
+    heat_capacity_kelvin: bool = True
 
 
 @dataclass(frozen=True)

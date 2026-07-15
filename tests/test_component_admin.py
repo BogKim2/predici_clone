@@ -15,8 +15,30 @@ from predici_clone.api.project_schema import GeneralKineticParticipant, GeneralK
 
 def test_component_schema_round_trips_through_project_dict():
     project = Project()
-    project = add_substance(project, Substance("MMA", alias="M", molecular_weight=100.12, is_monomer=True))
-    project = add_polymer_species(project, PolymerSpecies("PMMA*", base_monomer="MMA", active=True, dead=False))
+    project = add_substance(
+        project,
+        Substance(
+            "MMA",
+            alias="M",
+            molecular_weight=100.12,
+            is_monomer=True,
+            phase_setting="own",
+            density_linear_a=940.0,
+            density_linear_b=0.75,
+            heat_capacity_coeffs=(1.0, 2.0, 3.0, 4.0),
+        ),
+    )
+    project = add_polymer_species(
+        project,
+        PolymerSpecies(
+            "PMMA*",
+            base_monomer="MMA",
+            active=True,
+            dead=False,
+            phase_setting="reactive",
+            density_linear_a=1100.0,
+        ),
+    )
     project = add_parameter(project, Parameter("kp", value=0.12, unit="L/mol/s", kind="Arrhenius", pre_exponential=1.0e5))
     project = Project.from_dict(
         {
@@ -28,7 +50,11 @@ def test_component_schema_round_trips_through_project_dict():
     loaded = Project.from_dict(project.to_dict())
 
     assert loaded.substances[0]["name"] == "MMA"
+    assert loaded.substances[0]["phase_setting"] == "own"
+    assert loaded.substances[0]["density_linear_b"] == 0.75
+    assert tuple(loaded.substances[0]["heat_capacity_coeffs"]) == (1.0, 2.0, 3.0, 4.0)
     assert loaded.polymers[0]["active"] is True
+    assert loaded.polymers[0]["phase_setting"] == "reactive"
     assert loaded.parameters[0].name == "kp"
     assert loaded.parameters[0].pre_exponential == 1.0e5
     assert loaded.generic_parameters["kp"] == 0.12

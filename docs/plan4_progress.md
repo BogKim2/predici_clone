@@ -30,6 +30,10 @@ This file tracks implementation evidence against `plan4.md`.
   - Components tab exposes substances, polymer species, and parameters as editable tables
   - applied edits use the component admin API and participate in undo/project tree refresh
   - tests: `tests/test_postprocess_and_gui.py`
+- M23 phase/thermodynamic GUI field foundation
+  - Substance and polymer species tables expose phase setting, density mode, linear density coefficients, and heat-capacity coefficients
+  - schema round-trip preserves phase/thermo fields
+  - tests: `tests/test_component_admin.py`, `tests/test_postprocess_and_gui.py`
 - M24 PatternFinder-style reaction builder service foundation
   - searchable reaction pattern catalog
   - polymer reaction step builder with auto-declared species and parameters
@@ -115,7 +119,7 @@ This file tracks implementation evidence against `plan4.md`.
 
 ## Still Incomplete
 
-- M23 richer thermodynamic/phase fields and validation styling in GUI
+- M23 validation styling in GUI
 - M24 drag/drop slot assignment interaction
 - M25 full 7-mode recipe-entry table integration and visual warning styling
 - M27 PDE-specific numerical semantics for advanced commands beyond supplied-state helpers
