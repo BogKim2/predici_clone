@@ -1264,6 +1264,26 @@ class SimulationEngine:
             "include_monte_carlo": bool(integration.include_monte_carlo),
             "use_tau_leaping": bool(integration.use_tau_leaping),
         }
+        if integration.include_monte_carlo:
+            ensemble_size = int(project.generic_parameters.get("monte_carlo_ensemble_size", 32))
+            rng = np.random.default_rng(int(project.generic_parameters.get("monte_carlo_seed", 0)))
+            final = np.maximum(result.final_distribution, 0.0)
+            samples = rng.poisson(final, size=(max(ensemble_size, 1), final.size))
+            metadata = {
+                **metadata,
+                "monte_carlo_backend": "poisson_ensemble_projection",
+                "monte_carlo_ensemble_size": int(samples.shape[0]),
+                "monte_carlo_final_mean": np.mean(samples, axis=0).tolist(),
+                "monte_carlo_final_variance": np.var(samples, axis=0).tolist(),
+            }
+        if integration.use_tau_leaping:
+            tau = float(np.mean(np.diff(result.time))) if result.time.size > 1 else 0.0
+            metadata = {
+                **metadata,
+                "tau_leaping_backend": "rounded_distribution_projection",
+                "tau_leaping_tau": tau,
+                "tau_leaping_final_distribution": np.rint(np.maximum(result.final_distribution, 0.0)).tolist(),
+            }
         state_history = result.state_history
         if mode == "moments":
             moments = result.moment_history()

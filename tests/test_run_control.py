@@ -81,3 +81,28 @@ def test_moments_mode_returns_reduced_moment_state_close_to_distribution_run():
     assert moments.metadata["actual_values"][-1]["n_variables"] == 6
     np.testing.assert_allclose(moments.final_moments.mn, distributions.final_moments.mn)
     np.testing.assert_allclose(moments.final_moments.mw, distributions.final_moments.mw)
+
+
+def test_monte_carlo_and_tau_leaping_modes_record_numerical_summaries():
+    project = Project(
+        recipe=Recipe(
+            integration=IntegrationControl(
+                t_final=1.0,
+                output_points=5,
+                include_monte_carlo=True,
+                use_tau_leaping=True,
+            )
+        ),
+        generic_parameters={"monte_carlo_ensemble_size": 4.0, "monte_carlo_seed": 7.0},
+    )
+
+    first = SimulationEngine(project).run()
+    second = SimulationEngine(project).run()
+
+    assert first.metadata["monte_carlo_backend"] == "poisson_ensemble_projection"
+    assert first.metadata["monte_carlo_ensemble_size"] == 4
+    assert len(first.metadata["monte_carlo_final_mean"]) == first.final_distribution.size
+    assert first.metadata["monte_carlo_final_mean"] == second.metadata["monte_carlo_final_mean"]
+    assert first.metadata["tau_leaping_backend"] == "rounded_distribution_projection"
+    assert first.metadata["tau_leaping_tau"] > 0.0
+    assert len(first.metadata["tau_leaping_final_distribution"]) == first.final_distribution.size

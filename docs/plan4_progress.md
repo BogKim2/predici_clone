@@ -143,6 +143,10 @@ This file tracks implementation evidence against `plan4.md`.
   - distribution history remains available as the reference curve for chart comparison
   - Actual values metadata reports the reduced variable count
   - tests: `tests/test_run_control.py`
+- M32 Monte Carlo/tau-leaping execution foundation
+  - Monte Carlo flag computes a deterministic Poisson ensemble projection summary from the final distribution
+  - tau-leaping flag computes a rounded distribution projection and tau estimate
+  - tests: `tests/test_run_control.py`
 - M31 tutorial manual/regression foundation
   - `manual/tutorials.rst` documents polyethylene, Oregonator, run-control, script modifier, and chart/reference workflows
   - quickstart includes tutorial smoke commands
@@ -157,4 +161,3 @@ This file tracks implementation evidence against `plan4.md`.
 
 - M24 mouse drag gesture for slot assignment
 - M27 PDE-specific numerical semantics for advanced commands beyond supplied-state helpers
-- M32 Monte Carlo/tau-leaping numerical execution
