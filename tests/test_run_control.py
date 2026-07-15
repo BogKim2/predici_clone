@@ -62,3 +62,22 @@ def test_simulation_mode_flags_are_recorded_in_result_metadata():
     assert result.metadata["simulation_mode"] == "moments"
     assert result.metadata["include_monte_carlo"] is True
     assert result.metadata["use_tau_leaping"] is True
+
+
+def test_moments_mode_returns_reduced_moment_state_close_to_distribution_run():
+    moments_project = Project(
+        recipe=Recipe(integration=IntegrationControl(t_final=1.0, output_points=5, simulation_mode="moments"))
+    )
+    distribution_project = Project(
+        recipe=Recipe(integration=IntegrationControl(t_final=1.0, output_points=5, simulation_mode="distributions"))
+    )
+
+    moments = SimulationEngine(moments_project).run()
+    distributions = SimulationEngine(distribution_project).run()
+
+    assert moments.metadata["moments_backend"] == "projected_distribution_moments"
+    assert tuple(moments.metadata["moment_state_names"]) == ("M0", "M1", "M2", "Mn", "Mw", "PDI")
+    assert moments.state_history.shape[0] == 6
+    assert moments.metadata["actual_values"][-1]["n_variables"] == 6
+    np.testing.assert_allclose(moments.final_moments.mn, distributions.final_moments.mn)
+    np.testing.assert_allclose(moments.final_moments.mw, distributions.final_moments.mw)

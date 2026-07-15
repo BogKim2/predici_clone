@@ -1264,12 +1264,34 @@ class SimulationEngine:
             "include_monte_carlo": bool(integration.include_monte_carlo),
             "use_tau_leaping": bool(integration.use_tau_leaping),
         }
+        state_history = result.state_history
+        if mode == "moments":
+            moments = result.moment_history()
+            names = ("M0", "M1", "M2", "Mn", "Mw", "PDI")
+            state_history = np.vstack([moments[name] for name in names])
+            metadata = {
+                **metadata,
+                "moments_backend": "projected_distribution_moments",
+                "moment_state_names": names,
+                "n_variables": int(state_history.shape[0]),
+            }
+            projected = SimulationResult(
+                success=result.success,
+                message=result.message,
+                reactor_kind=result.reactor_kind,
+                time=result.time,
+                state_history=state_history,
+                distribution_history=result.distribution_history,
+                first_length=result.first_length,
+                metadata=metadata,
+            )
+            metadata = {**metadata, "actual_values": projected.actual_values_history()}
         return SimulationResult(
             success=result.success,
             message=result.message,
             reactor_kind=result.reactor_kind,
             time=result.time,
-            state_history=result.state_history,
+            state_history=state_history,
             distribution_history=result.distribution_history,
             first_length=result.first_length,
             metadata=metadata,

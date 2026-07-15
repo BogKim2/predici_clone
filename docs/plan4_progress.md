@@ -131,6 +131,11 @@ This file tracks implementation evidence against `plan4.md`.
   - integration settings round-trip through project save/load
   - result metadata records selected simulation mode and Monte Carlo/tau-leaping flags
   - tests: `tests/test_run_control.py`, `tests/test_postprocess_and_gui.py`
+- M32 moments backend foundation
+  - `simulation_mode="moments"` returns a reduced moment state (`M0`, `M1`, `M2`, `Mn`, `Mw`, `PDI`)
+  - distribution history remains available as the reference curve for chart comparison
+  - Actual values metadata reports the reduced variable count
+  - tests: `tests/test_run_control.py`
 - M31 tutorial manual/regression foundation
   - `manual/tutorials.rst` documents polyethylene, Oregonator, run-control, script modifier, and chart/reference workflows
   - quickstart includes tutorial smoke commands
@@ -142,5 +147,5 @@ This file tracks implementation evidence against `plan4.md`.
 - M24 drag/drop slot assignment interaction
 - M27 PDE-specific numerical semantics for advanced commands beyond supplied-state helpers
 - M29 debugger move-to-window workflow
-- M32 true moments backend and Monte Carlo/tau-leaping numerical execution
+- M32 Monte Carlo/tau-leaping numerical execution
 - M31 fuller screenshot/manual expansion for GUI-specific tutorial dialogs
