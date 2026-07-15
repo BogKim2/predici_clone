@@ -920,6 +920,40 @@ def test_main_window_script_tab_renders_catalog_and_generates_template():
     app.processEvents()
 
 
+def test_main_window_script_debugger_traces_multiple_scripts():
+    app = QApplication.instance() or QApplication([])
+    window = MainWindow()
+    window.project.generic_parameters["GP_kp"] = 0.25
+    window._add_debug_script_row()
+    window.debug_script_table.item(0, 0).setText("modifier")
+    window.debug_script_table.item(0, 1).setText('x = getkp("GP_kp")\nresult = x * 4')
+    window._add_debug_script_row()
+    window.debug_script_table.item(1, 0).setText("accumulator")
+    window.debug_script_table.item(1, 1).setText("a = 2\nb = a + 1")
+
+    window._run_debug_scripts()
+
+    rows = [
+        (
+            window.debug_trace_table.item(row, 0).text(),
+            window.debug_trace_table.item(row, 3).text(),
+            window.debug_trace_table.item(row, 4).text(),
+        )
+        for row in range(window.debug_trace_table.rowCount())
+    ]
+    assert ("modifier", "x", "0.25") in rows
+    assert ("modifier", "result", "1.0") in rows
+    assert ("accumulator", "a", "2") in rows
+    assert ("accumulator", "b", "3") in rows
+
+    window.debug_script_table.selectRow(1)
+    window._remove_selected_debug_script_row()
+
+    assert window.debug_script_table.rowCount() == 1
+    window.close()
+    app.processEvents()
+
+
 def test_main_window_scripted_output_editor_accepts_loop_script():
     app = QApplication.instance() or QApplication([])
     window = MainWindow()

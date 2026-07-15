@@ -73,6 +73,7 @@ from predici_clone.engine.simulation_result import SimulationResult
 from predici_clone.kinetics import RateLaw, ReactionKind, ReactionStep
 from predici_clone.kinetics.reaction_builder import build_polymer_reaction_step, reaction_pattern_catalog
 from predici_clone.postprocess.generic_outputs import generic_outputs_frame
+from predici_clone.postprocess.scripted_outputs import evaluate_script_scope
 from predici_clone.postprocess.distribution_plot import save_distribution_plot
 from predici_clone.postprocess.gpc import distribution_to_gpc_profile
 from predici_clone.postprocess.moments_report import report_frame, write_distribution_report
@@ -95,7 +96,7 @@ from predici_clone.postprocess.parameter_estimation import (
     sample_bayesian_posterior,
     sample_multi_experiment_bayesian_posterior,
 )
-from predici_clone.script import generate_script_template, parse_reaction_rate_modifier, script_function_catalog
+from predici_clone.script import ScriptCommandState, generate_script_template, parse_reaction_rate_modifier, script_command_namespace, script_function_catalog
 from predici_clone.validation.paper_benchmarks import available_cases
 
 
@@ -622,19 +623,39 @@ class MainWindow(QMainWindow):
         template.clicked.connect(self._generate_script_template_row)
         apply = QPushButton("Apply Scripted Outputs")
         apply.clicked.connect(self._apply_scripted_outputs_from_table)
+        add_debug = QPushButton("Add Debug Script")
+        add_debug.clicked.connect(self._add_debug_script_row)
+        remove_debug = QPushButton("Remove Debug Script")
+        remove_debug.clicked.connect(self._remove_selected_debug_script_row)
+        run_debug = QPushButton("Run Debug")
+        run_debug.clicked.connect(self._run_debug_scripts)
         buttons.addWidget(add)
         buttons.addWidget(template)
         buttons.addWidget(apply)
+        buttons.addWidget(add_debug)
+        buttons.addWidget(remove_debug)
+        buttons.addWidget(run_debug)
         buttons.addStretch(1)
         self.script_output_table = QTableWidget(0, 2)
         self.script_output_table.setHorizontalHeaderLabels(["name", "expression"])
         self.script_output_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.debug_script_table = QTableWidget(0, 2)
+        self.debug_script_table.setHorizontalHeaderLabels(["name", "script"])
+        self.debug_script_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.debug_trace_table = QTableWidget(0, 5)
+        self.debug_trace_table.setHorizontalHeaderLabels(["script", "line", "text", "assignment", "value"])
+        self.debug_trace_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.debug_trace_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.script_function_table = QTableWidget(0, 5)
         self.script_function_table.setHorizontalHeaderLabels(["name", "args", "category", "status", "description"])
         self.script_function_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.script_function_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         layout.addLayout(buttons)
         layout.addWidget(self.script_output_table)
+        layout.addWidget(QLabel("Debug scripts"))
+        layout.addWidget(self.debug_script_table)
+        layout.addWidget(QLabel("Debug trace"))
+        layout.addWidget(self.debug_trace_table)
         layout.addWidget(QLabel("Function catalog"))
         layout.addWidget(self.script_function_table)
         self._populate_script_function_catalog()
@@ -853,6 +874,80 @@ class MainWindow(QMainWindow):
             ]
             for column, value in enumerate(values):
                 self.script_function_table.setItem(row, column, QTableWidgetItem(value))
+
+    def _add_debug_script_row(self) -> None:
+        row = self.debug_script_table.rowCount()
+        self.debug_script_table.insertRow(row)
+        self.debug_script_table.setItem(row, 0, QTableWidgetItem(f"debug_{row + 1}"))
+        self.debug_script_table.setItem(row, 1, QTableWidgetItem('x = getkp("GP_kp")\nresult = x * 2'))
+
+    def _remove_selected_debug_script_row(self) -> None:
+        row = self.debug_script_table.currentRow()
+        if row >= 0:
+            self.debug_script_table.removeRow(row)
+
+    def _run_debug_scripts(self) -> None:
+        rows: list[tuple[str, int, str, str, object]] = []
+        state = ScriptCommandState(
+            parameters=dict(self.project.generic_parameters),
+            moments=self._current_debug_moments(),
+            variables={"time": float(self.current_result.time[-1]) if self.current_result is not None else 0.0},
+        )
+        for row in range(self.debug_script_table.rowCount()):
+            name = self._table_text(self.debug_script_table, row, 0).strip() or f"debug_{row + 1}"
+            script = self._table_text(self.debug_script_table, row, 1)
+            rows.extend(self._debug_script_trace(name, script, state))
+        self.debug_trace_table.setRowCount(len(rows))
+        for row, values in enumerate(rows):
+            for column, value in enumerate(values):
+                self.debug_trace_table.setItem(row, column, QTableWidgetItem(str(value)))
+        self._append_log(f"Debug scripts traced: {len(rows)} rows")
+
+    def _debug_script_trace(
+        self,
+        name: str,
+        script: str,
+        state: ScriptCommandState,
+    ) -> list[tuple[str, int, str, str, object]]:
+        namespace = script_command_namespace(state)
+        lines = script.splitlines()
+        trace: list[tuple[str, int, str, str, object]] = []
+        prefix: list[str] = []
+        for line_number, line in enumerate(lines, start=1):
+            text = line.strip()
+            if not text:
+                continue
+            prefix.append(line)
+            assignment = self._assignment_name(text)
+            try:
+                scope = evaluate_script_scope("\n".join(prefix), namespace)
+                value = scope.get(assignment, "") if assignment else ""
+            except Exception as exc:
+                value = f"ERROR: {exc}"
+            trace.append((name, line_number, text, assignment, value))
+        return trace
+
+    @staticmethod
+    def _assignment_name(text: str) -> str:
+        if "=" not in text or "==" in text:
+            return ""
+        lhs = text.split("=", 1)[0].strip()
+        return lhs if lhs.isidentifier() else ""
+
+    def _current_debug_moments(self) -> dict[str, float]:
+        if self.current_result is None:
+            return {}
+        report = self.current_result.final_moments
+        return {
+            "M0": report.m0,
+            "M1": report.m1,
+            "M2": report.m2,
+            "M3": report.m3,
+            "Mn": report.mn,
+            "Mw": report.mw,
+            "PDI": report.pdi,
+            "mass": report.mass,
+        }
 
     def _apply_scripted_outputs_from_table(self) -> None:
         from predici_clone.api.project_schema import OutputConfig

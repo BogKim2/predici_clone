@@ -122,6 +122,10 @@ This file tracks implementation evidence against `plan4.md`.
   - Simulation tab exposes `Proc` run-to-time and `1 Step` controls
   - Actual values table renders step/time/stepsize/n_variables
   - tests: `tests/test_postprocess_and_gui.py`
+- M29 multi-script debugger GUI foundation
+  - Script tab exposes editable debug script rows with add/remove controls
+  - `Run Debug` evaluates scripts through the safe script namespace and renders line/assignment/value traces
+  - tests: `tests/test_postprocess_and_gui.py`
 - M32 simulation mode GUI/metadata foundation
   - Simulation panel exposes `Distributions`/`Moments`, `incl. Monte Carlo method`, and `use tau leaping`
   - integration settings round-trip through project save/load
@@ -137,6 +141,6 @@ This file tracks implementation evidence against `plan4.md`.
 
 - M24 drag/drop slot assignment interaction
 - M27 PDE-specific numerical semantics for advanced commands beyond supplied-state helpers
-- M29 multi-script debugger panes and edit-in-place workflow
+- M29 debugger move-to-window workflow
 - M32 true moments backend and Monte Carlo/tau-leaping numerical execution
 - M31 fuller screenshot/manual expansion for GUI-specific tutorial dialogs
