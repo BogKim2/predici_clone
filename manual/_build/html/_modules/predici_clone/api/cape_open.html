@@ -52,11 +52,14 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">설치</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">빠른 시작</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials.html">Tutorial Workflows</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../gui.html">GUI 사용법</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../projects.html">프로젝트와 Recipe</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../outputs.html">Outputs와 Reports</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../fitting.html">Parameter Estimation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../packaging.html">패키징</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../v2_systems.html">Version 2 Systems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../manual_suite.html">Manual Reproduction Suite</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">개발자 문서</span></p>
 <ul>
@@ -99,6 +102,8 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">predici_clone.api.project_schema</span><span class="w"> </span><span class="kn">import</span> <span class="n">Project</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">predici_clone.thermo.flash</span><span class="w"> </span><span class="kn">import</span> <span class="n">FlashResult</span><span class="p">,</span> <span class="n">pt_flash</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">predici_clone.thermo.peng_robinson</span><span class="w"> </span><span class="kn">import</span> <span class="n">PengRobinsonEOS</span>
 
 
 <div class="viewcode-block" id="CapeOpenCapability">
@@ -129,7 +134,7 @@
         <span class="n">reactors</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">kind</span> <span class="k">for</span> <span class="n">kind</span> <span class="ow">in</span> <span class="n">reactors</span> <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="n">project</span><span class="o">.</span><span class="n">reactor</span><span class="o">.</span><span class="n">kind</span><span class="p">)</span> <span class="ow">or</span> <span class="n">reactors</span>
     <span class="k">return</span> <span class="n">CapeOpenCapability</span><span class="p">(</span>
         <span class="n">component_name</span><span class="o">=</span><span class="s2">&quot;PrediciClone&quot;</span><span class="p">,</span>
-        <span class="n">version</span><span class="o">=</span><span class="s2">&quot;0.1&quot;</span><span class="p">,</span>
+        <span class="n">version</span><span class="o">=</span><span class="s2">&quot;2.0&quot;</span><span class="p">,</span>
         <span class="n">supported_reactors</span><span class="o">=</span><span class="n">reactors</span><span class="p">,</span>
         <span class="n">supported_operations</span><span class="o">=</span><span class="p">(</span>
             <span class="s2">&quot;material_balance&quot;</span><span class="p">,</span>
@@ -137,10 +142,13 @@
             <span class="s2">&quot;distribution_moments&quot;</span><span class="p">,</span>
             <span class="s2">&quot;parameter_estimation&quot;</span><span class="p">,</span>
             <span class="s2">&quot;public_command_dispatch&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;peng_robinson_fugacity&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pt_flash&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;mixture_density&quot;</span><span class="p">,</span>
         <span class="p">),</span>
         <span class="n">supports_dynamic_simulation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">supports_parameter_estimation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">notes</span><span class="o">=</span><span class="s2">&quot;Capability descriptor for future CAPE-OPEN wrapping; not a COM registration.&quot;</span><span class="p">,</span>
+        <span class="n">notes</span><span class="o">=</span><span class="s2">&quot;In-process Peng-Robinson property package; this is not a COM registration, and optional COM wrapping remains adapter-specific.&quot;</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 
@@ -158,6 +166,15 @@
         <span class="p">},</span>
     <span class="p">}</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">cape_open_pt_flash</span><span class="p">(</span>
+    <span class="n">eos</span><span class="p">:</span> <span class="n">PengRobinsonEOS</span><span class="p">,</span>
+    <span class="n">temperature</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">pressure</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">composition</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FlashResult</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">pt_flash</span><span class="p">(</span><span class="n">eos</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">pressure</span><span class="p">,</span> <span class="n">composition</span><span class="p">)</span>
 </pre></div>
 
           </div>
