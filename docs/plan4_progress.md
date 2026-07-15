@@ -48,6 +48,12 @@ This file tracks implementation evidence against `plan4.md`.
   - evaluates modifier scripts through the safe command namespace
   - supports multi-result scripts (`result1`, `result2`, ...) for multi-coefficient reaction steps
   - tests: `tests/test_reaction_modifiers.py`
+- M26 chart/reference/GPC weighting core foundation
+  - `ChartConfig` for distribution/moment/Monte Carlo chart options
+  - GPC `W(log M)` profile calculation (`P(s) * s^2`)
+  - reference `.dat`, structured `.npz`, and two-column GPC CSV IO paths
+  - `gpc_tail` residual weighting contract
+  - tests: `tests/test_chart_reference_io.py`
 - M29/M32 run-control engine foundation
   - `SimulationEngine.run_to_time(t)` API
   - `SimulationEngine.single_step()` API
@@ -60,7 +66,7 @@ This file tracks implementation evidence against `plan4.md`.
 - M23 component administration GUI polish
 - M24 PatternFinder-style GUI integration and richer template catalog
 - M25 recipe consistency GUI workflow
-- M26 chart administration/reference data
+- M26 chart administration GUI and components information board
 - M27 GUI catalog rendering and additional command implementations
 - M28 GUI integration and modifier-to-engine execution hooks
 - M29 GUI debugger/multi-script panes and edit-in-place workflow

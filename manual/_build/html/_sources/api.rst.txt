@@ -84,6 +84,10 @@ Postprocess
    :members:
    :undoc-members:
 
+.. automodule:: predici_clone.postprocess.charting
+   :members:
+   :undoc-members:
+
 .. automodule:: predici_clone.postprocess.gpc
    :members:
    :undoc-members:
