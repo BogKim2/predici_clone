@@ -287,6 +287,27 @@ def test_main_window_model_builder_adds_reaction_step():
     app.processEvents()
 
 
+def test_main_window_run_control_populates_actual_values_table():
+    app = QApplication.instance() or QApplication([])
+    window = MainWindow()
+    window.t_final.setValue(2.0)
+    window.run_to_time_input.setValue(0.5)
+
+    window._run_to_time_from_controls()
+
+    assert window.current_result is not None
+    assert window.current_result.time[-1] == 0.5
+    assert window.actual_values_table.rowCount() == len(window.current_result.time)
+    assert window.actual_values_table.item(window.actual_values_table.rowCount() - 1, 1).text() == "0.5"
+
+    window._single_step_from_controls()
+
+    assert window.current_result.time[-1] > 0.5
+    assert window.actual_values_table.rowCount() == len(window.current_result.time)
+    window.close()
+    app.processEvents()
+
+
 def test_main_window_model_builder_applies_reaction_table_edits():
     app = QApplication.instance() or QApplication([])
     window = MainWindow()

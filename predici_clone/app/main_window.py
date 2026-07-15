@@ -517,11 +517,20 @@ class MainWindow(QMainWindow):
         buttons = QHBoxLayout()
         run = QPushButton("Run")
         run.clicked.connect(self._start_simulation_worker)
+        self.run_to_time_input = self._double_spin(0.0, 10000.0, 1.0)
+        run_to_time = QPushButton("Proc")
+        run_to_time.clicked.connect(self._run_to_time_from_controls)
+        single_step = QPushButton("1 Step")
+        single_step.clicked.connect(self._single_step_from_controls)
         load = QPushButton("Benchmark")
         load.clicked.connect(self._load_benchmark)
         save = QPushButton("Save CSV")
         save.clicked.connect(self._save_report)
         buttons.addWidget(run)
+        buttons.addWidget(QLabel("End time"))
+        buttons.addWidget(self.run_to_time_input)
+        buttons.addWidget(run_to_time)
+        buttons.addWidget(single_step)
         buttons.addWidget(load)
         buttons.addWidget(save)
         layout.addLayout(buttons)
@@ -535,7 +544,13 @@ class MainWindow(QMainWindow):
         self.live_table.setHorizontalHeaderLabels(["time", "Mn", "Mw", "PDI"])
         self.live_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.live_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.actual_values_table = QTableWidget(0, 4)
+        self.actual_values_table.setHorizontalHeaderLabels(["step", "time", "stepsize", "variables"])
+        self.actual_values_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.actual_values_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         layout.addWidget(self.live_table)
+        layout.addWidget(QLabel("Actual values"))
+        layout.addWidget(self.actual_values_table)
         return panel
 
     def _project_from_controls(self) -> Project:
@@ -962,11 +977,41 @@ class MainWindow(QMainWindow):
         except Exception as exc:
             QMessageBox.critical(self, "Simulation failed", str(exc))
 
+    def _run_to_time_from_controls(self) -> None:
+        try:
+            self.project = self._project_from_controls()
+            self._log_validation_messages(self.project)
+            self._populate_project_tree()
+            result = SimulationEngine(self.project).run_to_time(self.run_to_time_input.value())
+            if not result.success:
+                raise RuntimeError(result.message)
+            self._set_result(result)
+            self._append_log(f"Ran to t={result.time[-1]:.6g}")
+        except Exception as exc:
+            QMessageBox.critical(self, "Run-to-time failed", str(exc))
+
+    def _single_step_from_controls(self) -> None:
+        try:
+            self.project = self._project_from_controls()
+            self._log_validation_messages(self.project)
+            self._populate_project_tree()
+            engine = SimulationEngine(self.project)
+            if self.current_result is not None:
+                engine.run_to_time(float(self.current_result.time[-1]))
+            result = engine.single_step()
+            if not result.success:
+                raise RuntimeError(result.message)
+            self._set_result(result)
+            self._append_log(f"Single step to t={result.time[-1]:.6g}")
+        except Exception as exc:
+            QMessageBox.critical(self, "Single step failed", str(exc))
+
     def _start_simulation_worker(self) -> None:
         if self._thread is not None:
             return
         self.progress.setValue(0)
         self.live_table.setRowCount(0)
+        self.actual_values_table.setRowCount(0)
         self._thread = QThread(self)
         self.project = self._project_from_controls()
         self._populate_project_tree()
@@ -1040,7 +1085,17 @@ class MainWindow(QMainWindow):
                 "solver": result.metadata.get("solver_status"),
             }
         )
+        self._populate_actual_values_table(result)
         self.progress.setValue(100)
+
+    def _populate_actual_values_table(self, result: SimulationResult) -> None:
+        rows = result.actual_values_history()
+        self.actual_values_table.setRowCount(len(rows))
+        for row, values in enumerate(rows):
+            for column, key in enumerate(("step_index", "time", "stepsize", "n_variables")):
+                value = values[key]
+                text = str(int(value)) if key in {"step_index", "n_variables"} else f"{value:.6g}"
+                self.actual_values_table.setItem(row, column, QTableWidgetItem(text))
 
     def _sync_fitting_target_from_result(self, result: SimulationResult) -> None:
         if not hasattr(self, "fitting_target_table"):
@@ -1672,6 +1727,7 @@ class MainWindow(QMainWindow):
         self.reactor_kind.setCurrentText(project.reactor.kind)
         self.nmax.setValue(project.reactor.nmax)
         self.t_final.setValue(project.recipe.integration.t_final)
+        self.run_to_time_input.setValue(project.recipe.integration.t_final)
         self.backend.setCurrentText(project.recipe.integration.backend)
         self.galerkin_cells.setValue(project.recipe.integration.galerkin_cells)
         self.galerkin_degree.setValue(project.recipe.integration.galerkin_degree)

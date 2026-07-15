@@ -60,6 +60,10 @@ This file tracks implementation evidence against `plan4.md`.
   - `SimulationResult.actual_values_history()` plus result metadata for step/time/stepsize/n_variables
   - deterministic final-time resume check against full run
   - tests: `tests/test_run_control.py`
+- M29/M32 run-control GUI foundation
+  - Simulation tab exposes `Proc` run-to-time and `1 Step` controls
+  - Actual values table renders step/time/stepsize/n_variables
+  - tests: `tests/test_postprocess_and_gui.py`
 - M31 tutorial manual/regression foundation
   - `manual/tutorials.rst` documents polyethylene, Oregonator, run-control, script modifier, and chart/reference workflows
   - quickstart includes tutorial smoke commands
@@ -74,6 +78,6 @@ This file tracks implementation evidence against `plan4.md`.
 - M26 chart administration GUI and components information board
 - M27 GUI catalog rendering and additional command implementations
 - M28 GUI integration and modifier-to-engine execution hooks
-- M29 GUI debugger/multi-script panes and edit-in-place workflow
-- M32 GUI simulation-mode controls and moments backend
+- M29 multi-script debugger panes and edit-in-place workflow
+- M32 moments backend and Monte Carlo/tau-leaping GUI stubs
 - M31 fuller screenshot/manual expansion for GUI-specific tutorial dialogs
