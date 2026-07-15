@@ -557,6 +557,13 @@ def test_main_window_inspector_shows_validation_messages():
     }
     assert values["validation errors"] == "1"
     assert any("reactor.nmax" in value for value in values.values())
+    error_rows = [
+        row
+        for row in range(window.inspector.rowCount())
+        if window.inspector.item(row, 0).text().startswith("error ")
+    ]
+    assert error_rows
+    assert window.inspector.item(error_rows[0], 0).background().color().name() == "#fee2e2"
     window.close()
     app.processEvents()
 

@@ -2706,6 +2706,32 @@ class MainWindow(QMainWindow):
         for index, message in enumerate(messages[:8], start=1):
             values[f"{message.severity} {index}"] = f"{message.path}: {message.message}"
         self._populate_inspector(values)
+        self._style_validation_rows()
+
+    def _style_validation_rows(self) -> None:
+        for row in range(self.inspector.rowCount()):
+            key_item = self.inspector.item(row, 0)
+            if key_item is None:
+                continue
+            key = key_item.text()
+            color = None
+            if key.startswith("error "):
+                color = QColor("#fee2e2")
+            elif key.startswith("warning "):
+                color = QColor("#fef3c7")
+            elif key in {"validation errors", "validation warnings"}:
+                try:
+                    count = int(float(self.inspector.item(row, 1).text()))
+                except (AttributeError, ValueError):
+                    count = 0
+                if count > 0:
+                    color = QColor("#fee2e2" if key.endswith("errors") else "#fef3c7")
+            if color is None:
+                continue
+            for column in range(self.inspector.columnCount()):
+                item = self.inspector.item(row, column)
+                if item is not None:
+                    item.setBackground(color)
 
     def _log_validation_messages(self, project: Project) -> None:
         messages = validate_project(project)

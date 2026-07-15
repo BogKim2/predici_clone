@@ -34,6 +34,9 @@ This file tracks implementation evidence against `plan4.md`.
   - Substance and polymer species tables expose phase setting, density mode, linear density coefficients, and heat-capacity coefficients
   - schema round-trip preserves phase/thermo fields
   - tests: `tests/test_component_admin.py`, `tests/test_postprocess_and_gui.py`
+- M23 validation styling in GUI
+  - Project inspector highlights validation error and warning rows with severity-specific backgrounds
+  - tests: `tests/test_postprocess_and_gui.py`, `tests/test_project_validation.py`
 - M24 PatternFinder-style reaction builder service foundation
   - searchable reaction pattern catalog
   - polymer reaction step builder with auto-declared species and parameters
@@ -132,7 +135,6 @@ This file tracks implementation evidence against `plan4.md`.
 
 ## Still Incomplete
 
-- M23 validation styling in GUI
 - M24 drag/drop slot assignment interaction
 - M27 PDE-specific numerical semantics for advanced commands beyond supplied-state helpers
 - M29 multi-script debugger panes and edit-in-place workflow
