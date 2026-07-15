@@ -60,6 +60,7 @@ from predici_clone.api import (
     fill_remainder,
     load_project,
     make_concentration_consistent,
+    normalize_recipe_components,
     save_simulation_result,
     save_project,
 )
@@ -458,6 +459,8 @@ class MainWindow(QMainWindow):
         add_schedule.clicked.connect(self._add_schedule_action_from_widgets)
         add_consistency = QPushButton("Add Consistency Row")
         add_consistency.clicked.connect(self._add_recipe_consistency_row)
+        normalize_recipe = QPushButton("Normalize Mode")
+        normalize_recipe.clicked.connect(self._normalize_recipe_consistency_mode)
         set_concentration = QPushButton("Set Concentration Consistent")
         set_concentration.clicked.connect(self._set_recipe_concentration_consistent)
         set_rest = QPushButton("Set Rest")
@@ -478,15 +481,41 @@ class MainWindow(QMainWindow):
         consistency_buttons = QHBoxLayout()
         self.recipe_consistency_target = QComboBox()
         self.recipe_consistency_target.addItem("rest")
+        self.recipe_input_mode = QComboBox()
+        self.recipe_input_mode.addItems(
+            [
+                "absolute_mass",
+                "mass_part_total_mass",
+                "absolute_mole",
+                "mole_part",
+                "concentration_and_volume",
+                "mass_part_total_mole",
+                "mole_part_total_mass",
+            ]
+        )
+        self.recipe_basis_volume = self._double_spin(0.0, 1000000.0, 1.0)
+        self.recipe_basis_total_mass = self._double_spin(0.0, 1000000.0, 1.0)
+        self.recipe_basis_total_moles = self._double_spin(0.0, 1000000.0, 1.0)
         consistency_buttons.addWidget(QLabel("Target"))
         consistency_buttons.addWidget(self.recipe_consistency_target)
+        consistency_buttons.addWidget(QLabel("Input as"))
+        consistency_buttons.addWidget(self.recipe_input_mode)
+        consistency_buttons.addWidget(QLabel("Volume"))
+        consistency_buttons.addWidget(self.recipe_basis_volume)
+        consistency_buttons.addWidget(QLabel("Mass"))
+        consistency_buttons.addWidget(self.recipe_basis_total_mass)
+        consistency_buttons.addWidget(QLabel("Moles"))
+        consistency_buttons.addWidget(self.recipe_basis_total_moles)
         consistency_buttons.addWidget(add_consistency)
+        consistency_buttons.addWidget(normalize_recipe)
         consistency_buttons.addWidget(set_concentration)
         consistency_buttons.addWidget(set_rest)
         consistency_buttons.addStretch(1)
         self.recipe_consistency_sum = QLabel("sum: 0")
-        self.recipe_consistency_table = QTableWidget(0, 6)
-        self.recipe_consistency_table.setHorizontalHeaderLabels(["name", "MW", "density", "concentration", "mass part", "mole part"])
+        self.recipe_consistency_table = QTableWidget(0, 8)
+        self.recipe_consistency_table.setHorizontalHeaderLabels(
+            ["name", "MW", "density", "mass", "moles", "concentration", "mass part", "mole part"]
+        )
         self.recipe_consistency_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         layout.addLayout(buttons)
         layout.addLayout(schedule_buttons)
@@ -1043,7 +1072,7 @@ class MainWindow(QMainWindow):
         row = self.recipe_consistency_table.rowCount()
         self.recipe_consistency_table.insertRow(row)
         name = "rest" if row == 0 else f"component_{row + 1}"
-        for column, value in enumerate((name, "100.0", "1000.0", "0.0", "0.0", "0.0")):
+        for column, value in enumerate((name, "100.0", "1000.0", "0.0", "0.0", "0.0", "0.0", "0.0")):
             self.recipe_consistency_table.setItem(row, column, QTableWidgetItem(value))
         self._refresh_recipe_consistency_targets()
 
@@ -1065,6 +1094,24 @@ class MainWindow(QMainWindow):
         except Exception as exc:
             QMessageBox.critical(self, "Set rest failed", str(exc))
 
+    def _normalize_recipe_consistency_mode(self) -> None:
+        try:
+            mode = self.recipe_input_mode.currentText()
+            composition = normalize_recipe_components(
+                mode,
+                self._recipe_consistency_components(),
+                volume=self.recipe_basis_volume.value(),
+                total_mass=self.recipe_basis_total_mass.value(),
+                total_moles=self.recipe_basis_total_moles.value(),
+            )
+            self._set_recipe_consistency_components(composition.components)
+            self.recipe_consistency_sum.setText(
+                f"sum: {composition.consistency_sum:.6g} | volume: {composition.volume:.6g}"
+            )
+            self._append_log(f"Normalized recipe mode: {mode}")
+        except Exception as exc:
+            QMessageBox.critical(self, "Normalize recipe failed", str(exc))
+
     def _recipe_consistency_components(self) -> tuple[RecipeComponent, ...]:
         components: list[RecipeComponent] = []
         for row in range(self.recipe_consistency_table.rowCount()):
@@ -1076,9 +1123,11 @@ class MainWindow(QMainWindow):
                     name=name,
                     molecular_weight=self._table_float(self.recipe_consistency_table, row, 1, 0.0),
                     density=self._table_float(self.recipe_consistency_table, row, 2, 0.0),
-                    concentration=self._table_float(self.recipe_consistency_table, row, 3, 0.0),
-                    mass_part=self._table_float(self.recipe_consistency_table, row, 4, 0.0),
-                    mole_part=self._table_float(self.recipe_consistency_table, row, 5, 0.0),
+                    mass=self._table_float(self.recipe_consistency_table, row, 3, 0.0),
+                    moles=self._table_float(self.recipe_consistency_table, row, 4, 0.0),
+                    concentration=self._table_float(self.recipe_consistency_table, row, 5, 0.0),
+                    mass_part=self._table_float(self.recipe_consistency_table, row, 6, 0.0),
+                    mole_part=self._table_float(self.recipe_consistency_table, row, 7, 0.0),
                 )
             )
         return tuple(components)
@@ -1090,6 +1139,8 @@ class MainWindow(QMainWindow):
                 component.name,
                 component.molecular_weight,
                 component.density,
+                component.mass,
+                component.moles,
                 component.concentration,
                 component.mass_part,
                 component.mole_part,

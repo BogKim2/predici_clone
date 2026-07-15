@@ -708,25 +708,52 @@ def test_main_window_recipe_consistency_buttons_update_table():
     window.recipe_consistency_table.item(0, 0).setText("A")
     window.recipe_consistency_table.item(0, 1).setText("100")
     window.recipe_consistency_table.item(0, 2).setText("800")
-    window.recipe_consistency_table.item(0, 3).setText("4")
-    window.recipe_consistency_table.item(0, 4).setText("0.7")
+    window.recipe_consistency_table.item(0, 5).setText("4")
+    window.recipe_consistency_table.item(0, 6).setText("0.7")
     window._add_recipe_consistency_row()
     window.recipe_consistency_table.item(1, 0).setText("B")
     window.recipe_consistency_table.item(1, 1).setText("50")
     window.recipe_consistency_table.item(1, 2).setText("1000")
-    window.recipe_consistency_table.item(1, 3).setText("0")
-    window.recipe_consistency_table.item(1, 4).setText("0")
+    window.recipe_consistency_table.item(1, 5).setText("0")
+    window.recipe_consistency_table.item(1, 6).setText("0")
     window._refresh_recipe_consistency_targets()
     window.recipe_consistency_target.setCurrentText("B")
 
     window._set_recipe_concentration_consistent()
 
-    assert window.recipe_consistency_table.item(1, 3).text() == "10"
+    assert window.recipe_consistency_table.item(1, 5).text() == "10"
     assert window.recipe_consistency_sum.text() == "sum: 1"
 
     window._set_recipe_rest()
 
-    assert window.recipe_consistency_table.item(1, 4).text() == "0.3"
+    assert window.recipe_consistency_table.item(1, 6).text() == "0.3"
+    window.close()
+    app.processEvents()
+
+
+def test_main_window_recipe_consistency_mode_selector_normalizes_table():
+    app = QApplication.instance() or QApplication([])
+    window = MainWindow()
+    window._add_recipe_consistency_row()
+    window.recipe_consistency_table.item(0, 0).setText("A")
+    window.recipe_consistency_table.item(0, 1).setText("100")
+    window.recipe_consistency_table.item(0, 2).setText("1000")
+    window.recipe_consistency_table.item(0, 6).setText("0.25")
+    window._add_recipe_consistency_row()
+    window.recipe_consistency_table.item(1, 0).setText("B")
+    window.recipe_consistency_table.item(1, 1).setText("50")
+    window.recipe_consistency_table.item(1, 2).setText("800")
+    window.recipe_consistency_table.item(1, 6).setText("0.75")
+    window.recipe_input_mode.setCurrentText("mass_part_total_mass")
+    window.recipe_basis_total_mass.setValue(20.0)
+
+    window._normalize_recipe_consistency_mode()
+
+    assert window.recipe_consistency_table.item(0, 3).text() == "5"
+    assert window.recipe_consistency_table.item(1, 3).text() == "15"
+    assert float(window.recipe_consistency_table.item(0, 4).text()) == 0.05
+    assert float(window.recipe_consistency_table.item(1, 4).text()) == 0.3
+    assert "volume:" in window.recipe_consistency_sum.text()
     window.close()
     app.processEvents()
 
