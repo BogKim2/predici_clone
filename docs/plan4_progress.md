@@ -48,6 +48,12 @@ This file tracks implementation evidence against `plan4.md`.
   - evaluates modifier scripts through the safe command namespace
   - supports multi-result scripts (`result1`, `result2`, ...) for multi-coefficient reaction steps
   - tests: `tests/test_reaction_modifiers.py`
+- M29/M32 run-control engine foundation
+  - `SimulationEngine.run_to_time(t)` API
+  - `SimulationEngine.single_step()` API
+  - `SimulationResult.actual_values_history()` plus result metadata for step/time/stepsize/n_variables
+  - deterministic final-time resume check against full run
+  - tests: `tests/test_run_control.py`
 
 ## Still Incomplete
 
@@ -57,5 +63,6 @@ This file tracks implementation evidence against `plan4.md`.
 - M26 chart administration/reference data
 - M27 GUI catalog rendering and additional command implementations
 - M28 GUI integration and modifier-to-engine execution hooks
-- M29 script debugger and run-to-time control
+- M29 GUI debugger/multi-script panes and edit-in-place workflow
+- M32 GUI simulation-mode controls and moments backend
 - M31 tutorial manual expansion and full regression suite

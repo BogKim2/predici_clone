@@ -45,6 +45,7 @@ class SimulationCallbacks:
 class SimulationEngine:
     def __init__(self, project: Project) -> None:
         self.project = project
+        self._last_result: SimulationResult | None = None
 
     def run(self, request: SimulationRequest | None = None, callbacks: SimulationCallbacks | None = None) -> SimulationResult:
         request = request or SimulationRequest()
@@ -59,6 +60,7 @@ class SimulationEngine:
         self._log(callbacks, f"Running {project.reactor.kind} simulation to t={t_final:g}")
         if project.general_kinetic_steps:
             result = self._run_general_kinetics(project, (0.0, t_final), t_eval)
+            result = self._with_actual_values_metadata(result)
             self._emit_general_steps(callbacks, result)
             if callbacks.on_progress:
                 callbacks.on_progress(1.0)
@@ -68,6 +70,7 @@ class SimulationEngine:
             if project.heat_balance.enabled:
                 result = self._apply_heat_balance(project, result)
             result = self._apply_recipe_profiles(project, result, t_final)
+            result = self._with_actual_values_metadata(result)
             self._emit_steps(callbacks, result)
             if callbacks.on_progress:
                 callbacks.on_progress(1.0)
@@ -82,6 +85,7 @@ class SimulationEngine:
                 else self._run_coupled_thermal_process(project, (0.0, t_final), t_eval)
             )
             result = self._apply_recipe_profiles(project, result, t_final)
+            result = self._with_actual_values_metadata(result)
             self._emit_steps(callbacks, result)
             if callbacks.on_progress:
                 callbacks.on_progress(1.0)
@@ -123,9 +127,27 @@ class SimulationEngine:
         if project.heat_balance.enabled:
             result = self._apply_heat_balance(project, result)
         result = self._apply_recipe_profiles(project, result, t_final)
+        result = self._with_actual_values_metadata(result)
         self._emit_steps(callbacks, result)
         if callbacks.on_progress:
             callbacks.on_progress(1.0)
+        return result
+
+    def run_to_time(self, time: float, callbacks: SimulationCallbacks | None = None) -> SimulationResult:
+        target = max(0.0, min(float(time), float(self.project.recipe.integration.t_final)))
+        output_points = self._output_points_for_target(target)
+        result = self.run(SimulationRequest(t_final=target, output_points=output_points), callbacks=callbacks)
+        result = self._with_run_control_metadata(result, target_time=target, requested_step=False)
+        self._last_result = result
+        return result
+
+    def single_step(self, callbacks: SimulationCallbacks | None = None) -> SimulationResult:
+        step = self._default_step_size()
+        current = 0.0 if self._last_result is None else float(self._last_result.time[-1])
+        target = min(current + step, float(self.project.recipe.integration.t_final))
+        result = self.run_to_time(target, callbacks=callbacks)
+        result = self._with_run_control_metadata(result, target_time=target, requested_step=True)
+        self._last_result = result
         return result
 
     def _build_reactor(self, project: Project):
@@ -1101,6 +1123,63 @@ class SimulationEngine:
             state_history=solution.y,
             distribution_history=distribution,
             metadata={"solver_status": getattr(solution, "status", None)},
+        )
+
+    def _output_points_for_target(self, target: float) -> int:
+        integration = self.project.recipe.integration
+        if target <= 0.0:
+            return 2
+        full_time = max(float(integration.t_final), 1e-12)
+        fraction = min(float(target) / full_time, 1.0)
+        return max(2, int(round(max(int(integration.output_points), 2) * fraction)))
+
+    def _default_step_size(self) -> float:
+        integration = self.project.recipe.integration
+        intervals = max(int(integration.output_points) - 1, 1)
+        return float(integration.t_final) / intervals
+
+    @staticmethod
+    def _with_actual_values_metadata(result: SimulationResult) -> SimulationResult:
+        actual_values = result.actual_values_history()
+        metadata = {
+            **result.metadata,
+            "actual_values": actual_values,
+            "step_index": int(len(actual_values) - 1),
+            "stepsize": float(actual_values[-1]["stepsize"]) if actual_values else 0.0,
+            "n_variables": int(result.state_history.shape[0]),
+        }
+        return SimulationResult(
+            success=result.success,
+            message=result.message,
+            reactor_kind=result.reactor_kind,
+            time=result.time,
+            state_history=result.state_history,
+            distribution_history=result.distribution_history,
+            first_length=result.first_length,
+            metadata=metadata,
+        )
+
+    @staticmethod
+    def _with_run_control_metadata(result: SimulationResult, *, target_time: float, requested_step: bool) -> SimulationResult:
+        metadata = {
+            **result.metadata,
+            "run_control": {
+                "target_time": float(target_time),
+                "requested_step": bool(requested_step),
+                "step_index": int(result.metadata.get("step_index", max(len(result.time) - 1, 0))),
+                "stepsize": float(result.metadata.get("stepsize", 0.0)),
+                "n_variables": int(result.metadata.get("n_variables", result.state_history.shape[0])),
+            },
+        }
+        return SimulationResult(
+            success=result.success,
+            message=result.message,
+            reactor_kind=result.reactor_kind,
+            time=result.time,
+            state_history=result.state_history,
+            distribution_history=result.distribution_history,
+            first_length=result.first_length,
+            metadata=metadata,
         )
 
     @staticmethod

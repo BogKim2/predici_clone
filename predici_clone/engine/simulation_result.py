@@ -37,3 +37,17 @@ class SimulationResult:
             "Mw": np.asarray([report.mw for report in reports]),
             "PDI": np.asarray([report.pdi for report in reports]),
         }
+
+    def actual_values_history(self) -> list[dict[str, float]]:
+        rows: list[dict[str, float]] = []
+        for index, time in enumerate(self.time):
+            previous = self.time[index - 1] if index else time
+            rows.append(
+                {
+                    "step_index": float(index),
+                    "time": float(time),
+                    "stepsize": float(time - previous),
+                    "n_variables": float(self.state_history.shape[0]),
+                }
+            )
+        return rows
