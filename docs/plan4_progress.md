@@ -88,6 +88,12 @@ This file tracks implementation evidence against `plan4.md`.
   - implements `weightedmy`, `getkpreac`, `addvalue`, `getuxr`, `getkpt`, and `getkptp` in the safe command namespace
   - command catalog now marks these helpers as implemented
   - tests: `tests/test_script_catalog.py`
+- M27 PDE-style numerical semantics for advanced script commands
+  - `weightedmy` applies supplied moment weights when precomputed weighted moments are absent
+  - `getkpt` interpolates time-dependent parameter profiles when exact time values are not supplied
+  - `getkptp` interpolates time/position parameter surfaces with bilinear grid interpolation and sparse inverse-distance fallback
+  - `getuxr` interpolates reactor profile values by position when exact reactor values are not supplied
+  - tests: `tests/test_script_catalog.py`
 - M28 script-driven reaction modifier foundation
   - parses `k(File)` replacement and `k*File` multiplier forms
   - evaluates modifier scripts through the safe command namespace
@@ -162,4 +168,4 @@ This file tracks implementation evidence against `plan4.md`.
 
 ## Still Incomplete
 
-- M27 PDE-specific numerical semantics for advanced commands beyond supplied-state helpers
+- None.

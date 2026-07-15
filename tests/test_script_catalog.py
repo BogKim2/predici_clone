@@ -60,3 +60,21 @@ result = weightedmy("Mw") + getkpreac("kp", "r1") + getkpt("kp", 5.0) + getkptp(
 
     assert value == 180.0 + 0.3 + 0.4 + 0.5 + 2.5 + 3.0
     assert state.variables["acc"] == 3.0
+
+
+def test_script_commands_interpolate_profiles_for_pde_style_helpers():
+    state = ScriptCommandState(
+        moments={"Mw": 120.0},
+        moment_weights={"Mw": 1.5},
+        parameters={"kp": 0.2},
+        parameter_profiles={"kp": ((0.0, 1.0), (10.0, 3.0))},
+        parameter_surfaces={"kp": ((0.0, 0.0, 1.0), (10.0, 0.0, 3.0), (0.0, 1.0, 5.0), (10.0, 1.0, 7.0))},
+        reactor_profiles={"R1": ((0.0, 2.0), (1.0, 6.0))},
+    )
+    script = """
+result = weightedmy("Mw") + getkpt("kp", 5.0) + getkptp("kp", 5.0, 0.5) + getuxr("R1", 0.25)
+"""
+
+    value = evaluate_expression(script, script_command_namespace(state))
+
+    assert value == 180.0 + 2.0 + 4.0 + 3.0
