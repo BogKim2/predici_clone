@@ -1,7 +1,7 @@
 import numpy as np
 
 from predici_clone.api import IntegrationControl, Project, ReactorConfig, Recipe
-from predici_clone.engine import SimulationEngine
+from predici_clone.engine import SimulationEngine, SimulationRequest
 
 
 def _project() -> Project:
@@ -42,3 +42,23 @@ def test_run_to_time_final_matches_full_run():
 
     assert np.allclose(resumed.state_history[:, -1], full.state_history[:, -1])
     assert np.allclose(resumed.final_distribution, full.final_distribution)
+
+
+def test_simulation_mode_flags_are_recorded_in_result_metadata():
+    project = Project(
+        recipe=Recipe(
+            integration=IntegrationControl(
+                t_final=1.0,
+                output_points=5,
+                simulation_mode="moments",
+                include_monte_carlo=True,
+                use_tau_leaping=True,
+            )
+        )
+    )
+
+    result = SimulationEngine(project).run(SimulationRequest(mode="moments"))
+
+    assert result.metadata["simulation_mode"] == "moments"
+    assert result.metadata["include_monte_carlo"] is True
+    assert result.metadata["use_tau_leaping"] is True

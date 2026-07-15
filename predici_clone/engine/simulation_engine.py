@@ -32,6 +32,7 @@ from predici_clone.engine.simulation_result import SimulationResult
 class SimulationRequest:
     t_final: float | None = None
     output_points: int | None = None
+    mode: str | None = None
 
 
 @dataclass
@@ -61,6 +62,7 @@ class SimulationEngine:
         if project.general_kinetic_steps:
             result = self._run_general_kinetics(project, (0.0, t_final), t_eval)
             result = self._with_actual_values_metadata(result)
+            result = self._with_simulation_mode_metadata(result, project, request)
             self._emit_general_steps(callbacks, result)
             if callbacks.on_progress:
                 callbacks.on_progress(1.0)
@@ -71,6 +73,7 @@ class SimulationEngine:
                 result = self._apply_heat_balance(project, result)
             result = self._apply_recipe_profiles(project, result, t_final)
             result = self._with_actual_values_metadata(result)
+            result = self._with_simulation_mode_metadata(result, project, request)
             self._emit_steps(callbacks, result)
             if callbacks.on_progress:
                 callbacks.on_progress(1.0)
@@ -86,6 +89,7 @@ class SimulationEngine:
             )
             result = self._apply_recipe_profiles(project, result, t_final)
             result = self._with_actual_values_metadata(result)
+            result = self._with_simulation_mode_metadata(result, project, request)
             self._emit_steps(callbacks, result)
             if callbacks.on_progress:
                 callbacks.on_progress(1.0)
@@ -128,6 +132,7 @@ class SimulationEngine:
             result = self._apply_heat_balance(project, result)
         result = self._apply_recipe_profiles(project, result, t_final)
         result = self._with_actual_values_metadata(result)
+        result = self._with_simulation_mode_metadata(result, project, request)
         self._emit_steps(callbacks, result)
         if callbacks.on_progress:
             callbacks.on_progress(1.0)
@@ -136,7 +141,14 @@ class SimulationEngine:
     def run_to_time(self, time: float, callbacks: SimulationCallbacks | None = None) -> SimulationResult:
         target = max(0.0, min(float(time), float(self.project.recipe.integration.t_final)))
         output_points = self._output_points_for_target(target)
-        result = self.run(SimulationRequest(t_final=target, output_points=output_points), callbacks=callbacks)
+        result = self.run(
+            SimulationRequest(
+                t_final=target,
+                output_points=output_points,
+                mode=self.project.recipe.integration.simulation_mode,
+            ),
+            callbacks=callbacks,
+        )
         result = self._with_run_control_metadata(result, target_time=target, requested_step=False)
         self._last_result = result
         return result
@@ -1147,6 +1159,31 @@ class SimulationEngine:
             "step_index": int(len(actual_values) - 1),
             "stepsize": float(actual_values[-1]["stepsize"]) if actual_values else 0.0,
             "n_variables": int(result.state_history.shape[0]),
+        }
+        return SimulationResult(
+            success=result.success,
+            message=result.message,
+            reactor_kind=result.reactor_kind,
+            time=result.time,
+            state_history=result.state_history,
+            distribution_history=result.distribution_history,
+            first_length=result.first_length,
+            metadata=metadata,
+        )
+
+    @staticmethod
+    def _with_simulation_mode_metadata(
+        result: SimulationResult,
+        project: Project,
+        request: SimulationRequest,
+    ) -> SimulationResult:
+        integration = project.recipe.integration
+        mode = request.mode or integration.simulation_mode
+        metadata = {
+            **result.metadata,
+            "simulation_mode": mode,
+            "include_monte_carlo": bool(integration.include_monte_carlo),
+            "use_tau_leaping": bool(integration.use_tau_leaping),
         }
         return SimulationResult(
             success=result.success,

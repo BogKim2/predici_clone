@@ -277,6 +277,9 @@ def test_main_window_project_save_and_open_roundtrip(tmp_path):
     window.stages.setValue(9)
     window.axial_cells.setValue(15)
     window.backend.setCurrentText("galerkin_direct")
+    window.simulation_mode.setCurrentText("moments")
+    window.include_monte_carlo.setChecked(True)
+    window.use_tau_leaping.setChecked(True)
     window.galerkin_cells.setValue(11)
     window.galerkin_degree.setValue(3)
 
@@ -295,6 +298,9 @@ def test_main_window_project_save_and_open_roundtrip(tmp_path):
     assert window.stages.value() == 9
     assert window.axial_cells.value() == 15
     assert window.backend.currentText() == "galerkin_direct"
+    assert window.simulation_mode.currentText() == "moments"
+    assert window.include_monte_carlo.isChecked()
+    assert window.use_tau_leaping.isChecked()
     assert window.galerkin_cells.value() == 11
     assert window.galerkin_degree.value() == 3
     assert window.project_tree.topLevelItem(0).text(0) == "PREDICI Clone Project"

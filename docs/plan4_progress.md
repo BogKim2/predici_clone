@@ -89,6 +89,11 @@ This file tracks implementation evidence against `plan4.md`.
   - Simulation tab exposes `Proc` run-to-time and `1 Step` controls
   - Actual values table renders step/time/stepsize/n_variables
   - tests: `tests/test_postprocess_and_gui.py`
+- M32 simulation mode GUI/metadata foundation
+  - Simulation panel exposes `Distributions`/`Moments`, `incl. Monte Carlo method`, and `use tau leaping`
+  - integration settings round-trip through project save/load
+  - result metadata records selected simulation mode and Monte Carlo/tau-leaping flags
+  - tests: `tests/test_run_control.py`, `tests/test_postprocess_and_gui.py`
 - M31 tutorial manual/regression foundation
   - `manual/tutorials.rst` documents polyethylene, Oregonator, run-control, script modifier, and chart/reference workflows
   - quickstart includes tutorial smoke commands
@@ -104,5 +109,5 @@ This file tracks implementation evidence against `plan4.md`.
 - M27 additional command implementations beyond the tutorial-critical subset
 - M28 modifier-to-engine execution hooks
 - M29 multi-script debugger panes and edit-in-place workflow
-- M32 moments backend and Monte Carlo/tau-leaping GUI stubs
+- M32 true moments backend and Monte Carlo/tau-leaping numerical execution
 - M31 fuller screenshot/manual expansion for GUI-specific tutorial dialogs

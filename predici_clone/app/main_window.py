@@ -592,11 +592,16 @@ class MainWindow(QMainWindow):
         self.axial_cells = self._spin(1, 500, 12)
         self.backend = QComboBox()
         self.backend.addItems(["discrete", "galerkin", "galerkin_direct"])
+        self.simulation_mode = QComboBox()
+        self.simulation_mode.addItems(["distributions", "moments"])
+        self.include_monte_carlo = QCheckBox("incl. Monte Carlo method")
+        self.use_tau_leaping = QCheckBox("use tau leaping")
         self.galerkin_cells = self._spin(1, 200, 8)
         self.galerkin_degree = self._spin(0, 8, 2)
         for label, widget in [
             ("reactor", self.reactor_kind),
             ("backend", self.backend),
+            ("simulation mode", self.simulation_mode),
             ("n max", self.nmax),
             ("time", self.t_final),
             ("kp", self.kp),
@@ -612,6 +617,8 @@ class MainWindow(QMainWindow):
             ("Galerkin degree", self.galerkin_degree),
         ]:
             form.addRow(label, widget)
+        form.addRow("", self.include_monte_carlo)
+        form.addRow("", self.use_tau_leaping)
         layout.addWidget(reactor_box)
 
         benchmark_box = QGroupBox("Benchmarks")
@@ -687,6 +694,9 @@ class MainWindow(QMainWindow):
                     backend=self.backend.currentText(),
                     galerkin_cells=self.galerkin_cells.value(),
                     galerkin_degree=self.galerkin_degree.value(),
+                    simulation_mode=self.simulation_mode.currentText(),
+                    include_monte_carlo=self.include_monte_carlo.isChecked(),
+                    use_tau_leaping=self.use_tau_leaping.isChecked(),
                 ),
                 pre_schedule=list(self.project.recipe.pre_schedule),
                 temperature_profile=list(self.project.recipe.temperature_profile),
@@ -842,6 +852,9 @@ class MainWindow(QMainWindow):
             ("integration", "backend", recipe.integration.backend),
             ("integration", "galerkin_cells", recipe.integration.galerkin_cells),
             ("integration", "galerkin_degree", recipe.integration.galerkin_degree),
+            ("integration", "simulation_mode", recipe.integration.simulation_mode),
+            ("integration", "include_monte_carlo", recipe.integration.include_monte_carlo),
+            ("integration", "use_tau_leaping", recipe.integration.use_tau_leaping),
             ("reactor", "stages", self.project.reactor.stages),
             ("reactor", "axial_cells", self.project.reactor.axial_cells),
             ("profile", "temperature_points", len(recipe.temperature_profile)),
@@ -927,6 +940,17 @@ class MainWindow(QMainWindow):
                 backend=str(values.get(("integration", "backend"), recipe.integration.backend)),
                 galerkin_cells=self._int_value(values, ("integration", "galerkin_cells"), recipe.integration.galerkin_cells),
                 galerkin_degree=self._int_value(values, ("integration", "galerkin_degree"), recipe.integration.galerkin_degree),
+                simulation_mode=str(values.get(("integration", "simulation_mode"), recipe.integration.simulation_mode)),
+                include_monte_carlo=self._bool_value(
+                    values,
+                    ("integration", "include_monte_carlo"),
+                    recipe.integration.include_monte_carlo,
+                ),
+                use_tau_leaping=self._bool_value(
+                    values,
+                    ("integration", "use_tau_leaping"),
+                    recipe.integration.use_tau_leaping,
+                ),
             ),
             pre_schedule=self._schedule_from_recipe_table(values, recipe.pre_schedule),
             temperature_profile=self._profile_from_recipe_table(values, "temperature_profile", recipe.temperature_profile),
@@ -1578,6 +1602,9 @@ class MainWindow(QMainWindow):
                 backend=self.project.recipe.integration.backend,
                 galerkin_cells=self.project.recipe.integration.galerkin_cells,
                 galerkin_degree=self.project.recipe.integration.galerkin_degree,
+                simulation_mode=self.project.recipe.integration.simulation_mode,
+                include_monte_carlo=self.project.recipe.integration.include_monte_carlo,
+                use_tau_leaping=self.project.recipe.integration.use_tau_leaping,
             ),
             pre_schedule=list(self.project.recipe.pre_schedule),
             temperature_profile=list(self.project.recipe.temperature_profile),
@@ -1967,6 +1994,9 @@ class MainWindow(QMainWindow):
         self.t_final.setValue(project.recipe.integration.t_final)
         self.run_to_time_input.setValue(project.recipe.integration.t_final)
         self.backend.setCurrentText(project.recipe.integration.backend)
+        self.simulation_mode.setCurrentText(project.recipe.integration.simulation_mode)
+        self.include_monte_carlo.setChecked(project.recipe.integration.include_monte_carlo)
+        self.use_tau_leaping.setChecked(project.recipe.integration.use_tau_leaping)
         self.galerkin_cells.setValue(project.recipe.integration.galerkin_cells)
         self.galerkin_degree.setValue(project.recipe.integration.galerkin_degree)
         self.kp.setValue(project.kinetics.kp)

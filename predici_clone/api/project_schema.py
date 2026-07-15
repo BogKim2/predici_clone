@@ -56,6 +56,9 @@ class IntegrationControl:
     backend: str = "discrete"
     galerkin_cells: int = 8
     galerkin_degree: int = 2
+    simulation_mode: str = "distributions"
+    include_monte_carlo: bool = False
+    use_tau_leaping: bool = False
 
 
 @dataclass(frozen=True)
