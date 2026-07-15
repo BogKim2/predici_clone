@@ -44,10 +44,16 @@ from predici_clone.api import (
     InitialConditions,
     IntegrationControl,
     OutputConfig,
+    Parameter,
+    PolymerSpecies,
     Project,
     ProfilePoint,
     ReactorConfig,
     Recipe,
+    Substance,
+    add_parameter,
+    add_polymer_species,
+    add_substance,
     append_pre_schedule_step,
     load_project,
     save_simulation_result,
@@ -198,12 +204,14 @@ class MainWindow(QMainWindow):
         self.simulation_tab = self._build_simulation_tab()
         self.mwd_tab = self._build_mwd_tab()
         self.model_builder_tab = self._build_model_builder_tab()
+        self.component_tab = self._build_component_tab()
         self.recipe_tab = self._build_recipe_tab()
         self.fitting_tab = self._build_fitting_tab()
         self.script_tab = self._build_script_tab()
 
         self.tabs.addTab(self.dashboard_tab, "Dashboard")
         self.tabs.addTab(self.model_builder_tab, "Model Builder")
+        self.tabs.addTab(self.component_tab, "Components")
         self.tabs.addTab(self.recipe_tab, "Recipe")
         self.tabs.addTab(self.simulation_tab, "Simulation")
         self.tabs.addTab(self.mwd_tab, "MWD Viewer")
@@ -283,6 +291,41 @@ class MainWindow(QMainWindow):
         self.reaction_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         layout.addLayout(buttons)
         layout.addWidget(self.reaction_table)
+        return page
+
+    def _build_component_tab(self) -> QWidget:
+        page = QWidget()
+        layout = QVBoxLayout(page)
+        buttons = QHBoxLayout()
+        add_substance = QPushButton("Add Substance")
+        add_substance.clicked.connect(self._add_component_substance_row)
+        add_polymer = QPushButton("Add Polymer")
+        add_polymer.clicked.connect(self._add_component_polymer_row)
+        add_parameter = QPushButton("Add Parameter")
+        add_parameter.clicked.connect(self._add_component_parameter_row)
+        apply = QPushButton("Apply Components")
+        apply.clicked.connect(self._apply_component_tables)
+        buttons.addWidget(add_substance)
+        buttons.addWidget(add_polymer)
+        buttons.addWidget(add_parameter)
+        buttons.addWidget(apply)
+        buttons.addStretch(1)
+        self.substance_table = QTableWidget(0, 6)
+        self.substance_table.setHorizontalHeaderLabels(["name", "alias", "kind", "MW", "density", "monomer"])
+        self.substance_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.polymer_table = QTableWidget(0, 7)
+        self.polymer_table.setHorizontalHeaderLabels(["name", "alias", "base", "active", "dead", "MW", "density"])
+        self.polymer_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.parameter_table = QTableWidget(0, 5)
+        self.parameter_table.setHorizontalHeaderLabels(["name", "value", "unit", "kind", "Ea"])
+        self.parameter_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        layout.addLayout(buttons)
+        layout.addWidget(QLabel("Substances"))
+        layout.addWidget(self.substance_table)
+        layout.addWidget(QLabel("Polymer species"))
+        layout.addWidget(self.polymer_table)
+        layout.addWidget(QLabel("Parameters"))
+        layout.addWidget(self.parameter_table)
         return page
 
     def _build_mwd_tab(self) -> QWidget:
@@ -1748,6 +1791,7 @@ class MainWindow(QMainWindow):
         self.stages.setValue(project.reactor.stages)
         self.axial_cells.setValue(project.reactor.axial_cells)
         self._populate_recipe_table()
+        self._populate_component_tables()
 
     def _populate_project_tree(self) -> None:
         self.project_tree.clear()
@@ -1772,6 +1816,41 @@ class MainWindow(QMainWindow):
         root.setExpanded(True)
         self._populate_reaction_table()
         self._populate_recipe_table()
+        self._populate_component_tables()
+
+    def _populate_component_tables(self) -> None:
+        if not hasattr(self, "substance_table"):
+            return
+        self.substance_table.setRowCount(len(self.project.substances))
+        for row, item in enumerate(self.project.substances):
+            values = [
+                item.get("name", ""),
+                item.get("alias", ""),
+                item.get("kind", "species"),
+                item.get("molecular_weight", 0.0),
+                item.get("density", 0.0),
+                item.get("is_monomer", False),
+            ]
+            for column, value in enumerate(values):
+                self.substance_table.setItem(row, column, QTableWidgetItem(str(value)))
+        self.polymer_table.setRowCount(len(self.project.polymers))
+        for row, item in enumerate(self.project.polymers):
+            values = [
+                item.get("name", ""),
+                item.get("alias", ""),
+                item.get("base_monomer", ""),
+                item.get("active", False),
+                item.get("dead", True),
+                item.get("molecular_weight", 0.0),
+                item.get("density", 0.0),
+            ]
+            for column, value in enumerate(values):
+                self.polymer_table.setItem(row, column, QTableWidgetItem(str(value)))
+        self.parameter_table.setRowCount(len(self.project.parameters))
+        for row, parameter in enumerate(self.project.parameters):
+            values = [parameter.name, parameter.value, parameter.unit, parameter.kind, parameter.activation_energy or ""]
+            for column, value in enumerate(values):
+                self.parameter_table.setItem(row, column, QTableWidgetItem(str(value)))
 
     def _populate_reaction_table(self) -> None:
         if not hasattr(self, "reaction_table"):
@@ -1821,6 +1900,91 @@ class MainWindow(QMainWindow):
             "ChainTransfer": (("R", "CTA"), ("P", "R_new"), "GP_cta"),
         }
         return defaults.get(pattern_name, (("R", "M"), ("R",), "GP_k"))
+
+    def _add_component_substance_row(self) -> None:
+        row = self.substance_table.rowCount()
+        self.substance_table.insertRow(row)
+        for column, value in enumerate((f"S{row + 1}", "", "species", "0.0", "0.0", "False")):
+            self.substance_table.setItem(row, column, QTableWidgetItem(value))
+
+    def _add_component_polymer_row(self) -> None:
+        row = self.polymer_table.rowCount()
+        self.polymer_table.insertRow(row)
+        for column, value in enumerate((f"P{row + 1}", "", "", "True", "False", "0.0", "0.0")):
+            self.polymer_table.setItem(row, column, QTableWidgetItem(value))
+
+    def _add_component_parameter_row(self) -> None:
+        row = self.parameter_table.rowCount()
+        self.parameter_table.insertRow(row)
+        for column, value in enumerate((f"k{row + 1}", "0.0", "", "scalar", "")):
+            self.parameter_table.setItem(row, column, QTableWidgetItem(value))
+
+    def _apply_component_tables(self) -> None:
+        self._record_project_edit()
+        project = Project(
+            schema_version=self.project.schema_version,
+            name=self.project.name,
+            reactor=self.project.reactor,
+            kinetics=self.project.kinetics,
+            recipe=self.project.recipe,
+            outputs=self.project.outputs,
+            heat_balance=self.project.heat_balance,
+            reaction_steps=list(self.project.reaction_steps),
+            general_kinetic_steps=list(self.project.general_kinetic_steps),
+            general_initial_conditions=dict(self.project.general_initial_conditions),
+            generic_parameters=dict(self.project.generic_parameters),
+            parameters=[],
+        )
+        for row in range(self.substance_table.rowCount()):
+            name = self._table_text(self.substance_table, row, 0).strip()
+            if not name:
+                continue
+            project = add_substance(
+                project,
+                Substance(
+                    name=name,
+                    alias=self._table_text(self.substance_table, row, 1).strip(),
+                    kind=self._table_text(self.substance_table, row, 2).strip() or "species",
+                    molecular_weight=self._table_float(self.substance_table, row, 3, 0.0),
+                    density=self._table_float(self.substance_table, row, 4, 0.0),
+                    is_monomer=self._table_bool(self.substance_table, row, 5),
+                ),
+            )
+        for row in range(self.polymer_table.rowCount()):
+            name = self._table_text(self.polymer_table, row, 0).strip()
+            if not name:
+                continue
+            project = add_polymer_species(
+                project,
+                PolymerSpecies(
+                    name=name,
+                    alias=self._table_text(self.polymer_table, row, 1).strip(),
+                    base_monomer=self._table_text(self.polymer_table, row, 2).strip(),
+                    active=self._table_bool(self.polymer_table, row, 3),
+                    dead=self._table_bool(self.polymer_table, row, 4),
+                    molecular_weight=self._table_float(self.polymer_table, row, 5, 0.0),
+                    density=self._table_float(self.polymer_table, row, 6, 0.0),
+                ),
+            )
+        for row in range(self.parameter_table.rowCount()):
+            name = self._table_text(self.parameter_table, row, 0).strip()
+            if not name:
+                continue
+            activation = self._table_text(self.parameter_table, row, 4).strip()
+            project = add_parameter(
+                project,
+                Parameter(
+                    name=name,
+                    value=self._table_float(self.parameter_table, row, 1, 0.0),
+                    unit=self._table_text(self.parameter_table, row, 2).strip(),
+                    kind=self._table_text(self.parameter_table, row, 3).strip() or "scalar",
+                    activation_energy=None if not activation else float(activation),
+                ),
+            )
+        self.project = project
+        self._populate_project_tree()
+        self._populate_project_inspector()
+        self._append_log("Applied component tables")
 
     def _add_reaction_step(self, kind: ReactionKind) -> None:
         self._record_project_edit()
@@ -1930,6 +2094,15 @@ class MainWindow(QMainWindow):
     def _table_text(table: QTableWidget, row: int, column: int) -> str:
         item = table.item(row, column)
         return item.text() if item is not None else ""
+
+    @classmethod
+    def _table_float(cls, table: QTableWidget, row: int, column: int, default: float) -> float:
+        text = cls._table_text(table, row, column).strip()
+        return default if not text else float(text)
+
+    @classmethod
+    def _table_bool(cls, table: QTableWidget, row: int, column: int) -> bool:
+        return cls._table_text(table, row, column).strip().lower() in {"1", "true", "yes", "on"}
 
     @staticmethod
     def _split_species(value: str) -> tuple[str, ...]:

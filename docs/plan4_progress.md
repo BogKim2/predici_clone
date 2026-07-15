@@ -26,6 +26,10 @@ This file tracks implementation evidence against `plan4.md`.
   - component add/upsert helpers, auto declaration, numeric-constant parameters
   - reference lookup for polymer reaction steps and general kinetic steps
   - tests: `tests/test_component_admin.py`
+- M23 component administration GUI foundation
+  - Components tab exposes substances, polymer species, and parameters as editable tables
+  - applied edits use the component admin API and participate in undo/project tree refresh
+  - tests: `tests/test_postprocess_and_gui.py`
 - M24 PatternFinder-style reaction builder service foundation
   - searchable reaction pattern catalog
   - polymer reaction step builder with auto-declared species and parameters
@@ -76,7 +80,7 @@ This file tracks implementation evidence against `plan4.md`.
 
 ## Still Incomplete
 
-- M23 component administration GUI polish
+- M23 richer thermodynamic/phase fields and validation styling in GUI
 - M24 drag/drop visual preview and richer template catalog
 - M25 recipe consistency GUI workflow
 - M26 chart administration GUI and components information board

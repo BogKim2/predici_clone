@@ -304,6 +304,39 @@ def test_main_window_model_builder_adds_patternfinder_reaction():
     app.processEvents()
 
 
+def test_main_window_component_tables_apply_schema_objects():
+    app = QApplication.instance() or QApplication([])
+    window = MainWindow()
+
+    window._add_component_substance_row()
+    window.substance_table.item(0, 0).setText("MMA")
+    window.substance_table.item(0, 1).setText("M")
+    window.substance_table.item(0, 3).setText("100.12")
+    window.substance_table.item(0, 4).setText("940")
+    window.substance_table.item(0, 5).setText("true")
+    window._add_component_polymer_row()
+    window.polymer_table.item(0, 0).setText("PMMA*")
+    window.polymer_table.item(0, 2).setText("MMA")
+    window._add_component_parameter_row()
+    window.parameter_table.item(0, 0).setText("kp")
+    window.parameter_table.item(0, 1).setText("0.12")
+    window.parameter_table.item(0, 3).setText("Arrhenius")
+    window.parameter_table.item(0, 4).setText("2500")
+
+    window._apply_component_tables()
+
+    assert window.project.substances[0]["name"] == "MMA"
+    assert window.project.substances[0]["is_monomer"] is True
+    assert window.project.polymers[0]["base_monomer"] == "MMA"
+    assert window.project.parameters[0].name == "kp"
+    assert window.project.parameters[0].activation_energy == 2500.0
+    assert window.project.generic_parameters["kp"] == 0.12
+    window._undo_project_edit()
+    assert window.project.substances == []
+    window.close()
+    app.processEvents()
+
+
 def test_main_window_run_control_populates_actual_values_table():
     app = QApplication.instance() or QApplication([])
     window = MainWindow()
