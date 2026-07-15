@@ -44,6 +44,18 @@ def evaluate_scripted_outputs(expressions: dict[str, str], variables: dict[str, 
     return {name: outputs[name] for name in expressions}
 
 
+def evaluate_script_scope(script: str, variables: dict[str, Any]) -> dict[str, Any]:
+    tree = ast.parse(script, mode="exec")
+    scope: dict[str, Any] = dict(variables)
+    for statement in tree.body:
+        _eval_statement(statement, scope)
+    return {
+        name: value
+        for name, value in scope.items()
+        if name not in variables and _is_script_value(value)
+    }
+
+
 def _eval_node(node: ast.AST, variables: dict[str, Any]) -> Any:
     if isinstance(node, ast.Constant) and isinstance(node.value, (int, float)):
         return node.value
@@ -134,3 +146,7 @@ def _eval_iterable(node: ast.AST, scope: dict[str, Any]):
     if not isinstance(value, (list, tuple, range)):
         raise ValueError("Loop iterable must be a list, tuple, or range")
     return value
+
+
+def _is_script_value(value: Any) -> bool:
+    return isinstance(value, (int, float, str, list, tuple))

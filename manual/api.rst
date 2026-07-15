@@ -51,6 +51,10 @@ Script Compatibility
    :members:
    :undoc-members:
 
+.. automodule:: predici_clone.script.reaction_modifiers
+   :members:
+   :undoc-members:
+
 Automation and Interoperability
 -------------------------------
 

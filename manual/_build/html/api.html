@@ -2161,6 +2161,56 @@
 <span class="sig-prename descclassname"><span class="pre">predici_clone.script.template.</span></span><span class="sig-name descname"><span class="pre">generate_script_template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('result',)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/script/template.html#generate_script_template"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.script.template.generate_script_template" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="py class" id="module-predici_clone.script.reaction_modifiers">
+<dt class="sig sig-object py" id="predici_clone.script.reaction_modifiers.ReactionRateModifier">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">predici_clone.script.reaction_modifiers.</span></span><span class="sig-name descname"><span class="pre">ReactionRateModifier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">script_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'ModifierMode'</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/script/reaction_modifiers.html#ReactionRateModifier"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.script.reaction_modifiers.ReactionRateModifier" title="Link to this definition">¶</a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.script.reaction_modifiers.ReactionRateModifier.parameter">
+<span class="sig-name descname"><span class="pre">parameter</span></span><a class="headerlink" href="#predici_clone.script.reaction_modifiers.ReactionRateModifier.parameter" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.script.reaction_modifiers.ReactionRateModifier.script_name">
+<span class="sig-name descname"><span class="pre">script_name</span></span><a class="headerlink" href="#predici_clone.script.reaction_modifiers.ReactionRateModifier.script_name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.script.reaction_modifiers.ReactionRateModifier.mode">
+<span class="sig-name descname"><span class="pre">mode</span></span><a class="headerlink" href="#predici_clone.script.reaction_modifiers.ReactionRateModifier.mode" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="predici_clone.script.reaction_modifiers.ModifierEvaluation">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">predici_clone.script.reaction_modifiers.</span></span><span class="sig-name descname"><span class="pre">ModifierEvaluation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">modifier</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'ReactionRateModifier'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'tuple[float,</span> <span class="pre">...]'</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/script/reaction_modifiers.html#ModifierEvaluation"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.script.reaction_modifiers.ModifierEvaluation" title="Link to this definition">¶</a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.script.reaction_modifiers.ModifierEvaluation.modifier">
+<span class="sig-name descname"><span class="pre">modifier</span></span><a class="headerlink" href="#predici_clone.script.reaction_modifiers.ModifierEvaluation.modifier" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.script.reaction_modifiers.ModifierEvaluation.values">
+<span class="sig-name descname"><span class="pre">values</span></span><a class="headerlink" href="#predici_clone.script.reaction_modifiers.ModifierEvaluation.values" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="predici_clone.script.reaction_modifiers.parse_reaction_rate_modifier">
+<span class="sig-prename descclassname"><span class="pre">predici_clone.script.reaction_modifiers.</span></span><span class="sig-name descname"><span class="pre">parse_reaction_rate_modifier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expression</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/script/reaction_modifiers.html#parse_reaction_rate_modifier"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.script.reaction_modifiers.parse_reaction_rate_modifier" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="predici_clone.script.reaction_modifiers.evaluate_reaction_rate_modifier">
+<span class="sig-prename descclassname"><span class="pre">predici_clone.script.reaction_modifiers.</span></span><span class="sig-name descname"><span class="pre">evaluate_reaction_rate_modifier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">modifier</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">scripts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result_count</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/script/reaction_modifiers.html#evaluate_reaction_rate_modifier"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.script.reaction_modifiers.evaluate_reaction_rate_modifier" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="predici_clone.script.reaction_modifiers.evaluate_modifier_expression">
+<span class="sig-prename descclassname"><span class="pre">predici_clone.script.reaction_modifiers.</span></span><span class="sig-name descname"><span class="pre">evaluate_modifier_expression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expression</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">scripts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result_count</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/script/reaction_modifiers.html#evaluate_modifier_expression"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.script.reaction_modifiers.evaluate_modifier_expression" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </section>
 <section id="module-predici_clone.api.automation">
 <span id="automation-and-interoperability"></span><h2>Automation and Interoperability<a class="headerlink" href="#module-predici_clone.api.automation" title="Link to this heading">¶</a></h2>

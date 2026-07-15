@@ -43,6 +43,11 @@ This file tracks implementation evidence against `plan4.md`.
   - PREDICI-style getters/setters: `getx`, `getco`, `getcoini`, `getconsum`, `getcf`, `getmy`, `gettotalmy`, `getkp`, `setkp`
   - template generator emits boilerplate from selected species/parameters and result slots
   - tests: `tests/test_script_catalog.py`, `tests/test_scripted_outputs.py`
+- M28 script-driven reaction modifier foundation
+  - parses `k(File)` replacement and `k*File` multiplier forms
+  - evaluates modifier scripts through the safe command namespace
+  - supports multi-result scripts (`result1`, `result2`, ...) for multi-coefficient reaction steps
+  - tests: `tests/test_reaction_modifiers.py`
 
 ## Still Incomplete
 
@@ -51,6 +56,6 @@ This file tracks implementation evidence against `plan4.md`.
 - M25 recipe consistency GUI workflow
 - M26 chart administration/reference data
 - M27 GUI catalog rendering and additional command implementations
-- M28 script-driven reaction modifiers
+- M28 GUI integration and modifier-to-engine execution hooks
 - M29 script debugger and run-to-time control
 - M31 tutorial manual expansion and full regression suite
