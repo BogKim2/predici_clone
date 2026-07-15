@@ -4,7 +4,7 @@ import numpy as np
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
-from PySide6.QtWidgets import QApplication, QFileDialog
+from PySide6.QtWidgets import QAbstractItemView, QApplication, QFileDialog
 
 from predici_clone.app.main import _smoke
 from predici_clone.app.main_window import MainWindow
@@ -393,6 +393,9 @@ def test_main_window_model_builder_shows_pattern_catalog_preview():
     assert "TerminationCombination" in preview
     assert "polymer_radical + polymer_radical" in preview
     assert "GP_ktc" in preview
+    assert window.reaction_pattern_slot_table.dragDropMode() == QAbstractItemView.InternalMove
+    assert window.reaction_pattern_slot_table.dragEnabled()
+    assert window.reaction_pattern_slot_table.acceptDrops()
     window.close()
     app.processEvents()
 

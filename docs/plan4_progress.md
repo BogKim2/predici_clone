@@ -54,6 +54,9 @@ This file tracks implementation evidence against `plan4.md`.
   - Model Builder renders editable slot bindings for selected pattern reactants/products/parameters
   - `Add Pattern` uses the slot table values and auto-declares the assigned species/parameter names
   - tests: `tests/test_postprocess_and_gui.py`
+- M24 PatternFinder mouse drag gesture foundation
+  - Pattern slot table enables Qt internal drag/drop movement for mouse-based slot reordering
+  - tests: `tests/test_postprocess_and_gui.py`
 - M25 recipe consistency service foundation
   - seven recipe input modes normalize to mass/mole/concentration tables
   - `Set concentration consistent` density rule
@@ -159,5 +162,4 @@ This file tracks implementation evidence against `plan4.md`.
 
 ## Still Incomplete
 
-- M24 mouse drag gesture for slot assignment
 - M27 PDE-specific numerical semantics for advanced commands beyond supplied-state helpers
