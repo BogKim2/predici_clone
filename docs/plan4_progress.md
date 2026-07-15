@@ -31,6 +31,10 @@ This file tracks implementation evidence against `plan4.md`.
   - polymer reaction step builder with auto-declared species and parameters
   - general kinetic step builder with independent stoichiometry and order
   - tests: `tests/test_reaction_builder.py`
+- M24 PatternFinder-style GUI foundation
+  - Model Builder exposes reaction pattern catalog selector
+  - `Add Pattern` uses reaction-builder service and auto-declares species/parameters
+  - tests: `tests/test_postprocess_and_gui.py`
 - M25 recipe consistency service foundation
   - seven recipe input modes normalize to mass/mole/concentration tables
   - `Set concentration consistent` density rule
@@ -73,7 +77,7 @@ This file tracks implementation evidence against `plan4.md`.
 ## Still Incomplete
 
 - M23 component administration GUI polish
-- M24 PatternFinder-style GUI integration and richer template catalog
+- M24 drag/drop visual preview and richer template catalog
 - M25 recipe consistency GUI workflow
 - M26 chart administration GUI and components information board
 - M27 GUI catalog rendering and additional command implementations

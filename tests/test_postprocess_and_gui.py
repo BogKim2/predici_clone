@@ -287,6 +287,23 @@ def test_main_window_model_builder_adds_reaction_step():
     app.processEvents()
 
 
+def test_main_window_model_builder_adds_patternfinder_reaction():
+    app = QApplication.instance() or QApplication([])
+    window = MainWindow()
+
+    window.reaction_pattern_selector.setCurrentText("TerminationCombination")
+    window._add_selected_reaction_pattern()
+
+    step = window.project.reaction_steps[-1]
+    assert step.kind.value == "TerminationCombination"
+    assert step.rate_law.parameters == ("GP_ktc",)
+    assert "GP_ktc" in window.project.generic_parameters
+    assert {item["name"] for item in window.project.substances} >= {"R", "P"}
+    assert window.reaction_table.rowCount() == 1
+    window.close()
+    app.processEvents()
+
+
 def test_main_window_run_control_populates_actual_values_table():
     app = QApplication.instance() or QApplication([])
     window = MainWindow()

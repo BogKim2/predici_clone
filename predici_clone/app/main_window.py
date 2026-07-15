@@ -60,6 +60,7 @@ from predici_clone.core.moments import MomentReport, from_discrete_distribution
 from predici_clone.engine import SimulationEngine
 from predici_clone.engine.simulation_result import SimulationResult
 from predici_clone.kinetics import RateLaw, ReactionKind, ReactionStep
+from predici_clone.kinetics.reaction_builder import build_polymer_reaction_step, reaction_pattern_catalog
 from predici_clone.postprocess.generic_outputs import generic_outputs_frame
 from predici_clone.postprocess.distribution_plot import save_distribution_plot
 from predici_clone.postprocess.gpc import distribution_to_gpc_profile
@@ -260,14 +261,20 @@ class MainWindow(QMainWindow):
         buttons = QHBoxLayout()
         self.reaction_kind_selector = QComboBox()
         self.reaction_kind_selector.addItems([kind.value for kind in ReactionKind])
+        self.reaction_pattern_selector = QComboBox()
+        self.reaction_pattern_selector.addItems([pattern.name for pattern in reaction_pattern_catalog() if pattern.kind is not None])
         add = QPushButton("Add Reaction")
         add.clicked.connect(self._add_selected_reaction_step)
+        add_pattern = QPushButton("Add Pattern")
+        add_pattern.clicked.connect(self._add_selected_reaction_pattern)
         remove = QPushButton("Remove Selected")
         remove.clicked.connect(self._remove_selected_reaction_step)
         apply = QPushButton("Apply Table Edits")
         apply.clicked.connect(self._apply_reaction_table_edits)
         buttons.addWidget(self.reaction_kind_selector)
         buttons.addWidget(add)
+        buttons.addWidget(self.reaction_pattern_selector)
+        buttons.addWidget(add_pattern)
         buttons.addWidget(remove)
         buttons.addWidget(apply)
         buttons.addStretch(1)
@@ -1788,6 +1795,32 @@ class MainWindow(QMainWindow):
 
     def _add_selected_reaction_step(self) -> None:
         self._add_reaction_step(ReactionKind(self.reaction_kind_selector.currentText()))
+
+    def _add_selected_reaction_pattern(self) -> None:
+        self._record_project_edit()
+        pattern_name = self.reaction_pattern_selector.currentText()
+        reactants, products, parameter = self._default_pattern_bindings(pattern_name)
+        self.project = build_polymer_reaction_step(
+            self.project,
+            pattern_name=pattern_name,
+            reactants=reactants,
+            products=products,
+            parameter=parameter,
+            site="default",
+        )
+        self._populate_project_tree()
+        self._populate_project_inspector()
+        self._append_log(f"Added reaction pattern: {pattern_name}")
+
+    @staticmethod
+    def _default_pattern_bindings(pattern_name: str) -> tuple[tuple[str, ...], tuple[str, ...], str]:
+        defaults = {
+            "Propagation": (("R", "M"), ("R",), "GP_kp"),
+            "TerminationCombination": (("R", "R"), ("P",), "GP_ktc"),
+            "TerminationDisproportionation": (("R", "R"), ("P", "P"), "GP_ktd"),
+            "ChainTransfer": (("R", "CTA"), ("P", "R_new"), "GP_cta"),
+        }
+        return defaults.get(pattern_name, (("R", "M"), ("R",), "GP_k"))
 
     def _add_reaction_step(self, kind: ReactionKind) -> None:
         self._record_project_edit()
