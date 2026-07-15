@@ -17,7 +17,7 @@
     <link rel="index" title="색인" href="genindex.html" />
     <link rel="search" title="검색" href="search.html" />
     <link rel="next" title="프로젝트와 Recipe" href="projects.html" />
-    <link rel="prev" title="빠른 시작" href="quickstart.html" />
+    <link rel="prev" title="Tutorial Workflows" href="tutorials.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -55,6 +55,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">설치</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">빠른 시작</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorial Workflows</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">GUI 사용법</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#id1">전체 레이아웃</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#dashboard">Dashboard</a></li>
@@ -84,7 +85,7 @@
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="quickstart.html" title="이전 장">빠른 시작</a></li>
+      <li>Previous: <a href="tutorials.html" title="이전 장">Tutorial Workflows</a></li>
       <li>Next: <a href="projects.html" title="다음 장">프로젝트와 Recipe</a></li>
   </ul></li>
 </ul>
@@ -135,8 +136,11 @@
 <ul class="simple">
 <li><p>reactor: <code class="docutils literal notranslate"><span class="pre">Batch</span></code>, <code class="docutils literal notranslate"><span class="pre">Semi-batch</span></code>, <code class="docutils literal notranslate"><span class="pre">CSTR</span></code>, <code class="docutils literal notranslate"><span class="pre">Cascade</span></code>, <code class="docutils literal notranslate"><span class="pre">PFR</span></code></p></li>
 <li><p>backend: discrete, projected Galerkin, direct Galerkin</p></li>
+<li><p>simulation mode: <code class="docutils literal notranslate"><span class="pre">distributions</span></code> 또는 <code class="docutils literal notranslate"><span class="pre">moments</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">incl.</span> <span class="pre">Monte</span> <span class="pre">Carlo</span> <span class="pre">method</span></code> 및 <code class="docutils literal notranslate"><span class="pre">use</span> <span class="pre">tau</span> <span class="pre">leaping</span></code> flag</p></li>
 <li><p>integration time, output points, tolerance</p></li>
 <li><p>heat balance와 profile output</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Proc</span></code> run-to-time, <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">Step</span></code> single-step, <code class="docutils literal notranslate"><span class="pre">Actual</span> <span class="pre">values</span></code> table</p></li>
 </ul>
 <p>긴 실행은 <code class="docutils literal notranslate"><span class="pre">SimulationWorker</span></code> 를 통해 GUI thread와 분리된다. <code class="docutils literal notranslate"><span class="pre">Stop</span></code> 요청은 solver loop에서
 stop flag를 확인하는 방식으로 처리된다.</p>
@@ -152,6 +156,8 @@ stop flag를 확인하는 방식으로 처리된다.</p>
 <li><p>time slider로 transient distribution 탐색</p></li>
 <li><p>이전 실행 결과와 benchmark/reference overlay</p></li>
 <li><p>moment table</p></li>
+<li><p>components information board</p></li>
+<li><p>chart administration: Charts on pages / Graphs in chart</p></li>
 <li><p>CSV, PNG, PDF export</p></li>
 </ul>
 </section>
@@ -163,7 +169,8 @@ stop flag를 확인하는 방식으로 처리된다.</p>
 <li><p>enabled flag</p></li>
 <li><p>reaction kind, site, reactants, products</p></li>
 <li><p>rate expression과 generic parameter binding</p></li>
-<li><p>RAFT, NMP, ATRP, condensation, polyurethane, polyester, Ziegler-Natta 계열 template</p></li>
+<li><p>PatternFinder-style catalog table과 selected pattern preview</p></li>
+<li><p>reaction modifier script: <code class="docutils literal notranslate"><span class="pre">k(File)</span></code>, <code class="docutils literal notranslate"><span class="pre">k*File</span></code></p></li>
 </ul>
 </section>
 <section id="recipe-editor">
@@ -176,6 +183,9 @@ stop flag를 확인하는 방식으로 처리된다.</p>
 <li><p>integration control</p></li>
 <li><p>temperature/pressure profile</p></li>
 <li><p>pre-schedule: feed rate, temperature, pressure, residence time, coolant temperature, additional heat</p></li>
+<li><p>seven <code class="docutils literal notranslate"><span class="pre">Input</span> <span class="pre">as</span></code> consistency modes</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Normalize</span> <span class="pre">Mode</span></code>, <code class="docutils literal notranslate"><span class="pre">Set</span> <span class="pre">concentration</span> <span class="pre">consistent</span></code>, <code class="docutils literal notranslate"><span class="pre">Set</span> <span class="pre">Rest</span></code></p></li>
+<li><p>inconsistent consistency sum warning styling</p></li>
 </ul>
 </section>
 <section id="fitting">
@@ -194,7 +204,7 @@ stop flag를 확인하는 방식으로 처리된다.</p>
 </section>
 <section id="script">
 <h2>Script<a class="headerlink" href="#script" title="Link to this heading">¶</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">Script</span></code> tab은 user-defined output을 정의한다.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Script</span></code> tab은 user-defined output, command catalog, debug trace를 정의한다.</p>
 <p>지원되는 안전한 subset:</p>
 <ul class="simple">
 <li><p>scalar expression</p></li>
@@ -204,6 +214,8 @@ stop flag를 확인하는 방식으로 처리된다.</p>
 <li><p>augmented assignment</p></li>
 </ul>
 <p>임의의 <code class="docutils literal notranslate"><span class="pre">exec</span></code> 나 unsafe attribute access는 허용하지 않는다.</p>
+<p>Debugger 영역은 여러 script row를 동시에 관리한다. <code class="docutils literal notranslate"><span class="pre">Run</span> <span class="pre">Debug</span></code> 를 누르면 각 script의
+line number, source text, assignment name, evaluated value가 trace table에 표시된다.</p>
 </section>
 </section>
 

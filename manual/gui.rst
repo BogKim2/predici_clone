@@ -30,8 +30,11 @@ Simulation
 
 * reactor: ``Batch``, ``Semi-batch``, ``CSTR``, ``Cascade``, ``PFR``
 * backend: discrete, projected Galerkin, direct Galerkin
+* simulation mode: ``distributions`` 또는 ``moments``
+* ``incl. Monte Carlo method`` 및 ``use tau leaping`` flag
 * integration time, output points, tolerance
 * heat balance와 profile output
+* ``Proc`` run-to-time, ``1 Step`` single-step, ``Actual values`` table
 
 긴 실행은 ``SimulationWorker`` 를 통해 GUI thread와 분리된다. ``Stop`` 요청은 solver loop에서
 stop flag를 확인하는 방식으로 처리된다.
@@ -49,6 +52,8 @@ MWD Viewer
 * time slider로 transient distribution 탐색
 * 이전 실행 결과와 benchmark/reference overlay
 * moment table
+* components information board
+* chart administration: Charts on pages / Graphs in chart
 * CSV, PNG, PDF export
 
 Model Builder
@@ -60,7 +65,8 @@ Model Builder
 * enabled flag
 * reaction kind, site, reactants, products
 * rate expression과 generic parameter binding
-* RAFT, NMP, ATRP, condensation, polyurethane, polyester, Ziegler-Natta 계열 template
+* PatternFinder-style catalog table과 selected pattern preview
+* reaction modifier script: ``k(File)``, ``k*File``
 
 Recipe Editor
 -------------
@@ -73,6 +79,9 @@ Recipe Editor
 * integration control
 * temperature/pressure profile
 * pre-schedule: feed rate, temperature, pressure, residence time, coolant temperature, additional heat
+* seven ``Input as`` consistency modes
+* ``Normalize Mode``, ``Set concentration consistent``, ``Set Rest``
+* inconsistent consistency sum warning styling
 
 Fitting
 -------
@@ -91,7 +100,7 @@ Fitting
 Script
 ------
 
-``Script`` tab은 user-defined output을 정의한다.
+``Script`` tab은 user-defined output, command catalog, debug trace를 정의한다.
 
 지원되는 안전한 subset:
 
@@ -102,3 +111,6 @@ Script
 * augmented assignment
 
 임의의 ``exec`` 나 unsafe attribute access는 허용하지 않는다.
+
+Debugger 영역은 여러 script row를 동시에 관리한다. ``Run Debug`` 를 누르면 각 script의
+line number, source text, assignment name, evaluated value가 trace table에 표시된다.

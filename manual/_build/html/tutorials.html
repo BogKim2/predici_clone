@@ -58,8 +58,10 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorial Workflows</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#polyethylene-basic-project">Polyethylene Basic Project</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#oregonator-general-kinetics">Oregonator / General Kinetics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#run-control">Run Control</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#script-and-reaction-modifier-helpers">Script and Reaction Modifier Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#component-and-patternfinder-workflow">Component and PatternFinder Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#recipe-consistency-workflow">Recipe Consistency Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#run-control-and-moments-mode">Run Control and Moments Mode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#script-and-debug-workflow">Script and Debug Workflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#chart-and-reference-data">Chart and Reference Data</a></li>
 </ul>
 </li>
@@ -105,14 +107,16 @@
             
   <section id="tutorial-workflows">
 <h1>Tutorial Workflows<a class="headerlink" href="#tutorial-workflows" title="Link to this heading">¶</a></h1>
+<p>이 장은 <code class="docutils literal notranslate"><span class="pre">Predici11_Tutorials.pdf</span></code> 에서 요구한 작업 흐름을 현재 GUI와 Python API로
+재현하는 절차를 정리한다. 상용 PREDICI 파일 포맷을 복제하지 않고, clone 내부의
+프로젝트 스키마와 PySide6 GUI를 사용한다.</p>
 <section id="polyethylene-basic-project">
 <h2>Polyethylene Basic Project<a class="headerlink" href="#polyethylene-basic-project" title="Link to this heading">¶</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">examples/tutorial_polyethylene_basic.py</span></code> 는 tutorial PDF의 basic polyethylene 흐름을
-재현하기 위한 최소 프로젝트를 실행한다.</p>
+<p>Python smoke workflow는 다음 명령으로 실행한다.</p>
 <div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">examples</span><span class="p">\</span><span class="n">tutorial_polyethylene_basic</span><span class="p">.</span><span class="n">py</span>
 </pre></div>
 </div>
-<p>동일한 프로젝트는 Python API에서도 생성할 수 있다.</p>
+<p>동일한 프로젝트는 API에서도 만들 수 있다.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">predici_clone.engine</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimulationEngine</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">predici_clone.validation.tutorial_projects</span><span class="w"> </span><span class="kn">import</span> <span class="n">polyethylene_basic_project</span>
 
@@ -121,19 +125,78 @@
 <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">final_moments</span><span class="o">.</span><span class="n">mn</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">final_moments</span><span class="o">.</span><span class="n">mw</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>GUI에서 재현하려면 다음 순서로 진행한다.</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">predici_clone.app.main</span></code> 으로 GUI를 연다.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Simulation</span></code> 탭에서 reactor, backend, final time을 설정한다.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Proc</span></code> 로 짧은 시간까지 먼저 실행해 초기 conversion과 moment 변화를 확인한다.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">Step</span></code> 으로 한 step씩 진행하면서 <code class="docutils literal notranslate"><span class="pre">Actual</span> <span class="pre">values</span></code> 표의 step/time/stepsize를 확인한다.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MWD</span> <span class="pre">Viewer</span></code> 에서 time slider, axis selector, GPC convolution, overlay를 확인한다.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Chart</span> <span class="pre">administration</span></code> 표에서 page와 graph row를 저장해 chart 구성을 프로젝트에 남긴다.</p></li>
+</ol>
 </section>
 <section id="oregonator-general-kinetics">
 <h2>Oregonator / General Kinetics<a class="headerlink" href="#oregonator-general-kinetics" title="Link to this heading">¶</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">examples/tutorial_oregonator.py</span></code> 는 PRESTO-KINETICS 스타일의 general kinetic step을
-검증한다. 특히 stoichiometric coefficient와 reaction order가 서로 다를 수 있음을 보여준다.</p>
+<p>PRESTO-KINETICS 스타일의 general kinetic workflow는 다음 예제로 검증한다.</p>
 <div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">examples</span><span class="p">\</span><span class="n">tutorial_oregonator</span><span class="p">.</span><span class="n">py</span>
 </pre></div>
 </div>
+<p>핵심 검증 포인트는 stoichiometric coefficient와 reaction order가 독립적으로 저장되고
+실행된다는 점이다.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">predici_clone.engine</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimulationEngine</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">predici_clone.validation.tutorial_projects</span><span class="w"> </span><span class="kn">import</span> <span class="n">oregonator_kinetics_project</span>
+
+<span class="n">project</span> <span class="o">=</span> <span class="n">oregonator_kinetics_project</span><span class="p">(</span><span class="n">corrected_order</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">SimulationEngine</span><span class="p">(</span><span class="n">project</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;final_concentrations&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
 </section>
-<section id="run-control">
-<h2>Run Control<a class="headerlink" href="#run-control" title="Link to this heading">¶</a></h2>
-<p>run-to-time과 single-step API는 GUI의 <code class="docutils literal notranslate"><span class="pre">Proc</span></code> 및 <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">Step</span></code> 버튼과 같은 흐름을 위한
-엔진 레벨 API이다.</p>
+<section id="component-and-patternfinder-workflow">
+<h2>Component and PatternFinder Workflow<a class="headerlink" href="#component-and-patternfinder-workflow" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">Components</span></code> 탭은 Substance, polymer species, parameter를 직접 편집한다.</p>
+<ul class="simple">
+<li><p>Substance/polymer row에는 phase setting, density mode, linear density coefficients,
+heat-capacity coefficients가 포함된다.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Apply</span> <span class="pre">Components</span></code> 를 누르면 component admin API를 통해 프로젝트 스키마에 저장된다.</p></li>
+<li><p>Inspector는 validation error/warning row를 색으로 표시한다.</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">Model</span> <span class="pre">Builder</span></code> 탭은 PatternFinder-style catalog를 제공한다.</p>
+<ul class="simple">
+<li><p>catalog table에서 template의 category, kind, reactant slot, product slot, parameter slot을 확인한다.</p></li>
+<li><p>selector를 바꾸면 preview label에 <code class="docutils literal notranslate"><span class="pre">reactants</span> <span class="pre">-&gt;</span> <span class="pre">products</span></code> 형태가 표시된다.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Add</span> <span class="pre">Pattern</span></code> 은 기본 slot binding으로 reaction step을 생성하고 필요한 species/parameter를 자동 선언한다.</p></li>
+<li><p>modifier 영역에서 <code class="docutils literal notranslate"><span class="pre">GP_kp(File)</span></code> 또는 <code class="docutils literal notranslate"><span class="pre">GP_kp*File</span></code> 을 선택하고 script를 입력하면
+선택된 reaction step에 modifier expression과 script가 저장된다.</p></li>
+</ul>
+</section>
+<section id="recipe-consistency-workflow">
+<h2>Recipe Consistency Workflow<a class="headerlink" href="#recipe-consistency-workflow" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">Recipe</span> <span class="pre">Editor</span></code> 탭의 consistency 영역은 tutorial의 <code class="docutils literal notranslate"><span class="pre">Input</span> <span class="pre">as</span></code> workflow를 지원한다.</p>
+<p>지원 mode:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">absolute_mass</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mass_part_total_mass</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">absolute_mole</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mole_part</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">concentration_and_volume</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mass_part_total_mole</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mole_part_total_mass</span></code></p></li>
+</ul>
+<p>절차:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Add</span> <span class="pre">Consistency</span> <span class="pre">Row</span></code> 로 component row를 만든다.</p></li>
+<li><p>MW, density, mass/moles/concentration/parts 중 mode에 필요한 값을 입력한다.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Input</span> <span class="pre">as</span></code> mode와 Volume/Mass/Moles basis를 설정한다.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Normalize</span> <span class="pre">Mode</span></code> 를 눌러 mass, moles, concentration, mass part, mole part를 재계산한다.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Set</span> <span class="pre">concentration</span> <span class="pre">consistent</span></code> 는 density consistency sum이 1이 되도록 target concentration을 조정한다.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Set</span> <span class="pre">Rest</span></code> 는 target mass part를 나머지 값으로 채운다.</p></li>
+</ol>
+<p>Consistency sum이 1에서 벗어나면 label과 table row가 warning 색으로 표시된다.</p>
+</section>
+<section id="run-control-and-moments-mode">
+<h2>Run Control and Moments Mode<a class="headerlink" href="#run-control-and-moments-mode" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">Simulation</span></code> 탭은 tutorial의 run-control 흐름을 GUI와 API 양쪽에서 제공한다.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">predici_clone.engine</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimulationEngine</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">predici_clone.validation.tutorial_projects</span><span class="w"> </span><span class="kn">import</span> <span class="n">polyethylene_basic_project</span>
 
@@ -146,10 +209,20 @@
 <span class="nb">print</span><span class="p">(</span><span class="n">final</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;actual_values&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 </pre></div>
 </div>
+<p><code class="docutils literal notranslate"><span class="pre">simulation_mode=&quot;moments&quot;</span></code> 를 선택하면 result state는 <code class="docutils literal notranslate"><span class="pre">M0</span></code>, <code class="docutils literal notranslate"><span class="pre">M1</span></code>, <code class="docutils literal notranslate"><span class="pre">M2</span></code>,
+<code class="docutils literal notranslate"><span class="pre">Mn</span></code>, <code class="docutils literal notranslate"><span class="pre">Mw</span></code>, <code class="docutils literal notranslate"><span class="pre">PDI</span></code> 로 축약된다. Distribution history는 chart reference 비교를 위해
+계속 보존된다.</p>
 </section>
-<section id="script-and-reaction-modifier-helpers">
-<h2>Script and Reaction Modifier Helpers<a class="headerlink" href="#script-and-reaction-modifier-helpers" title="Link to this heading">¶</a></h2>
-<p>PREDICI-style script helper functions are available through a safe command namespace.</p>
+<section id="script-and-debug-workflow">
+<h2>Script and Debug Workflow<a class="headerlink" href="#script-and-debug-workflow" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">Script</span></code> 탭은 user-defined output, function catalog, debugger trace를 한 곳에서 다룬다.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Generate</span> <span class="pre">Template</span></code> 은 현재 species/parameter를 기반으로 boilerplate script를 생성한다.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Apply</span> <span class="pre">Scripted</span> <span class="pre">Outputs</span></code> 는 output table의 script를 프로젝트에 저장한다.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Debug</span> <span class="pre">scripts</span></code> 표에 여러 script를 입력하고 <code class="docutils literal notranslate"><span class="pre">Run</span> <span class="pre">Debug</span></code> 를 누르면 line, assignment,
+value trace가 표시된다.</p></li>
+</ul>
+<p>PREDICI-style helper functions는 safe command namespace에서 실행된다.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">predici_clone.postprocess.scripted_outputs</span><span class="w"> </span><span class="kn">import</span> <span class="n">evaluate_expression</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">predici_clone.script</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScriptCommandState</span><span class="p">,</span> <span class="n">script_command_namespace</span>
 

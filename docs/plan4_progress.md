@@ -141,6 +141,10 @@ This file tracks implementation evidence against `plan4.md`.
   - quickstart includes tutorial smoke commands
   - examples: `examples/tutorial_polyethylene_basic.py`, `examples/tutorial_oregonator.py`
   - validation: Sphinx build plus tutorial example smoke runs
+- M31 GUI tutorial workflow expansion
+  - `manual/tutorials.rst` now documents GUI workflows for components, PatternFinder, recipe modes, run control, script debug, chart administration, and moments mode
+  - `manual/gui.rst` lists the implemented GUI controls and table workflows
+  - validation: Sphinx HTML build
 
 ## Still Incomplete
 
@@ -148,4 +152,3 @@ This file tracks implementation evidence against `plan4.md`.
 - M27 PDE-specific numerical semantics for advanced commands beyond supplied-state helpers
 - M29 debugger move-to-window workflow
 - M32 Monte Carlo/tau-leaping numerical execution
-- M31 fuller screenshot/manual expansion for GUI-specific tutorial dialogs
