@@ -693,6 +693,7 @@ class SimulationEngine:
             polymers=list(project.polymers),
             reaction_steps=list(project.reaction_steps),
             generic_parameters=dict(project.generic_parameters),
+            parameters=list(project.parameters),
         )
         solution_result = None
         stage_initial = project.recipe.initial
@@ -723,6 +724,7 @@ class SimulationEngine:
                 polymers=list(stage_project.polymers),
                 reaction_steps=list(stage_project.reaction_steps),
                 generic_parameters=dict(stage_project.generic_parameters),
+                parameters=list(stage_project.parameters),
             )
             solution_result = self._run_coupled_thermal_cstr(stage_project, t_span, t_eval)
             outlet = SpeciesState.from_array(solution_result.state_history[:3, -1])

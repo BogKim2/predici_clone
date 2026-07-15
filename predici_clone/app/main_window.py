@@ -576,6 +576,7 @@ class MainWindow(QMainWindow):
             polymers=list(self.project.polymers),
             reaction_steps=list(self.project.reaction_steps),
             generic_parameters=dict(self.project.generic_parameters),
+            parameters=list(self.project.parameters),
         )
 
     def _project_snapshot(self) -> dict:
@@ -655,6 +656,7 @@ class MainWindow(QMainWindow):
             polymers=list(self.project.polymers),
             reaction_steps=list(self.project.reaction_steps),
             generic_parameters=dict(self.project.generic_parameters),
+            parameters=list(self.project.parameters),
         )
         self._populate_project_tree()
         self._append_log("Applied scripted outputs")
@@ -807,6 +809,7 @@ class MainWindow(QMainWindow):
             polymers=list(self.project.polymers),
             reaction_steps=list(self.project.reaction_steps),
             generic_parameters=dict(self.project.generic_parameters),
+            parameters=list(self.project.parameters),
         )
         self._sync_controls_from_project(self.project)
         self._populate_project_tree()
@@ -1334,6 +1337,7 @@ class MainWindow(QMainWindow):
             polymers=list(self.project.polymers),
             reaction_steps=list(self.project.reaction_steps),
             generic_parameters=dict(self.project.generic_parameters),
+            parameters=list(self.project.parameters),
         )
 
     def _fill_fitting_result_table(self, rows: list[tuple[str, object]]) -> None:
@@ -1759,6 +1763,7 @@ class MainWindow(QMainWindow):
             polymers=list(self.project.polymers),
             reaction_steps=[*self.project.reaction_steps, step],
             generic_parameters={**self.project.generic_parameters, parameter: parameter_value},
+            parameters=list(self.project.parameters),
         )
         self._populate_project_tree()
         self._populate_project_inspector()
@@ -1781,6 +1786,7 @@ class MainWindow(QMainWindow):
             polymers=list(self.project.polymers),
             reaction_steps=steps,
             generic_parameters=dict(self.project.generic_parameters),
+            parameters=list(self.project.parameters),
         )
         self._populate_project_tree()
         self._populate_project_inspector()
@@ -1806,6 +1812,7 @@ class MainWindow(QMainWindow):
             polymers=list(self.project.polymers),
             reaction_steps=steps,
             generic_parameters=generic_parameters,
+            parameters=list(self.project.parameters),
         )
         self._populate_project_tree()
         self._populate_project_inspector()

@@ -99,6 +99,9 @@ def _outputs_at_time(project: Project, time: float) -> dict[str, float]:
         substances=list(project.substances),
         polymers=list(project.polymers),
         reaction_steps=list(project.reaction_steps),
+        general_kinetic_steps=list(project.general_kinetic_steps),
+        general_initial_conditions=dict(project.general_initial_conditions),
         generic_parameters=dict(project.generic_parameters),
+        parameters=list(project.parameters),
     )
     return compute_generic_outputs(SimulationEngine(case).run(), case.outputs)

@@ -103,6 +103,39 @@ class GeneralKineticStep:
 
 
 @dataclass(frozen=True)
+class Substance:
+    name: str
+    alias: str = ""
+    kind: str = "species"
+    molecular_weight: float = 0.0
+    density: float = 0.0
+    is_monomer: bool = False
+    groups: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class PolymerSpecies:
+    name: str
+    alias: str = ""
+    base_monomer: str = ""
+    active: bool = False
+    dead: bool = True
+    molecular_weight: float = 0.0
+    density: float = 0.0
+    groups: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class Parameter:
+    name: str
+    value: float = 0.0
+    unit: str = ""
+    kind: str = "scalar"
+    pre_exponential: float | None = None
+    activation_energy: float | None = None
+
+
+@dataclass(frozen=True)
 class Recipe:
     name: str = "default"
     unit_system: str = "SI"
@@ -132,6 +165,7 @@ class Project:
     general_kinetic_steps: list[GeneralKineticStep] = field(default_factory=list)
     general_initial_conditions: dict[str, float] = field(default_factory=dict)
     generic_parameters: dict[str, float] = field(default_factory=dict)
+    parameters: list[Parameter] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -172,6 +206,7 @@ class Project:
                 for name, value in data.get("general_initial_conditions", {}).items()
             },
             generic_parameters=data.get("generic_parameters", {}),
+            parameters=[_parameter_from_dict(item) for item in data.get("parameters", [])],
         )
 
 
@@ -238,3 +273,34 @@ def _general_kinetic_step_from_dict(data: dict[str, Any] | GeneralKineticStep) -
         enabled=bool(data.get("enabled", True)),
         equilibrium=bool(data.get("equilibrium", False)),
     )
+
+
+def _parameter_from_dict(data: dict[str, Any] | Parameter) -> Parameter:
+    if isinstance(data, Parameter):
+        return data
+    return Parameter(
+        name=str(data.get("name", "")),
+        value=float(data.get("value", 0.0)),
+        unit=str(data.get("unit", "")),
+        kind=str(data.get("kind", "scalar")),
+        pre_exponential=_optional_float(data.get("pre_exponential")),
+        activation_energy=_optional_float(data.get("activation_energy")),
+    )
+
+
+def substance_to_dict(substance: Substance | dict[str, Any]) -> dict[str, Any]:
+    if isinstance(substance, Substance):
+        return asdict(substance)
+    return dict(substance)
+
+
+def polymer_species_to_dict(polymer: PolymerSpecies | dict[str, Any]) -> dict[str, Any]:
+    if isinstance(polymer, PolymerSpecies):
+        return asdict(polymer)
+    return dict(polymer)
+
+
+def _optional_float(value: Any) -> float | None:
+    if value is None:
+        return None
+    return float(value)

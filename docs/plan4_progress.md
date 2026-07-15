@@ -20,11 +20,22 @@ This file tracks implementation evidence against `plan4.md`.
   - concentration history and final concentration metadata
   - callback step/progress events for general kinetics
   - tests: `tests/test_tutorial_projects.py`
+- M23 component administration schema/API foundation
+  - `Substance`, `PolymerSpecies`, `Parameter`
+  - `Project.parameters` registry with `generic_parameters` compatibility
+  - component add/upsert helpers, auto declaration, numeric-constant parameters
+  - reference lookup for polymer reaction steps and general kinetic steps
+  - tests: `tests/test_component_admin.py`
+- M24 PatternFinder-style reaction builder service foundation
+  - searchable reaction pattern catalog
+  - polymer reaction step builder with auto-declared species and parameters
+  - general kinetic step builder with independent stoichiometry and order
+  - tests: `tests/test_reaction_builder.py`
 
 ## Still Incomplete
 
-- M23 component administration GUI/schema polish
-- M24 PatternFinder-style reaction builder
+- M23 component administration GUI polish
+- M24 PatternFinder-style GUI integration and richer template catalog
 - M25 recipe consistency workflow
 - M26 chart administration/reference data
 - M27 tutorial script command aliases

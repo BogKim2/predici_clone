@@ -67,6 +67,8 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#module-predici_clone.api">Public API</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-predici_clone.api.project_schema">Project Schema</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-predici_clone.api.component_admin">Component Administration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-predici_clone.kinetics.reaction_builder">Reaction Builder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-predici_clone.api.automation">Automation and Interoperability</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-predici_clone.engine.simulation_engine">Engine</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-predici_clone.postprocess.generic_outputs">Postprocess</a></li>
@@ -513,6 +515,86 @@
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="predici_clone.api.Parameter">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">predici_clone.api.</span></span><span class="sig-name descname"><span class="pre">Parameter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'float'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'scalar'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pre_exponential</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'float</span> <span class="pre">|</span> <span class="pre">None'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_energy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'float</span> <span class="pre">|</span> <span class="pre">None'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/api/project_schema.html#Parameter"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.api.Parameter" title="Link to this definition">¶</a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.api.Parameter.activation_energy">
+<span class="sig-name descname"><span class="pre">activation_energy</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#predici_clone.api.Parameter.activation_energy" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.api.Parameter.kind">
+<span class="sig-name descname"><span class="pre">kind</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'scalar'</span></em><a class="headerlink" href="#predici_clone.api.Parameter.kind" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.api.Parameter.pre_exponential">
+<span class="sig-name descname"><span class="pre">pre_exponential</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#predici_clone.api.Parameter.pre_exponential" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.api.Parameter.unit">
+<span class="sig-name descname"><span class="pre">unit</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#predici_clone.api.Parameter.unit" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.api.Parameter.value">
+<span class="sig-name descname"><span class="pre">value</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.0</span></em><a class="headerlink" href="#predici_clone.api.Parameter.value" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.api.Parameter.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#predici_clone.api.Parameter.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="predici_clone.api.PolymerSpecies">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">predici_clone.api.</span></span><span class="sig-name descname"><span class="pre">PolymerSpecies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_monomer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'bool'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dead</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'bool'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">molecular_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'float'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'float'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groups</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'tuple[str,</span> <span class="pre">...]'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">()</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/api/project_schema.html#PolymerSpecies"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.api.PolymerSpecies" title="Link to this definition">¶</a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.api.PolymerSpecies.active">
+<span class="sig-name descname"><span class="pre">active</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#predici_clone.api.PolymerSpecies.active" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.api.PolymerSpecies.alias">
+<span class="sig-name descname"><span class="pre">alias</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#predici_clone.api.PolymerSpecies.alias" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.api.PolymerSpecies.base_monomer">
+<span class="sig-name descname"><span class="pre">base_monomer</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#predici_clone.api.PolymerSpecies.base_monomer" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.api.PolymerSpecies.dead">
+<span class="sig-name descname"><span class="pre">dead</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#predici_clone.api.PolymerSpecies.dead" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.api.PolymerSpecies.density">
+<span class="sig-name descname"><span class="pre">density</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.0</span></em><a class="headerlink" href="#predici_clone.api.PolymerSpecies.density" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.api.PolymerSpecies.groups">
+<span class="sig-name descname"><span class="pre">groups</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">()</span></em><a class="headerlink" href="#predici_clone.api.PolymerSpecies.groups" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.api.PolymerSpecies.molecular_weight">
+<span class="sig-name descname"><span class="pre">molecular_weight</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.0</span></em><a class="headerlink" href="#predici_clone.api.PolymerSpecies.molecular_weight" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.api.PolymerSpecies.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#predici_clone.api.PolymerSpecies.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="predici_clone.api.ProfilePoint">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">predici_clone.api.</span></span><span class="sig-name descname"><span class="pre">ProfilePoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'float'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'float'</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/api/project_schema.html#ProfilePoint"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.api.ProfilePoint" title="Link to this definition">¶</a></dt>
 <dd><dl class="py attribute">
@@ -529,7 +611,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="predici_clone.api.Project">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">predici_clone.api.</span></span><span class="sig-name descname"><span class="pre">Project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">schema_version:</span> <span class="pre">'int'</span> <span class="pre">=</span> <span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name:</span> <span class="pre">'str'</span> <span class="pre">=</span> <span class="pre">'PREDICI</span> <span class="pre">Clone</span> <span class="pre">Project'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reactor:</span> <span class="pre">'ReactorConfig'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kinetics:</span> <span class="pre">'FRPParameters'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recipe:</span> <span class="pre">'Recipe'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputs:</span> <span class="pre">'OutputConfig'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">heat_balance:</span> <span class="pre">'HeatBalanceConfig'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">substances:</span> <span class="pre">'list[dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Any]]'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">polymers:</span> <span class="pre">'list[dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Any]]'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reaction_steps:</span> <span class="pre">'list[ReactionStep]'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">general_kinetic_steps:</span> <span class="pre">'list[GeneralKineticStep]'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">general_initial_conditions:</span> <span class="pre">'dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float]'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generic_parameters:</span> <span class="pre">'dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float]'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/api/project_schema.html#Project"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.api.Project" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">predici_clone.api.</span></span><span class="sig-name descname"><span class="pre">Project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">schema_version:</span> <span class="pre">'int'</span> <span class="pre">=</span> <span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name:</span> <span class="pre">'str'</span> <span class="pre">=</span> <span class="pre">'PREDICI</span> <span class="pre">Clone</span> <span class="pre">Project'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reactor:</span> <span class="pre">'ReactorConfig'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kinetics:</span> <span class="pre">'FRPParameters'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recipe:</span> <span class="pre">'Recipe'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputs:</span> <span class="pre">'OutputConfig'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">heat_balance:</span> <span class="pre">'HeatBalanceConfig'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">substances:</span> <span class="pre">'list[dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Any]]'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">polymers:</span> <span class="pre">'list[dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Any]]'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reaction_steps:</span> <span class="pre">'list[ReactionStep]'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">general_kinetic_steps:</span> <span class="pre">'list[GeneralKineticStep]'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">general_initial_conditions:</span> <span class="pre">'dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float]'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generic_parameters:</span> <span class="pre">'dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float]'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters:</span> <span class="pre">'list[Parameter]'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/api/project_schema.html#Project"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.api.Project" title="Link to this definition">¶</a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="predici_clone.api.Project.from_dict">
 <em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/api/project_schema.html#Project.from_dict"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.api.Project.from_dict" title="Link to this definition">¶</a></dt>
@@ -603,6 +685,11 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="predici_clone.api.Project.generic_parameters">
 <span class="sig-name descname"><span class="pre">generic_parameters</span></span><a class="headerlink" href="#predici_clone.api.Project.generic_parameters" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.api.Project.parameters">
+<span class="sig-name descname"><span class="pre">parameters</span></span><a class="headerlink" href="#predici_clone.api.Project.parameters" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -702,6 +789,46 @@
 
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="predici_clone.api.Substance">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">predici_clone.api.</span></span><span class="sig-name descname"><span class="pre">Substance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'species'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">molecular_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'float'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'float'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_monomer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'bool'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groups</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'tuple[str,</span> <span class="pre">...]'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">()</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/api/project_schema.html#Substance"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.api.Substance" title="Link to this definition">¶</a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.api.Substance.alias">
+<span class="sig-name descname"><span class="pre">alias</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#predici_clone.api.Substance.alias" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.api.Substance.density">
+<span class="sig-name descname"><span class="pre">density</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.0</span></em><a class="headerlink" href="#predici_clone.api.Substance.density" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.api.Substance.groups">
+<span class="sig-name descname"><span class="pre">groups</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">()</span></em><a class="headerlink" href="#predici_clone.api.Substance.groups" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.api.Substance.is_monomer">
+<span class="sig-name descname"><span class="pre">is_monomer</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#predici_clone.api.Substance.is_monomer" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.api.Substance.kind">
+<span class="sig-name descname"><span class="pre">kind</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'species'</span></em><a class="headerlink" href="#predici_clone.api.Substance.kind" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.api.Substance.molecular_weight">
+<span class="sig-name descname"><span class="pre">molecular_weight</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.0</span></em><a class="headerlink" href="#predici_clone.api.Substance.molecular_weight" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.api.Substance.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#predici_clone.api.Substance.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="predici_clone.api.activate_detailed_iteration">
 <span class="sig-prename descclassname"><span class="pre">predici_clone.api.</span></span><span class="sig-name descname"><span class="pre">activate_detailed_iteration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_output</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tune_parameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/api/automation.html#activate_detailed_iteration"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.api.activate_detailed_iteration" title="Link to this definition">¶</a></dt>
@@ -713,8 +840,23 @@
 <dd></dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="predici_clone.api.add_parameter">
+<span class="sig-prename descclassname"><span class="pre">predici_clone.api.</span></span><span class="sig-name descname"><span class="pre">add_parameter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/api/component_admin.html#add_parameter"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.api.add_parameter" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="predici_clone.api.add_polymer_feed">
 <span class="sig-prename descclassname"><span class="pre">predici_clone.api.</span></span><span class="sig-name descname"><span class="pre">add_polymer_feed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass_fraction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/api/recipe_profiles.html#add_polymer_feed"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.api.add_polymer_feed" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="predici_clone.api.add_polymer_species">
+<span class="sig-prename descclassname"><span class="pre">predici_clone.api.</span></span><span class="sig-name descname"><span class="pre">add_polymer_species</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">polymer</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/api/component_admin.html#add_polymer_species"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.api.add_polymer_species" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="predici_clone.api.add_substance">
+<span class="sig-prename descclassname"><span class="pre">predici_clone.api.</span></span><span class="sig-name descname"><span class="pre">add_substance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">substance</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/api/component_admin.html#add_substance"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.api.add_substance" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -728,8 +870,18 @@
 <dd></dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="predici_clone.api.auto_declare_components">
+<span class="sig-prename descclassname"><span class="pre">predici_clone.api.</span></span><span class="sig-name descname"><span class="pre">auto_declare_components</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">species_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">polymer_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/api/component_admin.html#auto_declare_components"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.api.auto_declare_components" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="predici_clone.api.check_enthalpy">
 <span class="sig-prename descclassname"><span class="pre">predici_clone.api.</span></span><span class="sig-name descname"><span class="pre">check_enthalpy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_reactor_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/api/automation.html#check_enthalpy"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.api.check_enthalpy" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="predici_clone.api.component_references">
+<span class="sig-prename descclassname"><span class="pre">predici_clone.api.</span></span><span class="sig-name descname"><span class="pre">component_references</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/api/component_admin.html#component_references"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.api.component_references" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -835,6 +987,11 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="predici_clone.api.inspect_pyinstaller_packaging">
 <span class="sig-prename descclassname"><span class="pre">predici_clone.api.</span></span><span class="sig-name descname"><span class="pre">inspect_pyinstaller_packaging</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spec_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'packaging/pyinstaller_predici_clone.spec'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/api/packaging_smoke.html#inspect_pyinstaller_packaging"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.api.inspect_pyinstaller_packaging" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="predici_clone.api.parameter_value">
+<span class="sig-prename descclassname"><span class="pre">predici_clone.api.</span></span><span class="sig-name descname"><span class="pre">parameter_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/api/component_admin.html#parameter_value"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.api.parameter_value" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -1241,6 +1398,126 @@
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="predici_clone.api.project_schema.Substance">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">predici_clone.api.project_schema.</span></span><span class="sig-name descname"><span class="pre">Substance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'species'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">molecular_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'float'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'float'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_monomer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'bool'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groups</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'tuple[str,</span> <span class="pre">...]'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">()</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/api/project_schema.html#Substance"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.api.project_schema.Substance" title="Link to this definition">¶</a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.api.project_schema.Substance.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#predici_clone.api.project_schema.Substance.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.api.project_schema.Substance.alias">
+<span class="sig-name descname"><span class="pre">alias</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#predici_clone.api.project_schema.Substance.alias" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.api.project_schema.Substance.kind">
+<span class="sig-name descname"><span class="pre">kind</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'species'</span></em><a class="headerlink" href="#predici_clone.api.project_schema.Substance.kind" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.api.project_schema.Substance.molecular_weight">
+<span class="sig-name descname"><span class="pre">molecular_weight</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.0</span></em><a class="headerlink" href="#predici_clone.api.project_schema.Substance.molecular_weight" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.api.project_schema.Substance.density">
+<span class="sig-name descname"><span class="pre">density</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.0</span></em><a class="headerlink" href="#predici_clone.api.project_schema.Substance.density" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.api.project_schema.Substance.is_monomer">
+<span class="sig-name descname"><span class="pre">is_monomer</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#predici_clone.api.project_schema.Substance.is_monomer" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.api.project_schema.Substance.groups">
+<span class="sig-name descname"><span class="pre">groups</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">()</span></em><a class="headerlink" href="#predici_clone.api.project_schema.Substance.groups" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="predici_clone.api.project_schema.PolymerSpecies">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">predici_clone.api.project_schema.</span></span><span class="sig-name descname"><span class="pre">PolymerSpecies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_monomer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'bool'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dead</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'bool'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">molecular_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'float'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'float'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groups</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'tuple[str,</span> <span class="pre">...]'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">()</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/api/project_schema.html#PolymerSpecies"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.api.project_schema.PolymerSpecies" title="Link to this definition">¶</a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.api.project_schema.PolymerSpecies.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#predici_clone.api.project_schema.PolymerSpecies.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.api.project_schema.PolymerSpecies.alias">
+<span class="sig-name descname"><span class="pre">alias</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#predici_clone.api.project_schema.PolymerSpecies.alias" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.api.project_schema.PolymerSpecies.base_monomer">
+<span class="sig-name descname"><span class="pre">base_monomer</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#predici_clone.api.project_schema.PolymerSpecies.base_monomer" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.api.project_schema.PolymerSpecies.active">
+<span class="sig-name descname"><span class="pre">active</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#predici_clone.api.project_schema.PolymerSpecies.active" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.api.project_schema.PolymerSpecies.dead">
+<span class="sig-name descname"><span class="pre">dead</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#predici_clone.api.project_schema.PolymerSpecies.dead" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.api.project_schema.PolymerSpecies.molecular_weight">
+<span class="sig-name descname"><span class="pre">molecular_weight</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.0</span></em><a class="headerlink" href="#predici_clone.api.project_schema.PolymerSpecies.molecular_weight" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.api.project_schema.PolymerSpecies.density">
+<span class="sig-name descname"><span class="pre">density</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.0</span></em><a class="headerlink" href="#predici_clone.api.project_schema.PolymerSpecies.density" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.api.project_schema.PolymerSpecies.groups">
+<span class="sig-name descname"><span class="pre">groups</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">()</span></em><a class="headerlink" href="#predici_clone.api.project_schema.PolymerSpecies.groups" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="predici_clone.api.project_schema.Parameter">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">predici_clone.api.project_schema.</span></span><span class="sig-name descname"><span class="pre">Parameter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'float'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'scalar'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pre_exponential</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'float</span> <span class="pre">|</span> <span class="pre">None'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_energy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'float</span> <span class="pre">|</span> <span class="pre">None'</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/api/project_schema.html#Parameter"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.api.project_schema.Parameter" title="Link to this definition">¶</a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.api.project_schema.Parameter.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#predici_clone.api.project_schema.Parameter.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.api.project_schema.Parameter.value">
+<span class="sig-name descname"><span class="pre">value</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.0</span></em><a class="headerlink" href="#predici_clone.api.project_schema.Parameter.value" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.api.project_schema.Parameter.unit">
+<span class="sig-name descname"><span class="pre">unit</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#predici_clone.api.project_schema.Parameter.unit" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.api.project_schema.Parameter.kind">
+<span class="sig-name descname"><span class="pre">kind</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'scalar'</span></em><a class="headerlink" href="#predici_clone.api.project_schema.Parameter.kind" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.api.project_schema.Parameter.pre_exponential">
+<span class="sig-name descname"><span class="pre">pre_exponential</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#predici_clone.api.project_schema.Parameter.pre_exponential" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.api.project_schema.Parameter.activation_energy">
+<span class="sig-name descname"><span class="pre">activation_energy</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#predici_clone.api.project_schema.Parameter.activation_energy" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="predici_clone.api.project_schema.Recipe">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">predici_clone.api.project_schema.</span></span><span class="sig-name descname"><span class="pre">Recipe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name:</span> <span class="pre">'str'</span> <span class="pre">=</span> <span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit_system:</span> <span class="pre">'str'</span> <span class="pre">=</span> <span class="pre">'SI'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial:</span> <span class="pre">'InitialConditions'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feed:</span> <span class="pre">'FeedStream'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feed_tanks:</span> <span class="pre">'list[FeedStream]'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">polymer_feed:</span> <span class="pre">'list[dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Any]]'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">integration:</span> <span class="pre">'IntegrationControl'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pre_schedule:</span> <span class="pre">'list[dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Any]]'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature_profile:</span> <span class="pre">'list[ProfilePoint]'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure_profile:</span> <span class="pre">'list[ProfilePoint]'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shooting_control:</span> <span class="pre">'dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Any]'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/api/project_schema.html#Recipe"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.api.project_schema.Recipe" title="Link to this definition">¶</a></dt>
 <dd><dl class="py attribute">
@@ -1302,7 +1579,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="predici_clone.api.project_schema.Project">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">predici_clone.api.project_schema.</span></span><span class="sig-name descname"><span class="pre">Project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">schema_version:</span> <span class="pre">'int'</span> <span class="pre">=</span> <span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name:</span> <span class="pre">'str'</span> <span class="pre">=</span> <span class="pre">'PREDICI</span> <span class="pre">Clone</span> <span class="pre">Project'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reactor:</span> <span class="pre">'ReactorConfig'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kinetics:</span> <span class="pre">'FRPParameters'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recipe:</span> <span class="pre">'Recipe'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputs:</span> <span class="pre">'OutputConfig'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">heat_balance:</span> <span class="pre">'HeatBalanceConfig'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">substances:</span> <span class="pre">'list[dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Any]]'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">polymers:</span> <span class="pre">'list[dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Any]]'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reaction_steps:</span> <span class="pre">'list[ReactionStep]'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">general_kinetic_steps:</span> <span class="pre">'list[GeneralKineticStep]'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">general_initial_conditions:</span> <span class="pre">'dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float]'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generic_parameters:</span> <span class="pre">'dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float]'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/api/project_schema.html#Project"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.api.project_schema.Project" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">predici_clone.api.project_schema.</span></span><span class="sig-name descname"><span class="pre">Project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">schema_version:</span> <span class="pre">'int'</span> <span class="pre">=</span> <span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name:</span> <span class="pre">'str'</span> <span class="pre">=</span> <span class="pre">'PREDICI</span> <span class="pre">Clone</span> <span class="pre">Project'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reactor:</span> <span class="pre">'ReactorConfig'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kinetics:</span> <span class="pre">'FRPParameters'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recipe:</span> <span class="pre">'Recipe'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputs:</span> <span class="pre">'OutputConfig'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">heat_balance:</span> <span class="pre">'HeatBalanceConfig'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">substances:</span> <span class="pre">'list[dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Any]]'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">polymers:</span> <span class="pre">'list[dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Any]]'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reaction_steps:</span> <span class="pre">'list[ReactionStep]'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">general_kinetic_steps:</span> <span class="pre">'list[GeneralKineticStep]'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">general_initial_conditions:</span> <span class="pre">'dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float]'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generic_parameters:</span> <span class="pre">'dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float]'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters:</span> <span class="pre">'list[Parameter]'</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/api/project_schema.html#Project"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.api.project_schema.Project" title="Link to this definition">¶</a></dt>
 <dd><dl class="py attribute">
 <dt class="sig sig-object py" id="predici_clone.api.project_schema.Project.schema_version">
 <span class="sig-name descname"><span class="pre">schema_version</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#predici_clone.api.project_schema.Project.schema_version" title="Link to this definition">¶</a></dt>
@@ -1368,6 +1645,11 @@
 <span class="sig-name descname"><span class="pre">generic_parameters</span></span><a class="headerlink" href="#predici_clone.api.project_schema.Project.generic_parameters" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.api.project_schema.Project.parameters">
+<span class="sig-name descname"><span class="pre">parameters</span></span><a class="headerlink" href="#predici_clone.api.project_schema.Project.parameters" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="predici_clone.api.project_schema.Project.to_dict">
 <span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/api/project_schema.html#Project.to_dict"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.api.project_schema.Project.to_dict" title="Link to this definition">¶</a></dt>
@@ -1383,6 +1665,112 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="predici_clone.api.project_schema.sample_project">
 <span class="sig-prename descclassname"><span class="pre">predici_clone.api.project_schema.</span></span><span class="sig-name descname"><span class="pre">sample_project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Batch'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/api/project_schema.html#sample_project"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.api.project_schema.sample_project" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="predici_clone.api.project_schema.substance_to_dict">
+<span class="sig-prename descclassname"><span class="pre">predici_clone.api.project_schema.</span></span><span class="sig-name descname"><span class="pre">substance_to_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">substance</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/api/project_schema.html#substance_to_dict"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.api.project_schema.substance_to_dict" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="predici_clone.api.project_schema.polymer_species_to_dict">
+<span class="sig-prename descclassname"><span class="pre">predici_clone.api.project_schema.</span></span><span class="sig-name descname"><span class="pre">polymer_species_to_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">polymer</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/api/project_schema.html#polymer_species_to_dict"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.api.project_schema.polymer_species_to_dict" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-predici_clone.api.component_admin">
+<span id="component-administration"></span><h2>Component Administration<a class="headerlink" href="#module-predici_clone.api.component_admin" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="predici_clone.api.component_admin.add_substance">
+<span class="sig-prename descclassname"><span class="pre">predici_clone.api.component_admin.</span></span><span class="sig-name descname"><span class="pre">add_substance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">substance</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/api/component_admin.html#add_substance"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.api.component_admin.add_substance" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="predici_clone.api.component_admin.add_polymer_species">
+<span class="sig-prename descclassname"><span class="pre">predici_clone.api.component_admin.</span></span><span class="sig-name descname"><span class="pre">add_polymer_species</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">polymer</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/api/component_admin.html#add_polymer_species"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.api.component_admin.add_polymer_species" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="predici_clone.api.component_admin.add_parameter">
+<span class="sig-prename descclassname"><span class="pre">predici_clone.api.component_admin.</span></span><span class="sig-name descname"><span class="pre">add_parameter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/api/component_admin.html#add_parameter"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.api.component_admin.add_parameter" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="predici_clone.api.component_admin.auto_declare_components">
+<span class="sig-prename descclassname"><span class="pre">predici_clone.api.component_admin.</span></span><span class="sig-name descname"><span class="pre">auto_declare_components</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">species_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">polymer_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/api/component_admin.html#auto_declare_components"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.api.component_admin.auto_declare_components" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="predici_clone.api.component_admin.parameter_value">
+<span class="sig-prename descclassname"><span class="pre">predici_clone.api.component_admin.</span></span><span class="sig-name descname"><span class="pre">parameter_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/api/component_admin.html#parameter_value"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.api.component_admin.parameter_value" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="predici_clone.api.component_admin.component_references">
+<span class="sig-prename descclassname"><span class="pre">predici_clone.api.component_admin.</span></span><span class="sig-name descname"><span class="pre">component_references</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/api/component_admin.html#component_references"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.api.component_admin.component_references" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-predici_clone.kinetics.reaction_builder">
+<span id="reaction-builder"></span><h2>Reaction Builder<a class="headerlink" href="#module-predici_clone.kinetics.reaction_builder" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="predici_clone.kinetics.reaction_builder.ReactionPattern">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">predici_clone.kinetics.reaction_builder.</span></span><span class="sig-name descname"><span class="pre">ReactionPattern</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">category</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'ReactionKind</span> <span class="pre">|</span> <span class="pre">None'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'str'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reactant_slots</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'tuple[str,</span> <span class="pre">...]'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">product_slots</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'tuple[str,</span> <span class="pre">...]'</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter_slots</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="s"><span class="pre">'tuple[str,</span> <span class="pre">...]'</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/kinetics/reaction_builder.html#ReactionPattern"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.kinetics.reaction_builder.ReactionPattern" title="Link to this definition">¶</a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.kinetics.reaction_builder.ReactionPattern.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#predici_clone.kinetics.reaction_builder.ReactionPattern.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.kinetics.reaction_builder.ReactionPattern.category">
+<span class="sig-name descname"><span class="pre">category</span></span><a class="headerlink" href="#predici_clone.kinetics.reaction_builder.ReactionPattern.category" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.kinetics.reaction_builder.ReactionPattern.kind">
+<span class="sig-name descname"><span class="pre">kind</span></span><a class="headerlink" href="#predici_clone.kinetics.reaction_builder.ReactionPattern.kind" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.kinetics.reaction_builder.ReactionPattern.description">
+<span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#predici_clone.kinetics.reaction_builder.ReactionPattern.description" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.kinetics.reaction_builder.ReactionPattern.reactant_slots">
+<span class="sig-name descname"><span class="pre">reactant_slots</span></span><a class="headerlink" href="#predici_clone.kinetics.reaction_builder.ReactionPattern.reactant_slots" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.kinetics.reaction_builder.ReactionPattern.product_slots">
+<span class="sig-name descname"><span class="pre">product_slots</span></span><a class="headerlink" href="#predici_clone.kinetics.reaction_builder.ReactionPattern.product_slots" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="predici_clone.kinetics.reaction_builder.ReactionPattern.parameter_slots">
+<span class="sig-name descname"><span class="pre">parameter_slots</span></span><a class="headerlink" href="#predici_clone.kinetics.reaction_builder.ReactionPattern.parameter_slots" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="predici_clone.kinetics.reaction_builder.reaction_pattern_catalog">
+<span class="sig-prename descclassname"><span class="pre">predici_clone.kinetics.reaction_builder.</span></span><span class="sig-name descname"><span class="pre">reaction_pattern_catalog</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/kinetics/reaction_builder.html#reaction_pattern_catalog"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.kinetics.reaction_builder.reaction_pattern_catalog" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="predici_clone.kinetics.reaction_builder.filter_reaction_patterns">
+<span class="sig-prename descclassname"><span class="pre">predici_clone.kinetics.reaction_builder.</span></span><span class="sig-name descname"><span class="pre">filter_reaction_patterns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">category</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/kinetics/reaction_builder.html#filter_reaction_patterns"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.kinetics.reaction_builder.filter_reaction_patterns" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="predici_clone.kinetics.reaction_builder.build_polymer_reaction_step">
+<span class="sig-prename descclassname"><span class="pre">predici_clone.kinetics.reaction_builder.</span></span><span class="sig-name descname"><span class="pre">build_polymer_reaction_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">pattern_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reactants</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">products</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enabled</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/kinetics/reaction_builder.html#build_polymer_reaction_step"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.kinetics.reaction_builder.build_polymer_reaction_step" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="predici_clone.kinetics.reaction_builder.build_general_kinetic_step">
+<span class="sig-prename descclassname"><span class="pre">predici_clone.kinetics.reaction_builder.</span></span><span class="sig-name descname"><span class="pre">build_general_kinetic_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reactants</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">products</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forward_parameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backward_parameter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'0'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enabled</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">equilibrium</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/predici_clone/kinetics/reaction_builder.html#build_general_kinetic_step"><span class="viewcode-link"><span class="pre">[소스]</span></span></a><a class="headerlink" href="#predici_clone.kinetics.reaction_builder.build_general_kinetic_step" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </section>

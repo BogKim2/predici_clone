@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+
+<html lang="ko" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>predici_clone.kinetics.reaction_builder &#8212; PREDICI Clone Manual</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=ac66fb28" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=030cfef0" />
+    <script src="../../../_static/documentation_options.js?v=d6a8a7ef"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/translations.js?v=afa94a99"></script>
+    <link rel="index" title="색인" href="../../../genindex.html" />
+    <link rel="search" title="검색" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">PREDICI Clone Manual</a></h1>
+
+
+
+<p class="blurb">Polymerization simulation, GUI, API, and validation guide</p>
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="이동" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>탐색</h3>
+<p class="caption" role="heading"><span class="caption-text">사용자 문서</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">설치</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">빠른 시작</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gui.html">GUI 사용법</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../projects.html">프로젝트와 Recipe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../outputs.html">Outputs와 Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../fitting.html">Parameter Estimation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../packaging.html">패키징</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">개발자 문서</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../architecture.html">구조</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../validation.html">검증과 Benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../extending.html">확장 가이드</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">용어</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">모듈 코드</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>predici_clone.kinetics.reaction_builder의 소스 코드</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">replace</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">predici_clone.api.component_admin</span><span class="w"> </span><span class="kn">import</span> <span class="n">auto_declare_components</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">predici_clone.api.project_schema</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeneralKineticParticipant</span><span class="p">,</span> <span class="n">GeneralKineticStep</span><span class="p">,</span> <span class="n">Project</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">predici_clone.kinetics.reaction</span><span class="w"> </span><span class="kn">import</span> <span class="n">RateLaw</span><span class="p">,</span> <span class="n">ReactionKind</span><span class="p">,</span> <span class="n">ReactionStep</span>
+
+
+<div class="viewcode-block" id="ReactionPattern">
+<a class="viewcode-back" href="../../../api.html#predici_clone.kinetics.reaction_builder.ReactionPattern">[문서]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ReactionPattern</span><span class="p">:</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">category</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">kind</span><span class="p">:</span> <span class="n">ReactionKind</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">reactant_slots</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+    <span class="n">product_slots</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+    <span class="n">parameter_slots</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="reaction_pattern_catalog">
+<a class="viewcode-back" href="../../../api.html#predici_clone.kinetics.reaction_builder.reaction_pattern_catalog">[문서]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">reaction_pattern_catalog</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ReactionPattern</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">ReactionPattern</span><span class="p">(</span>
+            <span class="s2">&quot;Propagation&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;polymer&quot;</span><span class="p">,</span>
+            <span class="n">ReactionKind</span><span class="o">.</span><span class="n">PROPAGATION</span><span class="p">,</span>
+            <span class="s2">&quot;Polymer radical growth by monomer addition&quot;</span><span class="p">,</span>
+            <span class="p">(</span><span class="s2">&quot;polymer_radical&quot;</span><span class="p">,</span> <span class="s2">&quot;monomer&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;polymer_radical&quot;</span><span class="p">,),</span>
+            <span class="p">(</span><span class="s2">&quot;GP_kp&quot;</span><span class="p">,),</span>
+        <span class="p">),</span>
+        <span class="n">ReactionPattern</span><span class="p">(</span>
+            <span class="s2">&quot;TerminationCombination&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;polymer&quot;</span><span class="p">,</span>
+            <span class="n">ReactionKind</span><span class="o">.</span><span class="n">TERMINATION_COMBINATION</span><span class="p">,</span>
+            <span class="s2">&quot;Two live chains combine into one dead chain&quot;</span><span class="p">,</span>
+            <span class="p">(</span><span class="s2">&quot;polymer_radical&quot;</span><span class="p">,</span> <span class="s2">&quot;polymer_radical&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;dead_polymer&quot;</span><span class="p">,),</span>
+            <span class="p">(</span><span class="s2">&quot;GP_ktc&quot;</span><span class="p">,),</span>
+        <span class="p">),</span>
+        <span class="n">ReactionPattern</span><span class="p">(</span>
+            <span class="s2">&quot;TerminationDisproportionation&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;polymer&quot;</span><span class="p">,</span>
+            <span class="n">ReactionKind</span><span class="o">.</span><span class="n">TERMINATION_DISPROPORTIONATION</span><span class="p">,</span>
+            <span class="s2">&quot;Two live chains terminate without chain combination&quot;</span><span class="p">,</span>
+            <span class="p">(</span><span class="s2">&quot;polymer_radical&quot;</span><span class="p">,</span> <span class="s2">&quot;polymer_radical&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;dead_polymer&quot;</span><span class="p">,</span> <span class="s2">&quot;dead_polymer&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;GP_ktd&quot;</span><span class="p">,),</span>
+        <span class="p">),</span>
+        <span class="n">ReactionPattern</span><span class="p">(</span>
+            <span class="s2">&quot;ChainTransfer&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;polymer&quot;</span><span class="p">,</span>
+            <span class="n">ReactionKind</span><span class="o">.</span><span class="n">CHAIN_TRANSFER_TO_AGENT</span><span class="p">,</span>
+            <span class="s2">&quot;Live chain transfers activity to a transfer agent&quot;</span><span class="p">,</span>
+            <span class="p">(</span><span class="s2">&quot;polymer_radical&quot;</span><span class="p">,</span> <span class="s2">&quot;transfer_agent&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;dead_polymer&quot;</span><span class="p">,</span> <span class="s2">&quot;new_radical&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;GP_cta&quot;</span><span class="p">,),</span>
+        <span class="p">),</span>
+        <span class="n">ReactionPattern</span><span class="p">(</span>
+            <span class="s2">&quot;GeneralKinetic&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;kinetic&quot;</span><span class="p">,</span>
+            <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;Mass-action reaction with independent stoichiometric coefficients and reaction orders&quot;</span><span class="p">,</span>
+            <span class="p">(</span><span class="s2">&quot;reactants&quot;</span><span class="p">,),</span>
+            <span class="p">(</span><span class="s2">&quot;products&quot;</span><span class="p">,),</span>
+            <span class="p">(</span><span class="s2">&quot;kf&quot;</span><span class="p">,</span> <span class="s2">&quot;kb&quot;</span><span class="p">),</span>
+        <span class="p">),</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="filter_reaction_patterns">
+<a class="viewcode-back" href="../../../api.html#predici_clone.kinetics.reaction_builder.filter_reaction_patterns">[문서]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">filter_reaction_patterns</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ReactionPattern</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="n">needle</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="n">matches</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">reaction_pattern_catalog</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">category</span> <span class="ow">and</span> <span class="n">pattern</span><span class="o">.</span><span class="n">category</span> <span class="o">!=</span> <span class="n">category</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">haystack</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pattern</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">pattern</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">pattern</span><span class="o">.</span><span class="n">category</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">needle</span> <span class="ow">and</span> <span class="n">needle</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">haystack</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">matches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pattern</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="build_polymer_reaction_step">
+<a class="viewcode-back" href="../../../api.html#predici_clone.kinetics.reaction_builder.build_polymer_reaction_step">[문서]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_polymer_reaction_step</span><span class="p">(</span>
+    <span class="n">project</span><span class="p">:</span> <span class="n">Project</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">pattern_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">reactants</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">products</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">parameter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">site</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+    <span class="n">enabled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Project</span><span class="p">:</span>
+    <span class="n">pattern</span> <span class="o">=</span> <span class="n">_pattern_by_name</span><span class="p">(</span><span class="n">pattern_name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">pattern</span><span class="o">.</span><span class="n">kind</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Pattern is not a polymer reaction: </span><span class="si">{</span><span class="n">pattern_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">updated</span> <span class="o">=</span> <span class="n">auto_declare_components</span><span class="p">(</span>
+        <span class="n">project</span><span class="p">,</span>
+        <span class="n">species_names</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">reactants</span><span class="p">)</span> <span class="o">+</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">products</span><span class="p">),</span>
+        <span class="n">parameter_names</span><span class="o">=</span><span class="p">(</span><span class="n">parameter</span><span class="p">,),</span>
+    <span class="p">)</span>
+    <span class="n">step</span> <span class="o">=</span> <span class="n">ReactionStep</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pattern</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">site</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">kind</span><span class="o">=</span><span class="n">pattern</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span>
+        <span class="n">reactants</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">reactants</span><span class="p">),</span>
+        <span class="n">products</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">products</span><span class="p">),</span>
+        <span class="n">rate_law</span><span class="o">=</span><span class="n">RateLaw</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="p">(</span><span class="n">parameter</span><span class="p">,)),</span>
+        <span class="n">enabled</span><span class="o">=</span><span class="n">enabled</span><span class="p">,</span>
+        <span class="n">site</span><span class="o">=</span><span class="n">site</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">replace</span><span class="p">(</span><span class="n">updated</span><span class="p">,</span> <span class="n">reaction_steps</span><span class="o">=</span><span class="p">[</span><span class="o">*</span><span class="n">updated</span><span class="o">.</span><span class="n">reaction_steps</span><span class="p">,</span> <span class="n">step</span><span class="p">])</span></div>
+
+
+
+<div class="viewcode-block" id="build_general_kinetic_step">
+<a class="viewcode-back" href="../../../api.html#predici_clone.kinetics.reaction_builder.build_general_kinetic_step">[문서]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_general_kinetic_step</span><span class="p">(</span>
+    <span class="n">project</span><span class="p">:</span> <span class="n">Project</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">reactants</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">GeneralKineticParticipant</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">products</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">GeneralKineticParticipant</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">forward_parameter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">backward_parameter</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span>
+    <span class="n">enabled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">equilibrium</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Project</span><span class="p">:</span>
+    <span class="n">reactant_entries</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">_participant</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">reactants</span><span class="p">)</span>
+    <span class="n">product_entries</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">_participant</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">products</span><span class="p">)</span>
+    <span class="n">species_names</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">species</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="p">(</span><span class="o">*</span><span class="n">reactant_entries</span><span class="p">,</span> <span class="o">*</span><span class="n">product_entries</span><span class="p">))</span>
+    <span class="n">updated</span> <span class="o">=</span> <span class="n">auto_declare_components</span><span class="p">(</span>
+        <span class="n">project</span><span class="p">,</span>
+        <span class="n">species_names</span><span class="o">=</span><span class="n">species_names</span><span class="p">,</span>
+        <span class="n">parameter_names</span><span class="o">=</span><span class="p">(</span><span class="n">forward_parameter</span><span class="p">,</span> <span class="n">backward_parameter</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">step</span> <span class="o">=</span> <span class="n">GeneralKineticStep</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+        <span class="n">reactants</span><span class="o">=</span><span class="n">reactant_entries</span><span class="p">,</span>
+        <span class="n">products</span><span class="o">=</span><span class="n">product_entries</span><span class="p">,</span>
+        <span class="n">forward_parameter</span><span class="o">=</span><span class="n">forward_parameter</span><span class="p">,</span>
+        <span class="n">backward_parameter</span><span class="o">=</span><span class="n">backward_parameter</span><span class="p">,</span>
+        <span class="n">enabled</span><span class="o">=</span><span class="n">enabled</span><span class="p">,</span>
+        <span class="n">equilibrium</span><span class="o">=</span><span class="n">equilibrium</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">replace</span><span class="p">(</span><span class="n">updated</span><span class="p">,</span> <span class="n">general_kinetic_steps</span><span class="o">=</span><span class="p">[</span><span class="o">*</span><span class="n">updated</span><span class="o">.</span><span class="n">general_kinetic_steps</span><span class="p">,</span> <span class="n">step</span><span class="p">])</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_pattern_by_name</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReactionPattern</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">reaction_pattern_catalog</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">pattern</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">name</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pattern</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown reaction pattern: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_participant</span><span class="p">(</span>
+    <span class="n">item</span><span class="p">:</span> <span class="n">GeneralKineticParticipant</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GeneralKineticParticipant</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">GeneralKineticParticipant</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">item</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">species</span><span class="p">,</span> <span class="n">stoichiometry</span> <span class="o">=</span> <span class="n">item</span>
+        <span class="k">return</span> <span class="n">GeneralKineticParticipant</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">species</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">stoichiometry</span><span class="p">))</span>
+    <span class="n">species</span><span class="p">,</span> <span class="n">stoichiometry</span><span class="p">,</span> <span class="n">order</span> <span class="o">=</span> <span class="n">item</span>
+    <span class="k">return</span> <span class="n">GeneralKineticParticipant</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">species</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">stoichiometry</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">order</span><span class="p">))</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &#169;.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

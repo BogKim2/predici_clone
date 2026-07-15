@@ -34,6 +34,7 @@ def create_recipe(project: Project, recipe_name: str, option: str = "copy") -> P
         general_kinetic_steps=list(project.general_kinetic_steps),
         general_initial_conditions=dict(project.general_initial_conditions),
         generic_parameters=dict(project.generic_parameters),
+        parameters=list(project.parameters),
     )
 
 
@@ -71,6 +72,7 @@ def set_feed_rate(project: Project, rate: float) -> Project:
         general_kinetic_steps=list(project.general_kinetic_steps),
         general_initial_conditions=dict(project.general_initial_conditions),
         generic_parameters=dict(project.generic_parameters),
+        parameters=list(project.parameters),
     )
 
 
@@ -129,6 +131,7 @@ def set_dist_lumping(project: Project, on_off: bool) -> Project:
         general_kinetic_steps=list(project.general_kinetic_steps),
         general_initial_conditions=dict(project.general_initial_conditions),
         generic_parameters=parameters,
+        parameters=list(project.parameters),
     )
 
 
@@ -177,6 +180,7 @@ def set_heat_exchanger(
         general_kinetic_steps=list(project.general_kinetic_steps),
         general_initial_conditions=dict(project.general_initial_conditions),
         generic_parameters=dict(project.generic_parameters),
+        parameters=list(project.parameters),
     )
 
 
@@ -219,6 +223,7 @@ def set_enthalpy(project: Project, step_type: str, reactant: str, value: float) 
         general_kinetic_steps=list(project.general_kinetic_steps),
         general_initial_conditions=dict(project.general_initial_conditions),
         generic_parameters=parameters,
+        parameters=list(project.parameters),
     )
 
 

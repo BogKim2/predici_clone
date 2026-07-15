@@ -15,6 +15,20 @@ Project Schema
    :members:
    :undoc-members:
 
+Component Administration
+------------------------
+
+.. automodule:: predici_clone.api.component_admin
+   :members:
+   :undoc-members:
+
+Reaction Builder
+----------------
+
+.. automodule:: predici_clone.kinetics.reaction_builder
+   :members:
+   :undoc-members:
+
 Automation and Interoperability
 -------------------------------
 

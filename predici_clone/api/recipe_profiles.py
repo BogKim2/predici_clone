@@ -170,4 +170,5 @@ def _with_recipe_and_reactor(project: Project, recipe: Recipe, reactor: ReactorC
         general_kinetic_steps=list(project.general_kinetic_steps),
         general_initial_conditions=dict(project.general_initial_conditions),
         generic_parameters=dict(project.generic_parameters),
+        parameters=list(project.parameters),
     )
