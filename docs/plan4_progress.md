@@ -45,6 +45,10 @@ This file tracks implementation evidence against `plan4.md`.
   - `Set rest` remainder fill for mass and mole parts
   - feed tank schema carries feed type, profile, script-control flags, and switch time
   - tests: `tests/test_recipe_consistency.py`
+- M25 recipe consistency GUI foundation
+  - Recipe tab includes a consistency table with component name/MW/density/concentration/parts
+  - `Set concentration consistent` and `Set rest` buttons call the core consistency service
+  - tests: `tests/test_postprocess_and_gui.py`
 - M27 script command catalog/template foundation
   - data-driven script function catalog with implemented/stub command markers
   - safe scripted-output evaluator supports string arguments and whitelisted command callables
@@ -82,7 +86,7 @@ This file tracks implementation evidence against `plan4.md`.
 
 - M23 richer thermodynamic/phase fields and validation styling in GUI
 - M24 drag/drop visual preview and richer template catalog
-- M25 recipe consistency GUI workflow
+- M25 full 7-mode recipe-entry table integration and visual warning styling
 - M26 chart administration GUI and components information board
 - M27 GUI catalog rendering and additional command implementations
 - M28 GUI integration and modifier-to-engine execution hooks

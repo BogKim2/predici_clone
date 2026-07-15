@@ -49,13 +49,17 @@ from predici_clone.api import (
     Project,
     ProfilePoint,
     ReactorConfig,
+    RecipeComponent,
     Recipe,
     Substance,
     add_parameter,
     add_polymer_species,
     add_substance,
     append_pre_schedule_step,
+    consistency_sum,
+    fill_remainder,
     load_project,
+    make_concentration_consistent,
     save_simulation_result,
     save_project,
 )
@@ -392,6 +396,12 @@ class MainWindow(QMainWindow):
         self.schedule_value = self._double_spin(-1000000.0, 1000000.0, 0.0)
         add_schedule = QPushButton("Add Schedule Action")
         add_schedule.clicked.connect(self._add_schedule_action_from_widgets)
+        add_consistency = QPushButton("Add Consistency Row")
+        add_consistency.clicked.connect(self._add_recipe_consistency_row)
+        set_concentration = QPushButton("Set Concentration Consistent")
+        set_concentration.clicked.connect(self._set_recipe_concentration_consistent)
+        set_rest = QPushButton("Set Rest")
+        set_rest.clicked.connect(self._set_recipe_rest)
         buttons = QHBoxLayout()
         buttons.addWidget(refresh)
         buttons.addWidget(apply)
@@ -405,9 +415,26 @@ class MainWindow(QMainWindow):
         schedule_buttons.addWidget(self.schedule_value)
         schedule_buttons.addWidget(add_schedule)
         schedule_buttons.addStretch(1)
+        consistency_buttons = QHBoxLayout()
+        self.recipe_consistency_target = QComboBox()
+        self.recipe_consistency_target.addItem("rest")
+        consistency_buttons.addWidget(QLabel("Target"))
+        consistency_buttons.addWidget(self.recipe_consistency_target)
+        consistency_buttons.addWidget(add_consistency)
+        consistency_buttons.addWidget(set_concentration)
+        consistency_buttons.addWidget(set_rest)
+        consistency_buttons.addStretch(1)
+        self.recipe_consistency_sum = QLabel("sum: 0")
+        self.recipe_consistency_table = QTableWidget(0, 6)
+        self.recipe_consistency_table.setHorizontalHeaderLabels(["name", "MW", "density", "concentration", "mass part", "mole part"])
+        self.recipe_consistency_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         layout.addLayout(buttons)
         layout.addLayout(schedule_buttons)
         layout.addWidget(self.recipe_table)
+        layout.addWidget(QLabel("Consistency"))
+        layout.addLayout(consistency_buttons)
+        layout.addWidget(self.recipe_consistency_sum)
+        layout.addWidget(self.recipe_consistency_table)
         return page
 
     def _build_fitting_tab(self) -> QWidget:
@@ -880,6 +907,78 @@ class MainWindow(QMainWindow):
         self._populate_project_tree()
         self._populate_project_inspector()
         self._append_log("Applied recipe table edits")
+
+    def _add_recipe_consistency_row(self) -> None:
+        row = self.recipe_consistency_table.rowCount()
+        self.recipe_consistency_table.insertRow(row)
+        name = "rest" if row == 0 else f"component_{row + 1}"
+        for column, value in enumerate((name, "100.0", "1000.0", "0.0", "0.0", "0.0")):
+            self.recipe_consistency_table.setItem(row, column, QTableWidgetItem(value))
+        self._refresh_recipe_consistency_targets()
+
+    def _set_recipe_concentration_consistent(self) -> None:
+        try:
+            target = self.recipe_consistency_target.currentText()
+            adjusted = make_concentration_consistent(self._recipe_consistency_components(), target)
+            self._set_recipe_consistency_components(adjusted)
+            self._append_log("Set concentration consistent")
+        except Exception as exc:
+            QMessageBox.critical(self, "Consistency failed", str(exc))
+
+    def _set_recipe_rest(self) -> None:
+        try:
+            target = self.recipe_consistency_target.currentText()
+            adjusted = fill_remainder(self._recipe_consistency_components(), target, field="mass_part")
+            self._set_recipe_consistency_components(adjusted)
+            self._append_log("Set rest")
+        except Exception as exc:
+            QMessageBox.critical(self, "Set rest failed", str(exc))
+
+    def _recipe_consistency_components(self) -> tuple[RecipeComponent, ...]:
+        components: list[RecipeComponent] = []
+        for row in range(self.recipe_consistency_table.rowCount()):
+            name = self._table_text(self.recipe_consistency_table, row, 0).strip()
+            if not name:
+                continue
+            components.append(
+                RecipeComponent(
+                    name=name,
+                    molecular_weight=self._table_float(self.recipe_consistency_table, row, 1, 0.0),
+                    density=self._table_float(self.recipe_consistency_table, row, 2, 0.0),
+                    concentration=self._table_float(self.recipe_consistency_table, row, 3, 0.0),
+                    mass_part=self._table_float(self.recipe_consistency_table, row, 4, 0.0),
+                    mole_part=self._table_float(self.recipe_consistency_table, row, 5, 0.0),
+                )
+            )
+        return tuple(components)
+
+    def _set_recipe_consistency_components(self, components: tuple[RecipeComponent, ...]) -> None:
+        self.recipe_consistency_table.setRowCount(len(components))
+        for row, component in enumerate(components):
+            values = [
+                component.name,
+                component.molecular_weight,
+                component.density,
+                component.concentration,
+                component.mass_part,
+                component.mole_part,
+            ]
+            for column, value in enumerate(values):
+                self.recipe_consistency_table.setItem(row, column, QTableWidgetItem(f"{value:.12g}" if isinstance(value, float) else str(value)))
+        self._refresh_recipe_consistency_targets()
+        self.recipe_consistency_sum.setText(f"sum: {consistency_sum(components):.6g}")
+
+    def _refresh_recipe_consistency_targets(self) -> None:
+        current = self.recipe_consistency_target.currentText()
+        names = [
+            self._table_text(self.recipe_consistency_table, row, 0).strip()
+            for row in range(self.recipe_consistency_table.rowCount())
+            if self._table_text(self.recipe_consistency_table, row, 0).strip()
+        ]
+        self.recipe_consistency_target.clear()
+        self.recipe_consistency_target.addItems(names or ["rest"])
+        if current in names:
+            self.recipe_consistency_target.setCurrentText(current)
 
     def _recipe_table_values(self) -> dict[tuple[str, str], str]:
         values: dict[tuple[str, str], str] = {}
