@@ -59,6 +59,10 @@ This file tracks implementation evidence against `plan4.md`.
   - Script tab renders the function catalog with implementation status
   - template generator inserts a scripted-output row from current species/parameters
   - tests: `tests/test_postprocess_and_gui.py`
+- M27 extended script command compatibility
+  - implements `weightedmy`, `getkpreac`, `addvalue`, `getuxr`, `getkpt`, and `getkptp` in the safe command namespace
+  - command catalog now marks these helpers as implemented
+  - tests: `tests/test_script_catalog.py`
 - M28 script-driven reaction modifier foundation
   - parses `k(File)` replacement and `k*File` multiplier forms
   - evaluates modifier scripts through the safe command namespace
@@ -106,7 +110,7 @@ This file tracks implementation evidence against `plan4.md`.
 - M24 drag/drop visual preview and richer template catalog
 - M25 full 7-mode recipe-entry table integration and visual warning styling
 - M26 chart administration GUI
-- M27 additional command implementations beyond the tutorial-critical subset
+- M27 PDE-specific numerical semantics for advanced commands beyond supplied-state helpers
 - M28 modifier-to-engine execution hooks
 - M29 multi-script debugger panes and edit-in-place workflow
 - M32 true moments backend and Monte Carlo/tau-leaping numerical execution

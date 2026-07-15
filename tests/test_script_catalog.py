@@ -7,7 +7,8 @@ def test_script_function_catalog_marks_implemented_and_stub_commands():
 
     assert catalog["getco"].implemented is True
     assert catalog["getkp"].category == "parameter"
-    assert catalog["weightedmy"].implemented is False
+    assert catalog["weightedmy"].implemented is True
+    assert catalog["addvalue"].implemented is True
 
 
 def test_script_commands_support_predici_style_getters_and_setters():
@@ -37,3 +38,25 @@ def test_script_template_generator_creates_executable_boilerplate():
     assert 'kp_main = getkp("kp-main")' in template
     assert "result1 = kp_main * monomer" in template
     assert evaluate_expression(template + "\nresult = result1 + result2", script_command_namespace(state)) == 0.5
+
+
+def test_script_commands_support_extended_parameter_and_profile_helpers():
+    state = ScriptCommandState(
+        moments={"Mw": 120.0},
+        weighted_moments={"Mw": 180.0},
+        parameters={"kp": 0.2},
+        reaction_parameters={"r1:kp": 0.3},
+        time_parameters={("kp", 5.0): 0.4},
+        time_position_parameters={("kp", 5.0, 0.25): 0.5},
+        reactor_values={"R1": 2.5},
+    )
+    script = """
+addvalue("acc", 1.0)
+addvalue("acc", 2.0)
+result = weightedmy("Mw") + getkpreac("kp", "r1") + getkpt("kp", 5.0) + getkptp("kp", 5.0, 0.25) + getuxr("R1") + getx("acc")
+"""
+
+    value = evaluate_expression(script, script_command_namespace(state))
+
+    assert value == 180.0 + 0.3 + 0.4 + 0.5 + 2.5 + 3.0
+    assert state.variables["acc"] == 3.0
