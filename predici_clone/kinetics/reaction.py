@@ -14,6 +14,13 @@ class ReactionKind(StrEnum):
     BRANCHING = "Branching"
     SCISSION = "Scission"
     POLYMER_PARTITION = "PolymerPartition"
+    DEGRADATION = "Degradation"
+    TRANSPORT = "Transport"
+    PHASE_EXCHANGE = "PhaseExchange"
+    PRECIPITATION = "Precipitation"
+    BALANCE = "Balance"
+    GENERAL = "General"
+    PDE = "PDE"
 
 
 @dataclass(frozen=True)

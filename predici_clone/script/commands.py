@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from scipy.optimize import newton
 
 
 @dataclass
@@ -20,6 +21,16 @@ class ScriptCommandState:
     reactor_profiles: dict[str, tuple[tuple[float, float], ...]] = field(default_factory=dict)
     moment_weights: dict[str, float] = field(default_factory=dict)
     variables: dict[str, float] = field(default_factory=dict)
+    molar_parts: dict[str, float] = field(default_factory=dict)
+    mass_parts: dict[str, float] = field(default_factory=dict)
+    feed_masses: dict[str, float] = field(default_factory=dict)
+    feed_moles: dict[str, float] = field(default_factory=dict)
+    tank_masses: dict[str, float] = field(default_factory=dict)
+    tank_moles: dict[str, float] = field(default_factory=dict)
+    phase_masses: dict[str, float] = field(default_factory=dict)
+    reactor_states: dict[str, dict[str, float]] = field(default_factory=dict)
+    profile_moments: dict[tuple[str, int], float] = field(default_factory=dict)
+    external_functions: dict[str, object] = field(default_factory=dict)
 
 
 def _linear_profile_value(points: tuple[tuple[float, float], ...], coordinate: float, default: float) -> float:
@@ -161,6 +172,10 @@ def script_command_namespace(state: ScriptCommandState, procedures: dict[str, ob
         state.variables[name] = float(state.variables.get(name, 0.0)) + float(value)
         return state.variables[name]
 
+    def copyreactor(source: str, target: str, factor: float = 1.0) -> float:
+        state.reactor_states[target] = {name: float(value) * float(factor) for name, value in state.reactor_states.get(source, {}).items()}
+        return float(sum(state.reactor_states[target].values()))
+
     namespace: dict[str, object] = {
         **state.variables,
         "getx": getx,
@@ -178,7 +193,25 @@ def script_command_namespace(state: ScriptCommandState, procedures: dict[str, ob
         "getkptp": getkptp,
         "getuxr": getuxr,
         "addvalue": addvalue,
+        "getmn": lambda: getmy("Mn"),
+        "getmw": lambda: getmy("Mw"),
+        "getmz": lambda: getmy("Mz"),
+        "getmolpart": lambda name: float(state.molar_parts.get(name, 0.0)),
+        "getmasspart": lambda name: float(state.mass_parts.get(name, 0.0)),
+        "getfeedmass": lambda name: float(state.feed_masses.get(name, 0.0)),
+        "getfeedmol": lambda name: float(state.feed_moles.get(name, 0.0)),
+        "gettankmass": lambda name: float(state.tank_masses.get(name, 0.0)),
+        "gettankmol": lambda name: float(state.tank_moles.get(name, 0.0)),
+        "getphasemass": lambda phase: float(state.phase_masses.get(phase, 0.0)),
+        "getdensity": lambda: float(state.variables.get("density", 0.0)),
+        "getmass": lambda: float(state.variables.get("mass", 0.0)),
+        "getpressure": lambda: float(state.variables.get("pressure", 0.0)),
+        "gettemp": lambda: float(state.variables.get("temperature", 0.0)),
+        "copyreactor": copyreactor,
+        "findroot": lambda function, initial: float(newton(function, initial)),
+        "getprofmy": lambda name, moment: float(state.profile_moments.get((name, int(moment)), 0.0)),
     }
+    namespace.update(state.external_functions)
     if procedures:
         namespace.update(procedures)
     return namespace

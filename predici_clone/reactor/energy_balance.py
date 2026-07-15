@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
+from collections.abc import Callable
 
 import numpy as np
 from scipy.integrate import solve_ivp
@@ -15,6 +16,23 @@ class EnergyBalanceResult:
     temperature: np.ndarray
     heat_duty: np.ndarray
     method: str = "lumped_ode"
+
+
+def scripted_temperature_rate(
+    temperature: float,
+    *,
+    heat_capacity: float,
+    mass: float,
+    generated_heat: float,
+    external_heat: float = 0.0,
+    cp_derivative: float = 0.0,
+    script: Callable[[dict[str, float]], float] | None = None,
+) -> float:
+    scope = {"temperature": temperature, "heat_capacity": heat_capacity, "mass": mass, "generated_heat": generated_heat, "external_heat": external_heat, "cp_derivative": cp_derivative}
+    if script is not None:
+        return float(script(scope))
+    denominator = max(mass * heat_capacity, 1e-30)
+    return float((generated_heat + external_heat - mass * temperature * cp_derivative) / denominator)
 
 
 def compute_lumped_energy_balance(

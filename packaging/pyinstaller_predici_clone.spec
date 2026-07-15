@@ -2,6 +2,7 @@
 
 block_cipher = None
 from pathlib import Path
+from PyInstaller.utils.hooks import collect_submodules
 
 ROOT = Path(SPECPATH).parent
 if ROOT.name == 'packaging':
@@ -12,7 +13,18 @@ a = Analysis(
     pathex=[str(ROOT)],
     binaries=[],
     datas=[],
-    hiddenimports=['scipy', 'matplotlib.backends.backend_qtagg', 'PySide6'],
+    hiddenimports=[
+        'scipy',
+        'matplotlib.backends.backend_qtagg',
+        'PySide6',
+        'openpyxl',
+        'networkx',
+        *collect_submodules('predici_clone.montecarlo'),
+        *collect_submodules('predici_clone.psd'),
+        *collect_submodules('predici_clone.emulsion'),
+        *collect_submodules('predici_clone.thermo'),
+        *collect_submodules('test_manuals'),
+    ],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],

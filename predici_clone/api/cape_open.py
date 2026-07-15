@@ -4,6 +4,8 @@ from dataclasses import dataclass, asdict
 from typing import Any
 
 from predici_clone.api.project_schema import Project
+from predici_clone.thermo.flash import FlashResult, pt_flash
+from predici_clone.thermo.peng_robinson import PengRobinsonEOS
 
 
 @dataclass(frozen=True)
@@ -26,7 +28,7 @@ def cape_open_capability(project: Project | None = None) -> CapeOpenCapability:
         reactors = tuple(kind for kind in reactors if kind == project.reactor.kind) or reactors
     return CapeOpenCapability(
         component_name="PrediciClone",
-        version="0.1",
+        version="2.0",
         supported_reactors=reactors,
         supported_operations=(
             "material_balance",
@@ -34,10 +36,13 @@ def cape_open_capability(project: Project | None = None) -> CapeOpenCapability:
             "distribution_moments",
             "parameter_estimation",
             "public_command_dispatch",
+            "peng_robinson_fugacity",
+            "pt_flash",
+            "mixture_density",
         ),
         supports_dynamic_simulation=True,
         supports_parameter_estimation=True,
-        notes="Capability descriptor for future CAPE-OPEN wrapping; not a COM registration.",
+        notes="In-process Peng-Robinson property package; this is not a COM registration, and optional COM wrapping remains adapter-specific.",
     )
 
 
@@ -51,3 +56,12 @@ def cape_open_manifest(project: Project | None = None) -> dict[str, Any]:
             "parameters": "Project.generic_parameters",
         },
     }
+
+
+def cape_open_pt_flash(
+    eos: PengRobinsonEOS,
+    temperature: float,
+    pressure: float,
+    composition,
+) -> FlashResult:
+    return pt_flash(eos, temperature, pressure, composition)

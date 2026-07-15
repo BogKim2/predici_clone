@@ -217,6 +217,7 @@ class MainWindow(QMainWindow):
         self.recipe_tab = self._build_recipe_tab()
         self.fitting_tab = self._build_fitting_tab()
         self.script_tab = self._build_script_tab()
+        self.advanced_tab = self._build_advanced_tab()
 
         self.tabs.addTab(self.dashboard_tab, "Dashboard")
         self.tabs.addTab(self.model_builder_tab, "Model Builder")
@@ -226,7 +227,123 @@ class MainWindow(QMainWindow):
         self.tabs.addTab(self.mwd_tab, "MWD Viewer")
         self.tabs.addTab(self.fitting_tab, "Fitting")
         self.tabs.addTab(self.script_tab, "Script")
+        self.tabs.addTab(self.advanced_tab, "Advanced")
         self.setCentralWidget(self.tabs)
+
+    def _build_advanced_tab(self) -> QWidget:
+        page = QWidget()
+        layout = QVBoxLayout(page)
+        self.advanced_tabs = QTabWidget()
+
+        mc_page = QWidget()
+        mc_form = QFormLayout(mc_page)
+        self.mc_enabled = QCheckBox("Enabled")
+        self.mc_ensemble_size = QSpinBox()
+        self.mc_ensemble_size.setRange(10, 100000)
+        self.mc_ensemble_size.setValue(100)
+        self.mc_tau_leaping = QCheckBox("Tau-leaping")
+        self.mc_topology = QCheckBox("Topology and gyration")
+        self.mc_sequence = QCheckBox("Sequence length analysis")
+        mc_form.addRow("Monte Carlo", self.mc_enabled)
+        mc_form.addRow("Ensemble size", self.mc_ensemble_size)
+        mc_form.addRow("Acceleration", self.mc_tau_leaping)
+        mc_form.addRow("Structure", self.mc_topology)
+        mc_form.addRow("Composition", self.mc_sequence)
+
+        psd_page = QWidget()
+        psd_form = QFormLayout(psd_page)
+        self.psd_grid_mode = QComboBox()
+        self.psd_grid_mode.addItems(["linear", "logarithmic"])
+        self.psd_bins = QSpinBox()
+        self.psd_bins.setRange(10, 10000)
+        self.psd_bins.setValue(100)
+        self.psd_process = QComboBox()
+        self.psd_process.addItems(["Growth", "Nucleation", "Breakage", "Agglomeration", "MSMPR"])
+        psd_form.addRow("Grid", self.psd_grid_mode)
+        psd_form.addRow("Bins", self.psd_bins)
+        psd_form.addRow("PBE process", self.psd_process)
+
+        emulsion_page = QWidget()
+        emulsion_form = QFormLayout(emulsion_page)
+        self.emulsion_entry_rate = QDoubleSpinBox()
+        self.emulsion_entry_rate.setRange(0, 1e6)
+        self.emulsion_exit_rate = QDoubleSpinBox()
+        self.emulsion_exit_rate.setRange(0, 1e6)
+        self.emulsion_partition = QDoubleSpinBox()
+        self.emulsion_partition.setRange(0, 1e6)
+        self.emulsion_partition.setValue(1.0)
+        emulsion_form.addRow("Radical entry", self.emulsion_entry_rate)
+        emulsion_form.addRow("Radical exit", self.emulsion_exit_rate)
+        emulsion_form.addRow("Partition coefficient", self.emulsion_partition)
+
+        db_page = QWidget()
+        db_layout = QVBoxLayout(db_page)
+        self.parameter_db_table = EditableTableWidget(0, 4)
+        self.parameter_db_table.setHorizontalHeaderLabels(["Set", "Property", "Value", "Unit"])
+        self.parameter_db_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.parameter_db_use = QCheckBox("Use database values")
+        db_layout.addWidget(self.parameter_db_use)
+        db_layout.addWidget(self.parameter_db_table)
+
+        replay_page = QWidget()
+        replay_layout = QVBoxLayout(replay_page)
+        self.replay_time_slider = QSlider(Qt.Horizontal)
+        self.replay_time_slider.setRange(0, 0)
+        self.replay_include_mc = QCheckBox("Include all Monte Carlo results")
+        self.replay_status = QLabel("No replay loaded")
+        replay_layout.addWidget(self.replay_time_slider)
+        replay_layout.addWidget(self.replay_include_mc)
+        replay_layout.addWidget(self.replay_status)
+
+        copoly_page = QWidget()
+        copoly_form = QFormLayout(copoly_page)
+        self.copoly_model = QComboBox()
+        self.copoly_model.addItems(["Terminal", "Penultimate", "N-monomer"])
+        self.copoly_input = QComboBox()
+        self.copoly_input.addItems(["Direct coefficients", "r-values"])
+        self.copoly_monomers = QSpinBox()
+        self.copoly_monomers.setRange(1, 12)
+        self.copoly_monomers.setValue(2)
+        copoly_form.addRow("Model", self.copoly_model)
+        copoly_form.addRow("Coefficient input", self.copoly_input)
+        copoly_form.addRow("Monomers", self.copoly_monomers)
+
+        self.advanced_tabs.addTab(mc_page, "Monte Carlo")
+        self.advanced_tabs.addTab(psd_page, "PSD")
+        self.advanced_tabs.addTab(emulsion_page, "Emulsion")
+        self.advanced_tabs.addTab(db_page, "Parameter DB")
+        self.advanced_tabs.addTab(replay_page, "Replay")
+        self.advanced_tabs.addTab(copoly_page, "Copolymerization")
+        self.advanced_preview = QLabel("Ready")
+        preview_button = QPushButton("Run Preview")
+        preview_button.clicked.connect(self._run_advanced_preview)
+        layout.addWidget(self.advanced_tabs)
+        layout.addWidget(self.advanced_preview)
+        layout.addWidget(preview_button)
+        return page
+
+    def _run_advanced_preview(self) -> None:
+        from predici_clone.emulsion.smith_ewart import radical_moments, smith_ewart_steady_state
+        from predici_clone.psd.pbe import msmpr_analytic_profile
+
+        if self.advanced_tabs.currentIndex() == 0:
+            self.advanced_preview.setText(f"Ensemble: {self.mc_ensemble_size.value()}")
+        elif self.advanced_tabs.currentIndex() == 1:
+            edges = np.linspace(0.0, 20.0, self.psd_bins.value() + 1)
+            profile = msmpr_analytic_profile(edges, growth_rate=1.0, residence_time=1.0, nucleation_rate=1.0)
+            self.advanced_preview.setText(f"Mean size: {profile.mean_size:.6g}")
+        elif self.advanced_tabs.currentIndex() == 2:
+            distribution = smith_ewart_steady_state(
+                entry_rate=self.emulsion_entry_rate.value(),
+                exit_rate=max(self.emulsion_exit_rate.value(), 1e-12),
+            )
+            self.advanced_preview.setText(f"Mean radicals: {radical_moments(distribution, 1)[1]:.6g}")
+        elif self.advanced_tabs.currentIndex() == 3:
+            self.advanced_preview.setText(f"Database rows: {self.parameter_db_table.rowCount()}")
+        elif self.advanced_tabs.currentIndex() == 4:
+            self.advanced_preview.setText(self.replay_status.text())
+        else:
+            self.advanced_preview.setText(f"{self.copoly_model.currentText()}: {self.copoly_monomers.value()} monomers")
 
     def _create_docks(self) -> None:
         project_dock = QDockWidget("Project", self)

@@ -5,6 +5,7 @@ from dataclasses import dataclass, replace
 from predici_clone.api.component_admin import auto_declare_components
 from predici_clone.api.project_schema import GeneralKineticParticipant, GeneralKineticStep, Project
 from predici_clone.kinetics.reaction import RateLaw, ReactionKind, ReactionStep
+from predici_clone.kinetics.step_library import get_step_definition, step_definitions
 
 
 @dataclass(frozen=True)
@@ -19,53 +20,19 @@ class ReactionPattern:
 
 
 def reaction_pattern_catalog() -> tuple[ReactionPattern, ...]:
-    return (
+    patterns = tuple(
         ReactionPattern(
-            "Propagation",
-            "polymer",
-            ReactionKind.PROPAGATION,
-            "Polymer radical growth by monomer addition",
-            ("polymer_radical", "monomer"),
-            ("polymer_radical",),
-            ("GP_kp",),
-        ),
-        ReactionPattern(
-            "TerminationCombination",
-            "polymer",
-            ReactionKind.TERMINATION_COMBINATION,
-            "Two live chains combine into one dead chain",
-            ("polymer_radical", "polymer_radical"),
-            ("dead_polymer",),
-            ("GP_ktc",),
-        ),
-        ReactionPattern(
-            "TerminationDisproportionation",
-            "polymer",
-            ReactionKind.TERMINATION_DISPROPORTIONATION,
-            "Two live chains terminate without chain combination",
-            ("polymer_radical", "polymer_radical"),
-            ("dead_polymer", "dead_polymer"),
-            ("GP_ktd",),
-        ),
-        ReactionPattern(
-            "ChainTransfer",
-            "polymer",
-            ReactionKind.CHAIN_TRANSFER_TO_AGENT,
-            "Live chain transfers activity to a transfer agent",
-            ("polymer_radical", "transfer_agent"),
-            ("dead_polymer", "new_radical"),
-            ("GP_cta",),
-        ),
-        ReactionPattern(
-            "GeneralKinetic",
-            "kinetic",
-            None,
-            "Mass-action reaction with independent stoichiometric coefficients and reaction orders",
-            ("reactants",),
-            ("products",),
-            ("kf", "kb"),
-        ),
+            definition.name,
+            _legacy_category(definition.category),
+            _legacy_kind(definition.name, definition.kind),
+            definition.description,
+            definition.reactant_slots,
+            definition.product_slots,
+            definition.parameter_slots,
+        )
+        for definition in step_definitions()
     )
+    return patterns
 
 
 def filter_reaction_patterns(text: str = "", *, category: str | None = None) -> tuple[ReactionPattern, ...]:
@@ -79,6 +46,22 @@ def filter_reaction_patterns(text: str = "", *, category: str | None = None) -> 
             continue
         matches.append(pattern)
     return tuple(matches)
+
+
+def _legacy_category(category: str) -> str:
+    if category in {"initiation", "growth", "transfer", "termination", "degradation", "special"}:
+        return "polymer"
+    if category == "general":
+        return "kinetic"
+    return category
+
+
+def _legacy_kind(name: str, kind: ReactionKind | None) -> ReactionKind | None:
+    if name == "TerminationDisproportionation":
+        return ReactionKind.TERMINATION_DISPROPORTIONATION
+    if name == "GeneralKinetic":
+        return None
+    return kind
 
 
 def build_polymer_reaction_step(
@@ -143,6 +126,10 @@ def build_general_kinetic_step(
 
 
 def _pattern_by_name(name: str) -> ReactionPattern:
+    try:
+        name = get_step_definition(name).name
+    except ValueError:
+        pass
     for pattern in reaction_pattern_catalog():
         if pattern.name == name:
             return pattern

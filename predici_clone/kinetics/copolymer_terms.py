@@ -13,6 +13,46 @@ class TerminalModel:
     r2: float
 
 
+@dataclass(frozen=True)
+class PenultimateModel:
+    propagation: np.ndarray
+
+    def __post_init__(self) -> None:
+        values = np.asarray(self.propagation, dtype=float)
+        if values.ndim != 3 or values.shape[0] != values.shape[1] or values.shape[1] != values.shape[2]:
+            raise ValueError("penultimate propagation coefficients must have shape (n, n, n)")
+        if np.any(values < 0):
+            raise ValueError("propagation coefficients must be non-negative")
+        object.__setattr__(self, "propagation", values)
+
+    @property
+    def monomer_count(self) -> int:
+        return int(self.propagation.shape[0])
+
+
+def penultimate_probabilities(
+    penultimate: int,
+    terminal: int,
+    feed_fractions: np.ndarray,
+    model: PenultimateModel,
+) -> np.ndarray:
+    feed = np.maximum(np.asarray(feed_fractions, dtype=float), 0.0)
+    if feed.shape != (model.monomer_count,) or feed.sum() <= 0:
+        raise ValueError("feed fractions must match the model")
+    rates = model.propagation[int(penultimate), int(terminal)] * feed
+    return rates / rates.sum() if rates.sum() > 0 else feed / feed.sum()
+
+
+def terminal_transition_matrix(feed_fractions: np.ndarray, rate_constants: np.ndarray) -> np.ndarray:
+    feed = np.maximum(np.asarray(feed_fractions, dtype=float), 0.0)
+    rates = np.maximum(np.asarray(rate_constants, dtype=float), 0.0)
+    if rates.shape != (feed.size, feed.size) or feed.sum() <= 0:
+        raise ValueError("rate matrix and feed fractions are inconsistent")
+    weighted = rates * feed[np.newaxis, :]
+    totals = weighted.sum(axis=1, keepdims=True)
+    return np.divide(weighted, totals, out=np.zeros_like(weighted), where=totals > 0)
+
+
 def mayo_lewis_instantaneous_fraction(feed_fraction_1: float, model: TerminalModel) -> float:
     f1 = float(np.clip(feed_fraction_1, 0.0, 1.0))
     f2 = 1.0 - f1

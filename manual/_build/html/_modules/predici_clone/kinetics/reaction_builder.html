@@ -52,6 +52,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">설치</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">빠른 시작</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials.html">Tutorial Workflows</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../gui.html">GUI 사용법</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../projects.html">프로젝트와 Recipe</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../outputs.html">Outputs와 Reports</a></li>
@@ -100,6 +101,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">predici_clone.api.component_admin</span><span class="w"> </span><span class="kn">import</span> <span class="n">auto_declare_components</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">predici_clone.api.project_schema</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeneralKineticParticipant</span><span class="p">,</span> <span class="n">GeneralKineticStep</span><span class="p">,</span> <span class="n">Project</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">predici_clone.kinetics.reaction</span><span class="w"> </span><span class="kn">import</span> <span class="n">RateLaw</span><span class="p">,</span> <span class="n">ReactionKind</span><span class="p">,</span> <span class="n">ReactionStep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">predici_clone.kinetics.step_library</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_step_definition</span><span class="p">,</span> <span class="n">step_definitions</span>
 
 
 <div class="viewcode-block" id="ReactionPattern">
@@ -119,53 +121,19 @@
 <div class="viewcode-block" id="reaction_pattern_catalog">
 <a class="viewcode-back" href="../../../api.html#predici_clone.kinetics.reaction_builder.reaction_pattern_catalog">[문서]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">reaction_pattern_catalog</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ReactionPattern</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-    <span class="k">return</span> <span class="p">(</span>
+    <span class="n">patterns</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
         <span class="n">ReactionPattern</span><span class="p">(</span>
-            <span class="s2">&quot;Propagation&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;polymer&quot;</span><span class="p">,</span>
-            <span class="n">ReactionKind</span><span class="o">.</span><span class="n">PROPAGATION</span><span class="p">,</span>
-            <span class="s2">&quot;Polymer radical growth by monomer addition&quot;</span><span class="p">,</span>
-            <span class="p">(</span><span class="s2">&quot;polymer_radical&quot;</span><span class="p">,</span> <span class="s2">&quot;monomer&quot;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;polymer_radical&quot;</span><span class="p">,),</span>
-            <span class="p">(</span><span class="s2">&quot;GP_kp&quot;</span><span class="p">,),</span>
-        <span class="p">),</span>
-        <span class="n">ReactionPattern</span><span class="p">(</span>
-            <span class="s2">&quot;TerminationCombination&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;polymer&quot;</span><span class="p">,</span>
-            <span class="n">ReactionKind</span><span class="o">.</span><span class="n">TERMINATION_COMBINATION</span><span class="p">,</span>
-            <span class="s2">&quot;Two live chains combine into one dead chain&quot;</span><span class="p">,</span>
-            <span class="p">(</span><span class="s2">&quot;polymer_radical&quot;</span><span class="p">,</span> <span class="s2">&quot;polymer_radical&quot;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;dead_polymer&quot;</span><span class="p">,),</span>
-            <span class="p">(</span><span class="s2">&quot;GP_ktc&quot;</span><span class="p">,),</span>
-        <span class="p">),</span>
-        <span class="n">ReactionPattern</span><span class="p">(</span>
-            <span class="s2">&quot;TerminationDisproportionation&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;polymer&quot;</span><span class="p">,</span>
-            <span class="n">ReactionKind</span><span class="o">.</span><span class="n">TERMINATION_DISPROPORTIONATION</span><span class="p">,</span>
-            <span class="s2">&quot;Two live chains terminate without chain combination&quot;</span><span class="p">,</span>
-            <span class="p">(</span><span class="s2">&quot;polymer_radical&quot;</span><span class="p">,</span> <span class="s2">&quot;polymer_radical&quot;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;dead_polymer&quot;</span><span class="p">,</span> <span class="s2">&quot;dead_polymer&quot;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;GP_ktd&quot;</span><span class="p">,),</span>
-        <span class="p">),</span>
-        <span class="n">ReactionPattern</span><span class="p">(</span>
-            <span class="s2">&quot;ChainTransfer&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;polymer&quot;</span><span class="p">,</span>
-            <span class="n">ReactionKind</span><span class="o">.</span><span class="n">CHAIN_TRANSFER_TO_AGENT</span><span class="p">,</span>
-            <span class="s2">&quot;Live chain transfers activity to a transfer agent&quot;</span><span class="p">,</span>
-            <span class="p">(</span><span class="s2">&quot;polymer_radical&quot;</span><span class="p">,</span> <span class="s2">&quot;transfer_agent&quot;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;dead_polymer&quot;</span><span class="p">,</span> <span class="s2">&quot;new_radical&quot;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;GP_cta&quot;</span><span class="p">,),</span>
-        <span class="p">),</span>
-        <span class="n">ReactionPattern</span><span class="p">(</span>
-            <span class="s2">&quot;GeneralKinetic&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;kinetic&quot;</span><span class="p">,</span>
-            <span class="kc">None</span><span class="p">,</span>
-            <span class="s2">&quot;Mass-action reaction with independent stoichiometric coefficients and reaction orders&quot;</span><span class="p">,</span>
-            <span class="p">(</span><span class="s2">&quot;reactants&quot;</span><span class="p">,),</span>
-            <span class="p">(</span><span class="s2">&quot;products&quot;</span><span class="p">,),</span>
-            <span class="p">(</span><span class="s2">&quot;kf&quot;</span><span class="p">,</span> <span class="s2">&quot;kb&quot;</span><span class="p">),</span>
-        <span class="p">),</span>
-    <span class="p">)</span></div>
+            <span class="n">definition</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">_legacy_category</span><span class="p">(</span><span class="n">definition</span><span class="o">.</span><span class="n">category</span><span class="p">),</span>
+            <span class="n">_legacy_kind</span><span class="p">(</span><span class="n">definition</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">definition</span><span class="o">.</span><span class="n">kind</span><span class="p">),</span>
+            <span class="n">definition</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
+            <span class="n">definition</span><span class="o">.</span><span class="n">reactant_slots</span><span class="p">,</span>
+            <span class="n">definition</span><span class="o">.</span><span class="n">product_slots</span><span class="p">,</span>
+            <span class="n">definition</span><span class="o">.</span><span class="n">parameter_slots</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">definition</span> <span class="ow">in</span> <span class="n">step_definitions</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">patterns</span></div>
 
 
 
@@ -183,6 +151,22 @@
         <span class="n">matches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pattern</span><span class="p">)</span>
     <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_legacy_category</span><span class="p">(</span><span class="n">category</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">category</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;initiation&quot;</span><span class="p">,</span> <span class="s2">&quot;growth&quot;</span><span class="p">,</span> <span class="s2">&quot;transfer&quot;</span><span class="p">,</span> <span class="s2">&quot;termination&quot;</span><span class="p">,</span> <span class="s2">&quot;degradation&quot;</span><span class="p">,</span> <span class="s2">&quot;special&quot;</span><span class="p">}:</span>
+        <span class="k">return</span> <span class="s2">&quot;polymer&quot;</span>
+    <span class="k">if</span> <span class="n">category</span> <span class="o">==</span> <span class="s2">&quot;general&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;kinetic&quot;</span>
+    <span class="k">return</span> <span class="n">category</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_legacy_kind</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">kind</span><span class="p">:</span> <span class="n">ReactionKind</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReactionKind</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;TerminationDisproportionation&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ReactionKind</span><span class="o">.</span><span class="n">TERMINATION_DISPROPORTIONATION</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;GeneralKinetic&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">kind</span>
 
 
 <div class="viewcode-block" id="build_polymer_reaction_step">
@@ -253,6 +237,10 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_pattern_by_name</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReactionPattern</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">get_step_definition</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">pass</span>
     <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">reaction_pattern_catalog</span><span class="p">():</span>
         <span class="k">if</span> <span class="n">pattern</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">name</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">pattern</span>

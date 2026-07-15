@@ -26,6 +26,8 @@
    outputs
    fitting
    packaging
+   v2_systems
+   manual_suite
 
 .. toctree::
    :maxdepth: 2

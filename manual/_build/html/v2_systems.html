@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+
+<html lang="ko" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Version 2 Systems &#8212; PREDICI Clone Manual</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=ac66fb28" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=030cfef0" />
+    <script src="_static/documentation_options.js?v=d6a8a7ef"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/translations.js?v=afa94a99"></script>
+    <link rel="index" title="?됱씤" href="genindex.html" />
+    <link rel="search" title="寃?? href="search.html" />
+    <link rel="next" title="Manual Reproduction Suite" href="manual_suite.html" />
+    <link rel="prev" title="?⑦궎吏? href="packaging.html" />
+
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+
+
+
+
+
+  </head><body>
+  <div class="document">
+
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">PREDICI Clone Manual</a></h1>
+
+
+
+<p class="blurb">Polymerization simulation, GUI, API, and validation guide</p>
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="?대룞" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>?먯깋</h3>
+<p class="caption" role="heading"><span class="caption-text">?ъ슜??臾몄꽌</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">?ㅼ튂</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">鍮좊Ⅸ ?쒖옉</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorial Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gui.html">GUI ?ъ슜踰?/a></li>
+<li class="toctree-l1"><a class="reference internal" href="projects.html">?꾨줈?앺듃? Recipe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="outputs.html">Outputs? Reports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fitting.html">Parameter Estimation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="packaging.html">?⑦궎吏?/a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Version 2 Systems</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#reaction-steps-and-chemistry">Reaction Steps and Chemistry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#monte-carlo">Monte Carlo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#psd-emulsion-and-multiphase-models">PSD, Emulsion, and Multiphase Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#thermodynamics-and-data">Thermodynamics and Data</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="manual_suite.html">Manual Reproduction Suite</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">媛쒕컻??臾몄꽌</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">援ъ“</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation.html">寃利앷낵 Benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extending.html">?뺤옣 媛?대뱶</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">?⑹뼱</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="packaging.html" title="?댁쟾 ??>?⑦궎吏?/a></li>
+      <li>Next: <a href="manual_suite.html" title="?ㅼ쓬 ??>Manual Reproduction Suite</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+
+
+          <div class="body" role="main">
+
+  <section id="version-2-systems">
+<h1>Version 2 Systems<a class="headerlink" href="#version-2-systems" title="Link to this heading">쨋</a></h1>
+<section id="reaction-steps-and-chemistry">
+<h2>Reaction Steps and Chemistry<a class="headerlink" href="#reaction-steps-and-chemistry" title="Link to this heading">쨋</a></h2>
+<p>The reaction PatternFinder contains 95 declarative step families spanning polymer reactions,
+general kinetics, phase operations, transport, and population-balance PDE operators. Controlled
+radical, step-growth, crosslinking, functional-group, penultimate, and N-monomer helpers are in
+<code class="docutils literal notranslate"><span class="pre">predici_clone.kinetics</span></code>.</p>
+</section>
+<section id="monte-carlo">
+<h2>Monte Carlo<a class="headerlink" href="#monte-carlo" title="Link to this heading">쨋</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">predici_clone.montecarlo</span></code> provides chain ensembles, seeded Gillespie events, MC indices,
+Galerkin-field interpolation, tau-leaping, topology and gyration analysis, sequence-length
+analysis, backward coupling, and ensemble persistence.</p>
+</section>
+<section id="psd-emulsion-and-multiphase-models">
+<h2>PSD, Emulsion, and Multiphase Models<a class="headerlink" href="#psd-emulsion-and-multiphase-models" title="Link to this heading">쨋</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">predici_clone.psd</span></code> implements finite-volume profiles and conservative growth, nucleation,
+breakage, agglomeration, and MSMPR operations. <code class="docutils literal notranslate"><span class="pre">predici_clone.emulsion</span></code> provides Smith-Ewart
+radical populations, compartment factors, rho-c state, entry/exit, and three-phase partitioning.
+Multiphase inventories and equilibrium, kinetic transfer, and precipitation steps are available
+under <code class="docutils literal notranslate"><span class="pre">predici_clone.reactor</span></code> and <code class="docutils literal notranslate"><span class="pre">predici_clone.kinetics.phase_steps</span></code>.</p>
+</section>
+<section id="thermodynamics-and-data">
+<h2>Thermodynamics and Data<a class="headerlink" href="#thermodynamics-and-data" title="Link to this heading">쨋</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">predici_clone.thermo</span></code> contains Peng-Robinson fugacity, density, PT flash, and XML property
+package configuration. XML parameter databases, parameter/module sets, fitting diagnostics,
+replay, initial-data reuse, optimal control, variation, PID, and interoperability modules support
+the corresponding Advanced workspace tabs.</p>
+</section>
+</section>
+
+
+          </div>
+
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &#169;.
+
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+
+      |
+      <a href="_sources/v2_systems.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+
+
+
+  </body>
+</html>
