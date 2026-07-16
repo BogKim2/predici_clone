@@ -1,0 +1,2 @@
+﻿id,source_pdf,title,feature,milestone,status,duration_seconds,metrics,expected,reason,requires,speed
+predici_version_11_16_1_20170717,Predici Version_11_16_1_20170717.pdf,Predici Version_11_16_1_20170717,kinetics,M41,PASS,2.8e-05,"{""metric"": 1.0}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast

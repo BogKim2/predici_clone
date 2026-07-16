@@ -106,6 +106,11 @@ To regenerate the checked-in split reports:
 python -m test_manuals --all --split --output .\test_manual_result
 ```
 
+Each numbered directory contains `input.json`, `main_programN.py`, `result.json`,
+`result.md`, `result.csv`, `report.html`, and a plotted `result.png`. Its README embeds
+the plot and summarizes the status, metrics, expected range, and source document. The
+root result index includes the aggregate `summary.png` visualization.
+
 The latest published run reports `PASS 39 / FAIL 0 / SKIP 0` and 39/39 PDF coverage.
 See the [result index](test_manual_result/README.md) and the
 [suite reference](test_manuals/README.md) for filters, output formats, and standalone

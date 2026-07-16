@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "description": "Inputs and expected ranges for manual reproduction scenarios.",
+  "examples": [
+    {
+      "id": "fu_atrp_mre",
+      "title": "Fu ATRP MRE",
+      "source_pdf": "Fu ATRP MRE.pdf",
+      "feature": "crp",
+      "milestone": "M44",
+      "expected": {
+        "metric": {
+          "minimum": 0.0,
+          "maximum": null
+        }
+      },
+      "requires": [],
+      "speed": "fast"
+    }
+  ]
+}

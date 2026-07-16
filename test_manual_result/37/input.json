@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "description": "Inputs and expected ranges for manual reproduction scenarios.",
+  "examples": [
+    {
+      "id": "wulkow_the_status_of_predici",
+      "title": "Wulkow-The Status of Predici",
+      "source_pdf": "Wulkow-The Status of Predici.pdf",
+      "feature": "kinetics",
+      "milestone": "M41",
+      "expected": {
+        "metric": {
+          "minimum": 0.0,
+          "maximum": null
+        }
+      },
+      "requires": [],
+      "speed": "fast"
+    }
+  ]
+}

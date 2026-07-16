@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "description": "Inputs and expected ranges for manual reproduction scenarios.",
+  "examples": [
+    {
+      "id": "predicipsd_tutorial_2017",
+      "title": "PrediciPSD_Tutorial_2017",
+      "source_pdf": "PrediciPSD_Tutorial_2017.pdf",
+      "feature": "psd",
+      "milestone": "M45",
+      "expected": {
+        "metric": {
+          "minimum": 0.0,
+          "maximum": null
+        }
+      },
+      "requires": [],
+      "speed": "fast"
+    }
+  ]
+}

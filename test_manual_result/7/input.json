@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "description": "Inputs and expected ranges for manual reproduction scenarios.",
+  "examples": [
+    {
+      "id": "fugacities_in_predici_and_presto_kinetics",
+      "title": "Fugacities in Predici and Presto Kinetics",
+      "source_pdf": "Fugacities in Predici and Presto Kinetics.pdf",
+      "feature": "thermo",
+      "milestone": "M48",
+      "expected": {
+        "metric": {
+          "minimum": 0.0,
+          "maximum": null
+        }
+      },
+      "requires": [],
+      "speed": "fast"
+    }
+  ]
+}

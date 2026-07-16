@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "description": "Inputs and expected ranges for manual reproduction scenarios.",
+  "examples": [
+    {
+      "id": "predici11_workshop_november_2016_5_monte_carlo_details",
+      "title": "Predici11_Workshop_November_2016_5. Monte-Carlo_Details",
+      "source_pdf": "Predici11_Workshop_November_2016_5. Monte-Carlo_Details.pdf",
+      "feature": "montecarlo",
+      "milestone": "M42",
+      "expected": {
+        "metric": {
+          "minimum": 0.0,
+          "maximum": null
+        }
+      },
+      "requires": [],
+      "speed": "fast"
+    }
+  ]
+}

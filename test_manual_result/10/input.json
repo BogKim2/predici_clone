@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "description": "Inputs and expected ranges for manual reproduction scenarios.",
+  "examples": [
+    {
+      "id": "new_condensation_flags",
+      "title": "New Condensation Flags",
+      "source_pdf": "New Condensation Flags.pdf",
+      "feature": "stepgrowth",
+      "milestone": "M44",
+      "expected": {
+        "metric": {
+          "minimum": 0.0,
+          "maximum": null
+        }
+      },
+      "requires": [],
+      "speed": "fast"
+    }
+  ]
+}

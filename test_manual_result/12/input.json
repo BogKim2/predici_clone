@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "description": "Inputs and expected ranges for manual reproduction scenarios.",
+  "examples": [
+    {
+      "id": "predici_and_presto_kinetics_all_documents",
+      "title": "Predici and Presto-Kinetics - All Documents",
+      "source_pdf": "Predici and Presto-Kinetics - All Documents.pdf",
+      "feature": "kinetics",
+      "milestone": "M41",
+      "expected": {
+        "metric": {
+          "minimum": 0.0,
+          "maximum": null
+        }
+      },
+      "requires": [],
+      "speed": "fast"
+    }
+  ]
+}

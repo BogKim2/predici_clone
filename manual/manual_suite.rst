@@ -113,15 +113,17 @@ Feature와 milestone은 등록값과 정확히 일치해야 한다.
 결과 저장 위치
 --------------
 
-기본 출력 경로에는 다음 다섯 파일이 생성된다.
+기본 출력 경로에는 다음 일곱 파일이 생성된다.
 
 .. code-block:: text
 
    test_manuals/outputs/README.md
+   test_manuals/outputs/input.json
    test_manuals/outputs/report.html
-   test_manuals/outputs/report.md
-   test_manuals/outputs/results.json
-   test_manuals/outputs/results.csv
+   test_manuals/outputs/result.md
+   test_manuals/outputs/result.json
+   test_manuals/outputs/result.csv
+   test_manuals/outputs/summary.png
 
 ``report.html`` 은 다음 정보를 포함한다.
 
@@ -130,21 +132,22 @@ Feature와 milestone은 등록값과 정확히 일치해야 한다.
 * 계산된 수치 지표와 기대 최소/최대 범위
 * 실패한 경우 예외 또는 범위 이탈 사유
 
-``report.md`` 는 같은 상세 정보를 GitHub와 터미널에서 읽을 수 있게 제공한다. ``results.json`` 은
-실행 명령, UTC 생성 시각, Python/플랫폼, 집계, 모든 개별 결과를 포함한다. ``results.csv`` 는
-PDF당 한 행이며 Excel에서 열기 쉬운 UTF-8 BOM 형식이다. 출력 ``README.md`` 는 요약과 파일
-색인, PDF-시나리오 매핑을 제공한다. 같은 출력 폴더로 다시 실행하면 다섯 파일을 최신 결과로
-덮어쓴다.
+``result.md`` 는 같은 상세 정보를 GitHub와 터미널에서 읽을 수 있게 제공한다. ``input.json`` 은
+시나리오 입력 메타데이터와 기대 범위를 기록하고, ``result.json`` 은 실행 명령, UTC 생성 시각,
+Python/플랫폼, 집계, 모든 개별 결과를 포함한다. ``result.csv`` 는 PDF당 한 행이며 Excel에서
+열기 쉬운 UTF-8 BOM 형식이다. ``summary.png`` 는 전체 상태와 feature별 시나리오 수를 그린다.
+출력 ``README.md`` 는 요약, 그림, 파일 색인, PDF-시나리오 매핑을 제공한다. 같은 출력 폴더로
+다시 실행하면 최신 결과로 덮어쓴다.
 
 PowerShell에서 보고서를 확인하는 명령은 다음과 같다.
 
 .. code-block:: powershell
 
    Start-Process .\test_manuals\outputs\report.html
-   Get-Content -Encoding utf8 .\test_manuals\outputs\report.md
-   $result = Get-Content .\test_manuals\outputs\results.json -Raw | ConvertFrom-Json
+   Get-Content -Encoding utf8 .\test_manuals\outputs\result.md
+   $result = Get-Content .\test_manuals\outputs\result.json -Raw | ConvertFrom-Json
    $result.summary
-   Import-Csv .\test_manuals\outputs\results.csv | Format-Table source_pdf,status,metrics
+   Import-Csv .\test_manuals\outputs\result.csv | Format-Table source_pdf,status,metrics
 
 결과를 별도 디렉터리에 보존하려면 ``--output`` 을 지정한다.
 
@@ -155,7 +158,7 @@ PowerShell에서 보고서를 확인하는 명령은 다음과 같다.
 
 상대 경로는 저장소 루트를 기준으로 해석된다. 출력 디렉터리가 없으면 자동으로 생성된다.
 
-2026-07-15 전체 실행 결과
+2026-07-16 전체 실행 결과
 -------------------------
 
 저장소의 ``test_manual_result/`` 는 다음 명령으로 생성한 전체 결과를 포함한다.
@@ -166,49 +169,37 @@ PowerShell에서 보고서를 확인하는 명령은 다음과 같다.
 
 실행 결과는 ``PASS 39 / FAIL 0 / SKIP 0`` 이고 PDF 커버리지는 ``39 / 39 (100%)`` 이다.
 ``test_manual_result/README.md`` 에 39개 PDF와 시나리오의 전체 매핑이 있으며, 상세 수치와 기대
-범위는 ``report.html`` 또는 ``report.md`` 에서, 자동 후처리용 원본은 ``results.json`` 과
-``results.csv`` 에서 확인한다.
+범위는 ``report.html`` 또는 ``result.md`` 에서, 자동 후처리용 원본은 ``result.json`` 과
+``result.csv`` 에서 확인한다. ``README.md`` 에서는 ``summary.png`` 를 포함한 전체 결과 요약을
+바로 확인할 수 있다.
 
 ``--split`` 은 선택된 시나리오 순서대로 ``1`` , ``2`` , ... 번호 폴더를 만든다. 전체 실행에서는
-``test_manual_result/1`` 부터 ``test_manual_result/39`` 까지 생성되며 각 폴더는 다음 일곱
+``test_manual_result/1`` 부터 ``test_manual_result/39`` 까지 생성되며 각 폴더는 다음 여덟
 파일을 포함한다.
 
 .. code-block:: text
 
    test_manual_result/1/
-     run_test.ps1
-     run_test.cmd
+     input.json
+     main_program1.py
      README.md
      report.html
-     report.md
-     results.json
-     results.csv
+     result.md
+     result.json
+     result.csv
+     result.png
 
-``run_test.ps1`` 과 ``run_test.cmd`` 는 저장소 루트로 이동한 뒤 해당 폴더에 매핑된 PDF 한 건만
-실행한다. 성공하면 같은 폴더의 결과 다섯 개를 갱신하고 HTML 보고서를 연다. 1번 테스트를 다시
+``main_program1.py`` 는 같은 폴더의 ``input.json`` 에서 example ID와 기대 범위를 읽고 해당 PDF
+한 건만 실행한다. 성공하면 같은 폴더의 결과 파일, 그림, README를 갱신한다. 1번 테스트를 다시
 실행하는 예시는 다음과 같다.
 
 .. code-block:: powershell
 
-   & .\test_manual_result\1\run_test.ps1
-
-PowerShell 실행 정책 때문에 ``.ps1`` 실행이 차단되면 현재 명령에만 우회를 적용하거나 CMD 파일을
-사용한다.
-
-.. code-block:: powershell
-
-   powershell -ExecutionPolicy Bypass -File .\test_manual_result\1\run_test.ps1
-   .\test_manual_result\1\run_test.cmd
-
-자동화에서 HTML을 열지 않으려면 PowerShell 실행 파일에 ``-NoOpen`` 을 추가한다.
-
-.. code-block:: powershell
-
-   powershell -ExecutionPolicy Bypass -File .\test_manual_result\1\run_test.ps1 -NoOpen
+   python .\test_manual_result\1\main_program1.py
 
 번호별 PDF, example ID, feature, milestone, 상태는 ``test_manual_result/README.md`` 의
-**개별 테스트 폴더** 표에서 확인한다. 실행 파일에는 Python 3.11 이상과 프로젝트 의존성 설치가
-필요하다.
+**개별 테스트 폴더** 표에서 확인한다. 번호별 프로그램 실행에는 Python 3.11 이상과 프로젝트
+의존성 설치가 필요하다.
 
 판정 규칙
 ---------
@@ -284,7 +275,7 @@ PowerShell 빌드에서 실패를 즉시 전파하는 예시는 다음과 같다
    * - ``runner.py``
      - 필터 선택, 실행, 지표 검증, PASS/FAIL 결과 생성
    * - ``report.py``
-     - HTML/Markdown/JSON/CSV 보고서와 결과 README 작성
+     - 입력/결과 파일, HTML/Markdown/CSV 보고서, PNG 그림과 결과 README 작성
    * - ``cli.py`` / ``__main__.py``
      - ``python -m test_manuals`` 명령 진입점
    * - ``examples/catalog.py``

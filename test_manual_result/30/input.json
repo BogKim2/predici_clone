@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "description": "Inputs and expected ranges for manual reproduction scenarios.",
+  "examples": [
+    {
+      "id": "procedures_in_predici",
+      "title": "Procedures in Predici",
+      "source_pdf": "Procedures in Predici.pdf",
+      "feature": "automation",
+      "milestone": "M54",
+      "expected": {
+        "metric": {
+          "minimum": 0.0,
+          "maximum": null
+        }
+      },
+      "requires": [],
+      "speed": "fast"
+    }
+  ]
+}

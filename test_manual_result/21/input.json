@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "description": "Inputs and expected ranges for manual reproduction scenarios.",
+  "examples": [
+    {
+      "id": "predici11_workshop_november_2016_2_parameter_estimation",
+      "title": "Predici11_Workshop_November_2016_2. Parameter_Estimation",
+      "source_pdf": "Predici11_Workshop_November_2016_2. Parameter_Estimation.pdf",
+      "feature": "fitting",
+      "milestone": "M50",
+      "expected": {
+        "metric": {
+          "minimum": 0.0,
+          "maximum": null
+        }
+      },
+      "requires": [],
+      "speed": "fast"
+    }
+  ]
+}

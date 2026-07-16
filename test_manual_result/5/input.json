@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "description": "Inputs and expected ranges for manual reproduction scenarios.",
+  "examples": [
+    {
+      "id": "feed_and_heat_balance_v2",
+      "title": "Feed and heat balance v2",
+      "source_pdf": "Feed and heat balance v2.pdf",
+      "feature": "reactors",
+      "milestone": "M55",
+      "expected": {
+        "metric": {
+          "minimum": 0.0,
+          "maximum": null
+        }
+      },
+      "requires": [],
+      "speed": "fast"
+    }
+  ]
+}

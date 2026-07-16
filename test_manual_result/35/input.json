@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "description": "Inputs and expected ranges for manual reproduction scenarios.",
+  "examples": [
+    {
+      "id": "version_11_15_1_parameter_sets_and_db",
+      "title": "Version_11_15_1_Parameter_Sets and DB",
+      "source_pdf": "Version_11_15_1_Parameter_Sets and DB.pdf",
+      "feature": "database",
+      "milestone": "M49",
+      "expected": {
+        "metric": {
+          "minimum": 0.0,
+          "maximum": null
+        }
+      },
+      "requires": [],
+      "speed": "fast"
+    }
+  ]
+}

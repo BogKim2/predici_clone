@@ -7,4 +7,4 @@ copolymer composition drift, ATRP MWD, gel point, emulsion compartment factor, M
 mean, Peng-Robinson fugacity, Monte Carlo chain mean, and PSD volume behavior.
 
 The manual reproduction command `python -m test_manuals --all` passes 39/39 scenarios and writes
-`test_manuals/outputs/report.html` and `report.md`.
+`test_manuals/outputs/report.html` and `result.md`.

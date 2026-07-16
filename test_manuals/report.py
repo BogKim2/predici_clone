@@ -7,6 +7,10 @@ from html import escape
 import json
 from pathlib import Path
 import platform
+import textwrap
+
+from matplotlib.backends.backend_agg import FigureCanvasAgg
+from matplotlib.figure import Figure
 
 from test_manuals.registry import examples
 from test_manuals.runner import ManualResult
@@ -31,6 +35,19 @@ def _result_record(result: ManualResult) -> dict[str, object]:
         "metrics": dict(sorted(result.metrics.items())),
         "expected": _expected_values(result),
         "reason": result.reason,
+        "requires": list(result.example.requires),
+        "speed": result.example.speed,
+    }
+
+
+def _input_record(result: ManualResult) -> dict[str, object]:
+    return {
+        "id": result.example.id,
+        "title": result.example.title,
+        "source_pdf": result.example.source_pdf,
+        "feature": result.example.feature,
+        "milestone": result.example.milestone,
+        "expected": _expected_values(result),
         "requires": list(result.example.requires),
         "speed": result.example.speed,
     }
@@ -104,19 +121,162 @@ def _html_group_table(rows: list[dict[str, object]]) -> str:
     )
 
 
+def _write_summary_figure(
+    summary: dict[str, object],
+    feature_summary: list[dict[str, object]],
+    path: Path,
+) -> None:
+    figure = Figure(figsize=(11, 5.5), constrained_layout=True, facecolor="white")
+    FigureCanvasAgg(figure)
+    status_axes, feature_axes = figure.subplots(1, 2)
+
+    status_names = ["PASS", "FAIL", "SKIP"]
+    status_values = [int(summary[name.lower()]) for name in status_names]
+    status_colors = ["#16803c", "#c83232", "#c28a18"]
+    status_bars = status_axes.bar(
+        status_names,
+        status_values,
+        color=status_colors,
+        edgecolor="#273142",
+        linewidth=0.8,
+        hatch=["//", "xx", ".."],
+    )
+    status_axes.bar_label(status_bars, padding=3, fontweight="bold")
+    status_axes.set_title("Execution status", fontweight="bold")
+    status_axes.set_ylabel("Scenario count")
+    status_axes.set_ylim(0, max(status_values + [1]) * 1.18)
+    status_axes.grid(axis="y", alpha=0.25)
+
+    feature_names = [str(row["name"]) for row in feature_summary]
+    feature_values = [int(row["examples"]) for row in feature_summary]
+    feature_bars = feature_axes.barh(
+        feature_names,
+        feature_values,
+        color="#3276b1",
+        edgecolor="#273142",
+        linewidth=0.6,
+    )
+    feature_axes.bar_label(feature_bars, padding=3, fontsize=9)
+    feature_axes.set_title("Coverage by feature", fontweight="bold")
+    feature_axes.set_xlabel("Scenario count")
+    feature_axes.set_xlim(0, max(feature_values + [1]) * 1.18)
+    feature_axes.grid(axis="x", alpha=0.25)
+
+    figure.suptitle(
+        f"Manual reproduction summary — {summary['selected_pdfs']} / "
+        f"{summary['registered_pdfs']} PDFs",
+        fontsize=15,
+        fontweight="bold",
+    )
+    figure.savefig(path, dpi=150, bbox_inches="tight", facecolor="white")
+
+
+def _write_result_figure(result: ManualResult, path: Path) -> None:
+    metrics = sorted(result.metrics.items())
+    height = max(4.2, 2.6 + 0.7 * len(metrics))
+    figure = Figure(figsize=(10, height), constrained_layout=True, facecolor="white")
+    FigureCanvasAgg(figure)
+    axes = figure.subplots()
+
+    if metrics:
+        names = [name for name, _value in metrics]
+        values = [value for _name, value in metrics]
+        positions = list(range(len(metrics)))
+        color = "#16803c" if result.status == "PASS" else "#c83232"
+        bars = axes.barh(
+            positions,
+            values,
+            color=color,
+            edgecolor="#273142",
+            linewidth=0.8,
+            alpha=0.9,
+        )
+        axes.set_yticks(positions, labels=names)
+        axes.invert_yaxis()
+        axes.bar_label(bars, labels=[f"{value:.6g}" for value in values], padding=4)
+
+        candidates = [0.0, *values]
+        has_expected_marker = False
+        for position, (name, _value) in enumerate(metrics):
+            minimum, maximum = result.example.expected.get(name, (None, None))
+            if minimum is not None:
+                axes.scatter(minimum, position, marker="|", s=260, color="#111827", zorder=3)
+                candidates.append(minimum)
+                has_expected_marker = True
+            if maximum is not None:
+                axes.scatter(maximum, position, marker="|", s=260, color="#111827", zorder=3)
+                candidates.append(maximum)
+                has_expected_marker = True
+            if minimum is not None and maximum is not None:
+                axes.plot([minimum, maximum], [position, position], color="#111827", linewidth=2, zorder=2)
+
+        lower, upper = min(candidates), max(candidates)
+        span = upper - lower or 1.0
+        axes.set_xlim(min(0.0, lower - span * 0.08), upper + span * 0.2)
+        axes.set_xlabel("Calculated value")
+        axes.grid(axis="x", alpha=0.25)
+        if has_expected_marker:
+            axes.text(
+                1.0,
+                -0.13,
+                "Black marker: expected boundary",
+                transform=axes.transAxes,
+                ha="right",
+                fontsize=9,
+                color="#4b5563",
+            )
+    else:
+        axes.text(0.5, 0.5, "No metrics were produced", ha="center", va="center", fontsize=14)
+        axes.set_axis_off()
+
+    title = textwrap.fill(result.example.source_pdf, width=70)
+    figure.suptitle(
+        f"{result.status} — {title}",
+        x=0.01,
+        ha="left",
+        fontsize=14,
+        fontweight="bold",
+    )
+    axes.set_title(
+        f"{result.example.feature} / {result.example.milestone}  •  {result.duration:.6f} seconds",
+        loc="left",
+        fontsize=9,
+        color="#4b5563",
+        pad=10,
+    )
+    figure.savefig(path, dpi=150, bbox_inches="tight", facecolor="white")
+
+
+def _remove_legacy_files(output: Path) -> None:
+    for name in ("results.json", "results.csv", "report.md", "run_test.ps1", "run_test.cmd"):
+        path = output / name
+        if path.exists():
+            path.unlink()
+
+
 def write_reports(
     results: tuple[ManualResult, ...],
     output_directory: str | Path,
     *,
     command: str = "python -m test_manuals",
+    program_name: str | None = None,
 ) -> tuple[Path, Path]:
     output = Path(output_directory)
     output.mkdir(parents=True, exist_ok=True)
+    _remove_legacy_files(output)
     generated_at = datetime.now(timezone.utc).isoformat()
     summary = _summary(results)
     feature_summary = _group_summary(results, "feature")
     milestone_summary = _group_summary(results, "milestone")
     records = [_result_record(item) for item in results]
+
+    input_document = {
+        "schema_version": 1,
+        "description": "Inputs and expected ranges for manual reproduction scenarios.",
+        "examples": [_input_record(item) for item in results],
+    }
+    input_path = output / "input.json"
+    input_path.write_text(json.dumps(input_document, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
     document = {
         "schema_version": 1,
@@ -128,10 +288,10 @@ def write_reports(
         "by_milestone": milestone_summary,
         "results": records,
     }
-    json_path = output / "results.json"
+    json_path = output / "result.json"
     json_path.write_text(json.dumps(document, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
-    csv_path = output / "results.csv"
+    csv_path = output / "result.csv"
     with csv_path.open("w", encoding="utf-8-sig", newline="") as stream:
         fieldnames = [
             "id", "source_pdf", "title", "feature", "milestone", "status", "duration_seconds",
@@ -176,8 +336,15 @@ def write_reports(
             f"| Reason | {reason} |",
             "",
         ])
-    markdown_path = output / "report.md"
+    markdown_path = output / "result.md"
     markdown_path.write_text("\n".join(markdown), encoding="utf-8")
+
+    figure_name = "result.png" if len(results) == 1 else "summary.png"
+    figure_path = output / figure_name
+    if len(results) == 1:
+        _write_result_figure(results[0], figure_path)
+    else:
+        _write_summary_figure(summary, feature_summary, figure_path)
 
     sections = []
     for result in results:
@@ -202,11 +369,13 @@ h1,h2,h3{{letter-spacing:0}} .meta{{color:#555}} .summary{{display:grid;grid-tem
 .summary div,section{{background:#fff;border:1px solid #d9d9d5;border-radius:6px;padding:14px}} .summary strong{{display:block;font-size:1.4rem}}
 table{{border-collapse:collapse;width:100%;margin:10px 0 22px;background:#fff}} th,td{{border:1px solid #d9d9d5;padding:8px;text-align:left;vertical-align:top}} th{{background:#efefeb}}
 section{{margin:12px 0}} section table{{margin:0}} section h3{{margin-top:0;overflow-wrap:anywhere}} code{{overflow-wrap:anywhere}}
+.result-figure{{display:block;width:min(100%,1050px);margin:20px auto;border:1px solid #d9d9d5;border-radius:6px;background:#fff}}
 .status{{font-weight:700}} .pass{{color:#18733b}} .fail{{color:#b3261e}} .skip{{color:#7a5901}}
 </style></head><body>
 <h1>Manual reproduction report</h1>
 <p class="meta">Generated (UTC): {escape(generated_at)}<br>Command: <code>{escape(command)}</code><br>Python {document['environment']['python']} / {escape(str(document['environment']['platform']))}</p>
 <div class="summary"><div><span>PASS</span><strong>{summary['pass']}</strong></div><div><span>FAIL</span><strong>{summary['fail']}</strong></div><div><span>SKIP</span><strong>{summary['skip']}</strong></div><div><span>PDF coverage</span><strong>{summary['selected_pdfs']} / {summary['registered_pdfs']}</strong><span>{summary['pdf_coverage_percent']:.2f}%</span></div><div><span>Duration</span><strong>{summary['duration_seconds']:.4f}s</strong></div></div>
+<img class="result-figure" src="{figure_name}" alt="Manual reproduction result visualization">
 <h2>By feature</h2>{_html_group_table(feature_summary)}
 <h2>By milestone</h2>{_html_group_table(milestone_summary)}
 <h2>Results by PDF</h2>{''.join(sections)}
@@ -221,6 +390,18 @@ section{{margin:12px 0}} section table{{margin:0}} section h3{{margin-top:0;over
         if len(results) != 1
         else f"이 디렉터리는 `{results[0].example.source_pdf}` 재현 시나리오의 개별 실행 결과입니다."
     )
+    file_entries = [
+        "- [input.json](input.json): 시나리오 입력 메타데이터와 기대 범위",
+        "- [report.html](report.html): feature, milestone, PDF별 브라우저 보고서",
+        "- [result.md](result.md): PDF별 지표와 기대 범위를 모두 포함한 Markdown 결과",
+        "- [result.json](result.json): 실행 환경, 집계, 개별 결과를 포함한 구조화 결과",
+        "- [result.csv](result.csv): PDF당 한 행으로 정리한 스프레드시트용 결과",
+        f"- [{figure_name}]({figure_name}): README와 HTML에 포함된 결과 그림",
+    ]
+    if program_name is not None:
+        file_entries.append(
+            f"- [{program_name}]({program_name}): `input.json`을 읽어 이 시나리오를 다시 실행"
+        )
     readme = [
         f"# {readme_title}",
         "",
@@ -231,12 +412,13 @@ section{{margin:12px 0}} section table{{margin:0}} section h3{{margin-top:0;over
         f"- 실행 명령: `{command}`",
         f"- 생성 시각(UTC): `{generated_at}`",
         "",
+        "## 결과 그림",
+        "",
+        f"![실행 결과 시각화]({figure_name})",
+        "",
         "## 파일",
         "",
-        "- [report.html](report.html): feature, milestone, PDF별 브라우저 보고서",
-        "- [report.md](report.md): PDF별 지표와 기대 범위를 모두 포함한 Markdown 보고서",
-        "- [results.json](results.json): 실행 환경, 집계, 개별 결과를 포함한 구조화 데이터",
-        "- [results.csv](results.csv): PDF당 한 행으로 정리한 스프레드시트용 결과",
+        *file_entries,
         "",
         "## PDF와 시나리오 매핑",
         "",
@@ -257,36 +439,53 @@ def write_split_reports(results: tuple[ManualResult, ...], output_directory: str
     index_rows = []
     for number, result in enumerate(results, start=1):
         directory = output / str(number)
-        display_output = f".\\{output.name}\\{number}"
-        command = f'python -m test_manuals --pdf "{result.example.source_pdf}" --output {display_output}'
-        write_reports((result,), directory, command=command)
+        program_name = f"main_program{number}.py"
+        command = f"python {program_name}"
+        write_reports((result,), directory, command=command, program_name=program_name)
 
-        pdf = result.example.source_pdf.replace("'", "''")
-        powershell = f"""param([switch]$NoOpen)
-$ErrorActionPreference = 'Stop'
-$repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\\..')).Path
-Push-Location $repoRoot
-try {{
-    python -m test_manuals --pdf '{pdf}' --output $PSScriptRoot
-    if ($LASTEXITCODE -ne 0) {{ exit $LASTEXITCODE }}
-}} finally {{
-    Pop-Location
-}}
-if (-not $NoOpen) {{
-    Start-Process (Join-Path $PSScriptRoot 'report.html')
-}}
-"""
-        (directory / "run_test.ps1").write_text(powershell, encoding="utf-8-sig")
+        program = f'''from __future__ import annotations
 
-        batch = f"""@echo off
-pushd "%~dp0..\\.."
-python -m test_manuals --pdf "{result.example.source_pdf}" --output "%~dp0"
-set EXIT_CODE=%ERRORLEVEL%
-popd
-if not "%EXIT_CODE%"=="0" exit /b %EXIT_CODE%
-start "" "%~dp0report.html"
-"""
-        (directory / "run_test.cmd").write_text(batch, encoding="utf-8")
+from collections import Counter
+import json
+from pathlib import Path
+import sys
+
+HERE = Path(__file__).resolve().parent
+PROGRAM_NAME = "{program_name}"
+
+
+def _repository_root() -> Path:
+    for candidate in (HERE, *HERE.parents):
+        if (candidate / "test_manuals" / "__init__.py").exists():
+            return candidate
+    raise RuntimeError("Could not locate the repository root containing test_manuals")
+
+
+sys.path.insert(0, str(_repository_root()))
+
+from test_manuals.registry import examples
+from test_manuals.report import write_reports
+from test_manuals.runner import run_examples
+
+
+def main() -> int:
+    input_data = json.loads((HERE / "input.json").read_text(encoding="utf-8"))
+    example_id = input_data["examples"][0]["id"]
+    selected = tuple(example for example in examples() if example.id == example_id)
+    if len(selected) != 1:
+        raise RuntimeError(f"Expected one registered example for {{example_id!r}}, found {{len(selected)}}")
+
+    results = run_examples(selected)
+    write_reports(results, HERE, command=f"python {{PROGRAM_NAME}}", program_name=PROGRAM_NAME)
+    counts = Counter(item.status for item in results)
+    print(f"PASS {{counts['PASS']}} / FAIL {{counts['FAIL']}} / SKIP {{counts['SKIP']}} - {{HERE / 'report.html'}}")
+    return 1 if counts["FAIL"] else 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+'''
+        (directory / program_name).write_text(program, encoding="utf-8")
         directories.append(directory)
         index_rows.append(
             f"| [{number}]({number}/README.md) | {result.example.source_pdf} | "
@@ -296,7 +495,7 @@ start "" "%~dp0report.html"
     root_readme = output / "README.md"
     with root_readme.open("a", encoding="utf-8") as stream:
         stream.write("\n## 개별 테스트 폴더\n\n")
-        stream.write("각 번호 폴더의 `run_test.ps1` 또는 `run_test.cmd`를 실행하면 해당 PDF 한 건만 다시 계산하고 결과를 같은 폴더에 저장합니다.\n\n")
+        stream.write("각 번호 폴더의 `main_program{번호}.py`를 실행하면 `input.json`을 읽어 해당 PDF 한 건만 다시 계산하고 결과와 그림을 같은 폴더에 저장합니다.\n\n")
         stream.write("| 번호 | PDF | Example ID | Feature | Milestone | Status |\n")
         stream.write("| ---: | --- | --- | --- | --- | --- |\n")
         stream.write("\n".join(index_rows) + "\n")

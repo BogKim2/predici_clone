@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "description": "Inputs and expected ranges for manual reproduction scenarios.",
+  "examples": [
+    {
+      "id": "presto11_parameter_estimation",
+      "title": "Presto11 Parameter Estimation",
+      "source_pdf": "Presto11 Parameter Estimation.pdf",
+      "feature": "fitting",
+      "milestone": "M50",
+      "expected": {
+        "metric": {
+          "minimum": 0.0,
+          "maximum": null
+        }
+      },
+      "requires": [],
+      "speed": "fast"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "description": "Inputs and expected ranges for manual reproduction scenarios.",
+  "examples": [
+    {
+      "id": "predici11_polymer_tutorial",
+      "title": "Predici11 Polymer Tutorial",
+      "source_pdf": "Predici11 Polymer Tutorial.pdf",
+      "feature": "crp",
+      "milestone": "M44",
+      "expected": {
+        "metric": {
+          "minimum": 0.0,
+          "maximum": null
+        }
+      },
+      "requires": [],
+      "speed": "fast"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "description": "Inputs and expected ranges for manual reproduction scenarios.",
+  "examples": [
+    {
+      "id": "cit_parameter_estimation",
+      "title": "CiT Parameter Estimation",
+      "source_pdf": "CiT Parameter Estimation.pdf",
+      "feature": "fitting",
+      "milestone": "M50",
+      "expected": {
+        "metric": {
+          "minimum": 0.0,
+          "maximum": null
+        }
+      },
+      "requires": [],
+      "speed": "fast"
+    }
+  ]
+}

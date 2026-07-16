@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "description": "Inputs and expected ranges for manual reproduction scenarios.",
+  "examples": [
+    {
+      "id": "hutchinson_wulkow_et_el_functional_group_distribution_2014",
+      "title": "Hutchinson_Wulkow_et_el_Functional_group_distribution_2014",
+      "source_pdf": "Hutchinson_Wulkow_et_el_Functional_group_distribution_2014.pdf",
+      "feature": "crosslink",
+      "milestone": "M44",
+      "expected": {
+        "metric": {
+          "minimum": 0.0,
+          "maximum": null
+        }
+      },
+      "requires": [],
+      "speed": "fast"
+    }
+  ]
+}

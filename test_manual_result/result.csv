@@ -1,0 +1,40 @@
+﻿id,source_pdf,title,feature,milestone,status,duration_seconds,metrics,expected,reason,requires,speed
+cit_parameter_estimation,CiT Parameter Estimation.pdf,CiT Parameter Estimation,fitting,M50,PASS,0.000346,"{""metric"": 1.0}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast
+crosslinkingmodels,CrossLinkingModels.pdf,CrossLinkingModels,crosslink,M44,PASS,8e-06,"{""metric"": 0.5}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast
+egas,eGAS.pdf,eGAS,thermo,M48,PASS,0.000202,"{""metric"": 0.9786405888609193}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast
+exercise_atrp,exercise_atrp.pdf,exercise_atrp,crp,M44,PASS,1e-06,"{""metric"": 1.0}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast
+feed_and_heat_balance_v2,Feed and heat balance v2.pdf,Feed and heat balance v2,reactors,M55,PASS,1e-06,"{""metric"": 1.0}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast
+fu_atrp_mre,Fu ATRP MRE.pdf,Fu ATRP MRE,crp,M44,PASS,1e-06,"{""metric"": 1.0}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast
+fugacities_in_predici_and_presto_kinetics,Fugacities in Predici and Presto Kinetics.pdf,Fugacities in Predici and Presto Kinetics,thermo,M48,PASS,9.4e-05,"{""metric"": 0.9786405888609193}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast
+hutchinson_wulkow_et_el_functional_group_distribution_2014,Hutchinson_Wulkow_et_el_Functional_group_distribution_2014.pdf,Hutchinson_Wulkow_et_el_Functional_group_distribution_2014,crosslink,M44,PASS,3e-06,"{""metric"": 0.5}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast
+listofmodels,ListOfModels.pdf,ListOfModels,kinetics,M41,PASS,1e-06,"{""metric"": 1.0}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast
+new_condensation_flags,New Condensation Flags.pdf,New Condensation Flags,stepgrowth,M44,PASS,1.8e-05,"{""metric"": 1.9}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast
+polycondensation_of_aa_dd,Polycondensation of AA_DD.pdf,Polycondensation of AA_DD,stepgrowth,M44,PASS,6e-06,"{""metric"": 1.9}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast
+predici_and_presto_kinetics_all_documents,Predici and Presto-Kinetics - All Documents.pdf,Predici and Presto-Kinetics - All Documents,kinetics,M41,PASS,1e-06,"{""metric"": 1.0}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast
+predici_parameter_estimation,Predici Parameter Estimation.pdf,Predici Parameter Estimation,fitting,M50,PASS,6.4e-05,"{""metric"": 1.0}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast
+predici_version_11_16_1_20170717,Predici Version_11_16_1_20170717.pdf,Predici Version_11_16_1_20170717,kinetics,M41,PASS,1e-06,"{""metric"": 1.0}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast
+predici11_polymer_tutorial,Predici11 Polymer Tutorial.pdf,Predici11 Polymer Tutorial,crp,M44,PASS,1e-06,"{""metric"": 1.0}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast
+predici11_cape_open,Predici11_Cape-Open.pdf,Predici11_Cape-Open,thermo,M48,PASS,8e-05,"{""metric"": 0.9786405888609193}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast
+predici11_hybrid_monte_carlo,Predici11_Hybrid-Monte-Carlo.pdf,Predici11_Hybrid-Monte-Carlo,montecarlo,M42,PASS,0.000742,"{""metric"": 8.31}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast
+predici11_kinetic_model,Predici11_Kinetic_Model.pdf,Predici11_Kinetic_Model,kinetics,M41,PASS,1e-06,"{""metric"": 1.0}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast
+predici11_tutorials,Predici11_Tutorials.pdf,Predici11_Tutorials,kinetics,M41,PASS,1e-06,"{""metric"": 1.0}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast
+predici11_workshop_november_2016_1_presto_kinetics,Predici11_Workshop_November_2016_1. Presto-Kinetics.pdf,Predici11_Workshop_November_2016_1. Presto-Kinetics,kinetics,M41,PASS,1e-06,"{""metric"": 1.0}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast
+predici11_workshop_november_2016_2_parameter_estimation,Predici11_Workshop_November_2016_2. Parameter_Estimation.pdf,Predici11_Workshop_November_2016_2. Parameter_Estimation,fitting,M50,PASS,6.4e-05,"{""metric"": 1.0}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast
+predici11_workshop_november_2016_3_polymers1,Predici11_Workshop_November_2016_3. Polymers1.pdf,Predici11_Workshop_November_2016_3. Polymers1,kinetics,M41,PASS,1e-06,"{""metric"": 1.0}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast
+predici11_workshop_november_2016_4_polymers2,Predici11_Workshop_November_2016_4. Polymers2 .pdf,Predici11_Workshop_November_2016_4. Polymers2 ,kinetics,M41,PASS,1e-06,"{""metric"": 1.0}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast
+predici11_workshop_november_2016_5_monte_carlo_details,Predici11_Workshop_November_2016_5. Monte-Carlo_Details.pdf,Predici11_Workshop_November_2016_5. Monte-Carlo_Details,montecarlo,M42,PASS,0.000449,"{""metric"": 8.31}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast
+predici11_workshop_november_2016_6_emulsion_polymerization,Predici11_Workshop_November_2016_6. Emulsion_Polymerization.pdf,Predici11_Workshop_November_2016_6. Emulsion_Polymerization,emulsion,M46,PASS,0.000103,"{""metric"": 1.0000000000001539}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast
+predici11_workshop_november_2016_7_examples,Predici11_Workshop_November_2016_7. Examples.pdf,Predici11_Workshop_November_2016_7. Examples,kinetics,M41,PASS,1e-06,"{""metric"": 1.0}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast
+predici7_manual,Predici7_Manual.pdf,Predici7_Manual,kinetics,M41,PASS,1e-06,"{""metric"": 1.0}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast
+predicipsd_tutorial_2017,PrediciPSD_Tutorial_2017.pdf,PrediciPSD_Tutorial_2017,psd,M45,PASS,7e-05,"{""metric"": 1.999108626818695}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast
+presto11_parameter_estimation,Presto11 Parameter Estimation.pdf,Presto11 Parameter Estimation,fitting,M50,PASS,4.9e-05,"{""metric"": 1.0}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast
+procedures_in_predici,Procedures in Predici.pdf,Procedures in Predici,automation,M54,PASS,1e-06,"{""metric"": 1.0}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast
+schuette_wulkow_predici_montecarlo,Schuette-Wulkow_Predici-MonteCarlo.pdf,Schuette-Wulkow_Predici-MonteCarlo,montecarlo,M42,PASS,0.000425,"{""metric"": 8.31}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast
+version_11_13_3,Version_11_13_3.pdf,Version_11_13_3,replay,M52,PASS,1e-06,"{""metric"": 1.0}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast
+version_11_14_3,Version_11_14_3.pdf,Version_11_14_3,reactors,M55,PASS,1e-06,"{""metric"": 1.0}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast
+version_11_14_5,Version_11_14_5.pdf,Version_11_14_5,reactors,M55,PASS,1e-06,"{""metric"": 1.0}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast
+version_11_15_1_parameter_sets_and_db,Version_11_15_1_Parameter_Sets and DB.pdf,Version_11_15_1_Parameter_Sets and DB,database,M49,PASS,1e-06,"{""metric"": 1.0}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast
+wulkow_emulsion_workshop_final_slides,Wulkow - Emulsion - Workshop - Final_Slides.pdf,Wulkow - Emulsion - Workshop - Final_Slides,emulsion,M46,PASS,8.2e-05,"{""metric"": 1.0000000000001539}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast
+wulkow_the_status_of_predici,Wulkow-The Status of Predici.pdf,Wulkow-The Status of Predici,kinetics,M41,PASS,1e-06,"{""metric"": 1.0}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast
+predici11_overview,Predici11_Overview.pdf,Predici11_Overview,kinetics,M41,PASS,1e-06,"{""metric"": 1.0}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast
+predici_maxwell,Predici_Maxwell.pdf,Predici_Maxwell,montecarlo,M42,PASS,0.000959,"{""metric"": 8.31}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast

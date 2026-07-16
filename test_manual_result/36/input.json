@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "description": "Inputs and expected ranges for manual reproduction scenarios.",
+  "examples": [
+    {
+      "id": "wulkow_emulsion_workshop_final_slides",
+      "title": "Wulkow - Emulsion - Workshop - Final_Slides",
+      "source_pdf": "Wulkow - Emulsion - Workshop - Final_Slides.pdf",
+      "feature": "emulsion",
+      "milestone": "M46",
+      "expected": {
+        "metric": {
+          "minimum": 0.0,
+          "maximum": null
+        }
+      },
+      "requires": [],
+      "speed": "fast"
+    }
+  ]
+}

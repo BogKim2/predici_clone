@@ -1,2 +1,0 @@
-﻿id,source_pdf,title,feature,milestone,status,duration_seconds,metrics,expected,reason,requires,speed
-predici_maxwell,Predici_Maxwell.pdf,Predici_Maxwell,montecarlo,M42,PASS,0.000436,"{""metric"": 8.31}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast

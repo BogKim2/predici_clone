@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "description": "Inputs and expected ranges for manual reproduction scenarios.",
+  "examples": [
+    {
+      "id": "predici_maxwell",
+      "title": "Predici_Maxwell",
+      "source_pdf": "Predici_Maxwell.pdf",
+      "feature": "montecarlo",
+      "milestone": "M42",
+      "expected": {
+        "metric": {
+          "minimum": 0.0,
+          "maximum": null
+        }
+      },
+      "requires": [],
+      "speed": "fast"
+    }
+  ]
+}

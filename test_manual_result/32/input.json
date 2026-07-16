@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "description": "Inputs and expected ranges for manual reproduction scenarios.",
+  "examples": [
+    {
+      "id": "version_11_13_3",
+      "title": "Version_11_13_3",
+      "source_pdf": "Version_11_13_3.pdf",
+      "feature": "replay",
+      "milestone": "M52",
+      "expected": {
+        "metric": {
+          "minimum": 0.0,
+          "maximum": null
+        }
+      },
+      "requires": [],
+      "speed": "fast"
+    }
+  ]
+}

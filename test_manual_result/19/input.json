@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "description": "Inputs and expected ranges for manual reproduction scenarios.",
+  "examples": [
+    {
+      "id": "predici11_tutorials",
+      "title": "Predici11_Tutorials",
+      "source_pdf": "Predici11_Tutorials.pdf",
+      "feature": "kinetics",
+      "milestone": "M41",
+      "expected": {
+        "metric": {
+          "minimum": 0.0,
+          "maximum": null
+        }
+      },
+      "requires": [],
+      "speed": "fast"
+    }
+  ]
+}

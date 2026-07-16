@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "description": "Inputs and expected ranges for manual reproduction scenarios.",
+  "examples": [
+    {
+      "id": "polycondensation_of_aa_dd",
+      "title": "Polycondensation of AA_DD",
+      "source_pdf": "Polycondensation of AA_DD.pdf",
+      "feature": "stepgrowth",
+      "milestone": "M44",
+      "expected": {
+        "metric": {
+          "minimum": 0.0,
+          "maximum": null
+        }
+      },
+      "requires": [],
+      "speed": "fast"
+    }
+  ]
+}

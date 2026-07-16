@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "description": "Inputs and expected ranges for manual reproduction scenarios.",
+  "examples": [
+    {
+      "id": "predici11_workshop_november_2016_3_polymers1",
+      "title": "Predici11_Workshop_November_2016_3. Polymers1",
+      "source_pdf": "Predici11_Workshop_November_2016_3. Polymers1.pdf",
+      "feature": "kinetics",
+      "milestone": "M41",
+      "expected": {
+        "metric": {
+          "minimum": 0.0,
+          "maximum": null
+        }
+      },
+      "requires": [],
+      "speed": "fast"
+    }
+  ]
+}

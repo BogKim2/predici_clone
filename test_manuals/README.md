@@ -9,7 +9,7 @@
 저장소 루트에서 다음 명령을 실행합니다.
 
 ```powershell
-cd F:\03llm\303predici
+# 저장소 루트에서 실행
 python -m pip install -e .
 python -m test_manuals --list
 python -m test_manuals --smoke
@@ -21,17 +21,19 @@ python -m test_manuals --all --split --output .\test_manual_result
 
 ```text
 test_manuals/outputs/README.md
+test_manuals/outputs/input.json
 test_manuals/outputs/report.html
-test_manuals/outputs/report.md
-test_manuals/outputs/results.json
-test_manuals/outputs/results.csv
+test_manuals/outputs/result.md
+test_manuals/outputs/result.json
+test_manuals/outputs/result.csv
+test_manuals/outputs/summary.png
 ```
 
 ```powershell
 Start-Process .\test_manuals\outputs\report.html
-Get-Content -Encoding utf8 .\test_manuals\outputs\report.md
-Get-Content .\test_manuals\outputs\results.json -Raw | ConvertFrom-Json
-Import-Csv .\test_manuals\outputs\results.csv
+Get-Content -Encoding utf8 .\test_manuals\outputs\result.md
+Get-Content .\test_manuals\outputs\result.json -Raw | ConvertFrom-Json
+Import-Csv .\test_manuals\outputs\result.csv
 ```
 
 ## 선택 옵션
@@ -62,13 +64,13 @@ python -m test_manuals --all --output .\artifacts\manual-suite
 - 종료 코드 `2`: 잘못된 CLI 사용
 
 HTML과 Markdown 보고서는 기능·마일스톤 집계, PDF별 지표, 기대 범위, 실패 사유를 포함합니다.
-JSON은 실행 명령과 환경을 포함한 전체 구조화 결과이며, CSV는 PDF당 한 행입니다. 출력 폴더의
-README에는 파일 색인과 39개 PDF 매핑이 생성됩니다. 동일한 출력 폴더를 사용하면 최신 결과로
-덮어씁니다.
+`input.json`은 시나리오 입력과 기대 범위, `result.json`은 실행 명령과 환경을 포함한 구조화 결과,
+`result.csv`는 PDF당 한 행을 기록합니다. 출력 폴더의 README에는 결과 요약, 결과 그림, 파일 색인,
+39개 PDF 매핑이 생성됩니다. 동일한 출력 폴더를 사용하면 최신 결과로 덮어씁니다.
 
 ## 현재 전체 실행 결과
 
-2026-07-15에 다음 명령으로 39개 시나리오를 모두 다시 실행했습니다.
+2026-07-16에 다음 명령으로 39개 시나리오를 모두 다시 실행했습니다.
 
 ```powershell
 python -m test_manuals --all --split --output .\test_manual_result
@@ -78,26 +80,23 @@ python -m test_manuals --all --split --output .\test_manual_result
 시나리오 매핑 및 개별 수치는 [test_manual_result/README.md](../test_manual_result/README.md)와
 같은 폴더의 상세 보고서에서 확인할 수 있습니다.
 
-`test_manual_result/1`부터 `test_manual_result/39`까지 각 폴더에는 해당 테스트만 다시 실행하는
-`run_test.ps1`, `run_test.cmd`와 단건 `README.md`, `report.html`, `report.md`, `results.json`,
-`results.csv`가 있습니다. 예를 들어 1번 테스트는 다음 중 하나로 실행합니다.
+`test_manual_result/1`부터 `test_manual_result/39`까지 각 폴더에는 입력 파일, 해당 테스트만
+다시 실행하는 번호별 Python 프로그램, 구조화 결과, 보고서, 결과 그림이 있습니다. 예를 들어
+1번 테스트는 다음과 같이 실행합니다.
 
 ```powershell
-& .\test_manual_result\1\run_test.ps1
-powershell -ExecutionPolicy Bypass -File .\test_manual_result\1\run_test.ps1
-powershell -ExecutionPolicy Bypass -File .\test_manual_result\1\run_test.ps1 -NoOpen
-.\test_manual_result\1\run_test.cmd
+python .\test_manual_result\1\main_program1.py
 ```
 
-성공하면 같은 폴더의 5개 결과가 갱신되고 `report.html`이 열립니다. 번호별 PDF 매핑은
-`-NoOpen`을 지정한 경우 보고서를 열지 않습니다. 번호별 PDF 매핑은
+프로그램은 같은 폴더의 `input.json`을 읽고 `result.json`, `result.md`, `result.csv`,
+`report.html`, `result.png`, `README.md`를 갱신합니다. 번호별 PDF 매핑은
 [전체 결과 색인](../test_manual_result/README.md#개별-테스트-폴더)에 있습니다.
 
 ## 파일 구조
 
 - `registry.py`: `ManualExample`과 등록소
 - `runner.py`: 필터, 실행, 기대값 검증
-- `report.py`: HTML/Markdown/JSON/CSV 및 결과 README 출력
+- `report.py`: 입력/결과 파일, HTML/Markdown/CSV, PNG 그림 및 결과 README 출력
 - `cli.py`, `__main__.py`: CLI 진입점
 - `examples/catalog.py`: 39개 출처와 재현 시나리오 매핑
 - `outputs/`: 기본 결과 폴더. 생성 보고서는 Git에서 제외

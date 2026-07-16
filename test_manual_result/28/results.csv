@@ -1,2 +1,0 @@
-﻿id,source_pdf,title,feature,milestone,status,duration_seconds,metrics,expected,reason,requires,speed
-predicipsd_tutorial_2017,PrediciPSD_Tutorial_2017.pdf,PrediciPSD_Tutorial_2017,psd,M45,PASS,7.9e-05,"{""metric"": 1.999108626818695}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast

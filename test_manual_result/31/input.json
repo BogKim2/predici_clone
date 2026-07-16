@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "description": "Inputs and expected ranges for manual reproduction scenarios.",
+  "examples": [
+    {
+      "id": "schuette_wulkow_predici_montecarlo",
+      "title": "Schuette-Wulkow_Predici-MonteCarlo",
+      "source_pdf": "Schuette-Wulkow_Predici-MonteCarlo.pdf",
+      "feature": "montecarlo",
+      "milestone": "M42",
+      "expected": {
+        "metric": {
+          "minimum": 0.0,
+          "maximum": null
+        }
+      },
+      "requires": [],
+      "speed": "fast"
+    }
+  ]
+}

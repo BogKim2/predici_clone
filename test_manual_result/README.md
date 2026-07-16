@@ -5,14 +5,20 @@
 - 결과: **PASS 39 / FAIL 0 / SKIP 0**
 - PDF 커버리지: **39 / 39 (100.00%)**
 - 실행 명령: `python -m test_manuals --all --split --output .\test_manual_result`
-- 생성 시각(UTC): `2026-07-15T10:34:28.974540+00:00`
+- 생성 시각(UTC): `2026-07-16T00:50:12.362129+00:00`
+
+## 결과 그림
+
+![실행 결과 시각화](summary.png)
 
 ## 파일
 
+- [input.json](input.json): 시나리오 입력 메타데이터와 기대 범위
 - [report.html](report.html): feature, milestone, PDF별 브라우저 보고서
-- [report.md](report.md): PDF별 지표와 기대 범위를 모두 포함한 Markdown 보고서
-- [results.json](results.json): 실행 환경, 집계, 개별 결과를 포함한 구조화 데이터
-- [results.csv](results.csv): PDF당 한 행으로 정리한 스프레드시트용 결과
+- [result.md](result.md): PDF별 지표와 기대 범위를 모두 포함한 Markdown 결과
+- [result.json](result.json): 실행 환경, 집계, 개별 결과를 포함한 구조화 결과
+- [result.csv](result.csv): PDF당 한 행으로 정리한 스프레드시트용 결과
+- [summary.png](summary.png): README와 HTML에 포함된 결과 그림
 
 ## PDF와 시나리오 매핑
 
@@ -60,7 +66,7 @@
 
 ## 개별 테스트 폴더
 
-각 번호 폴더의 `run_test.ps1` 또는 `run_test.cmd`를 실행하면 해당 PDF 한 건만 다시 계산하고 결과를 같은 폴더에 저장합니다.
+각 번호 폴더의 `main_program{번호}.py`를 실행하면 `input.json`을 읽어 해당 PDF 한 건만 다시 계산하고 결과와 그림을 같은 폴더에 저장합니다.
 
 | 번호 | PDF | Example ID | Feature | Milestone | Status |
 | ---: | --- | --- | --- | --- | --- |

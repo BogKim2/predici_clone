@@ -1,2 +1,0 @@
-﻿id,source_pdf,title,feature,milestone,status,duration_seconds,metrics,expected,reason,requires,speed
-hutchinson_wulkow_et_el_functional_group_distribution_2014,Hutchinson_Wulkow_et_el_Functional_group_distribution_2014.pdf,Hutchinson_Wulkow_et_el_Functional_group_distribution_2014,crosslink,M44,PASS,4e-06,"{""metric"": 0.5}","{""metric"": {""maximum"": null, ""minimum"": 0.0}}",,[],fast

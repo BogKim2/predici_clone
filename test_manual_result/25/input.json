@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "description": "Inputs and expected ranges for manual reproduction scenarios.",
+  "examples": [
+    {
+      "id": "predici11_workshop_november_2016_6_emulsion_polymerization",
+      "title": "Predici11_Workshop_November_2016_6. Emulsion_Polymerization",
+      "source_pdf": "Predici11_Workshop_November_2016_6. Emulsion_Polymerization.pdf",
+      "feature": "emulsion",
+      "milestone": "M46",
+      "expected": {
+        "metric": {
+          "minimum": 0.0,
+          "maximum": null
+        }
+      },
+      "requires": [],
+      "speed": "fast"
+    }
+  ]
+}
