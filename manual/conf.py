@@ -8,7 +8,7 @@ sys.path.insert(0, str(ROOT))
 
 project = "PREDICI Clone Manual"
 author = "PREDICI Clone contributors"
-release = "0.1.0"
+release = "2.0.0"
 language = "ko"
 
 extensions = [

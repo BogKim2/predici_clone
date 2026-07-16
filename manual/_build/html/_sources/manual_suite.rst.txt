@@ -19,7 +19,7 @@ Python 3.11 이상이 필요하다. 모든 명령은 저장소 루트에서 실�
 
 .. code-block:: powershell
 
-   cd F:\03llm\303predici
+   # Run from the repository root.
    python -m pip install -e .
    python -m test_manuals --help
 

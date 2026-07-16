@@ -19,6 +19,7 @@
    :caption: 사용자 문서
 
    installation
+   user_guide
    quickstart
    tutorials
    gui
